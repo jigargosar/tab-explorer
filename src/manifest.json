@@ -4,13 +4,8 @@
   "version": "1",
   "name": "Tab Explorer",
   "description": "Tab Explorer",
-  "permissions": [
-    "management",
-    "tabs"
-  ],
+  "permissions": ["management", "tabs"],
   "background": {
-    "scripts": [
-      "background.js"
-    ]
+    "scripts": ["background.js"]
   }
 }

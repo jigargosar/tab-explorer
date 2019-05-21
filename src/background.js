@@ -1,6 +1,6 @@
-console.log("Loading background.js");
+console.log('Loading background.js')
 
-const rt = chrome.runtime;
+const rt = chrome.runtime
 
 rt.getPackageDirectoryEntry(d => {
   d.getMetadata(
@@ -9,12 +9,11 @@ rt.getPackageDirectoryEntry(d => {
     },
     e => {
       // debugger;
-    }
-  );
-});
+    },
+  )
+})
 
-const mg = chrome.management;
-const tb = chrome.tabs;
+const mg = chrome.management
+const tb = chrome.tabs
 
-tb.query({}, console.log);
-
+tb.query({}, console.log)
