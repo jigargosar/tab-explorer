@@ -14,3 +14,7 @@ rt.getPackageDirectoryEntry(d => {
 });
 
 const mg = chrome.management;
+const tb = chrome.tabs;
+
+tb.query({}, console.log);
+

@@ -5,7 +5,8 @@
   "name": "Tab Explorer",
   "description": "Tab Explorer",
   "permissions": [
-    "management"
+    "management",
+    "tabs"
   ],
   "background": {
     "scripts": [
