@@ -3,6 +3,7 @@ import { render } from 'react-dom'
 import 'tachyons'
 import './main.css'
 import mergeDeepLeft from 'ramda/es/mergeDeepLeft'
+import { resolve } from 'path'
 
 console.log('tab-explorer.js loaded')
 
@@ -25,17 +26,31 @@ console.log('tab-explorer.js loaded')
 
 // logCurrent()
 
+const getPopulatedWindow = () =>
+  new Promise(resolve =>
+    chrome.windows.getCurrent({ populate: true }, resolve),
+  )
+
+const getCurrentTab = () =>
+  new Promise(resolve => chrome.tabs.getCurrent(resolve))
+
+const getCurrentTabAndWindow = async () => {
+  const [win, tab] = await Promise.all([
+    getPopulatedWindow(),
+    getCurrentTab(),
+  ])
+  return { win, tab }
+}
+
 const App = () => {
   const [state, setState] = useState(() => ({ tabId: -1, tabs: [] }))
 
+  useEffect(() => console.log('state changed', state), [state])
+
   useEffect(() => {
-    chrome.windows.getCurrent({ populate: true }, w => {
-      console.log('current window', w.id, w)
-      chrome.tabs.getCurrent(t => {
-        setState(mergeDeepLeft({ tabId: t.id, tabs: w.tabs }))
-        console.log('current tab', t.id, t)
-      })
-    })
+    getCurrentTabAndWindow().then(({ win, tab }) =>
+      setState(mergeDeepLeft({ tabId: tab.id, tabs: win.tabs })),
+    )
   }, [setState])
 
   useEffect(() => {
