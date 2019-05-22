@@ -5,6 +5,8 @@ import './main.css'
 import mergeDeepLeft from 'ramda/es/mergeDeepLeft'
 import { resolve } from 'path'
 import mergeLeft from 'ramda/es/mergeLeft'
+import compose from 'ramda/es/compose'
+import pipe from 'ramda/es/pipe'
 
 console.log('tab-explorer.js loaded')
 
@@ -54,22 +56,30 @@ const useListener = (event, listener, deps) => {
 const App = () => {
   const [state, setState] = useState(() => ({ tabId: -1, tabs: [] }))
 
+  const mergeState = useCallback(
+    pipe(
+      mergeLeft,
+      setState,
+    ),
+    [setState],
+  )
+
   useEffect(() => console.log('state changed', state), [state])
 
   useEffect(() => {
     getCurrentTabAndWindow().then(({ win, tab }) =>
-      setState(mergeLeft({ tabId: tab.id, tabs: win.tabs })),
+      mergeState({ tabId: tab.id, tabs: win.tabs }),
     )
-  }, [setState])
+  }, [mergeState])
 
   useListener(
     chrome.tabs.onActivated,
     async ({ tabId }) => {
       const { win, tab } = await getCurrentTabAndWindow()
       if (tabId !== tab.id) return
-      setState(mergeLeft({ tabs: win.tabs }))
+      mergeState({ tabs: win.tabs })
     },
-    [setState],
+    [mergeState],
   )
 
   return (
