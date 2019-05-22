@@ -1,9 +1,10 @@
-import React, { Component, useEffect, useState } from 'react'
+import React, { Component, useEffect, useState, useCallback } from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './main.css'
 import mergeDeepLeft from 'ramda/es/mergeDeepLeft'
 import { resolve } from 'path'
+import mergeLeft from 'ramda/es/mergeLeft'
 
 console.log('tab-explorer.js loaded')
 
@@ -42,6 +43,14 @@ const getCurrentTabAndWindow = async () => {
   return { win, tab }
 }
 
+const useListener = (event, listener, deps) => {
+  const callback = useCallback(listener, deps)
+  useEffect(() => {
+    event.addListener(callback)
+    return () => event.removeListener(callback)
+  }, deps)
+}
+
 const App = () => {
   const [state, setState] = useState(() => ({ tabId: -1, tabs: [] }))
 
@@ -49,30 +58,19 @@ const App = () => {
 
   useEffect(() => {
     getCurrentTabAndWindow().then(({ win, tab }) =>
-      setState(mergeDeepLeft({ tabId: tab.id, tabs: win.tabs })),
+      setState(mergeLeft({ tabId: tab.id, tabs: win.tabs })),
     )
   }, [setState])
 
-  useEffect(() => {
-    const currTabId = state.tabId
-    console.log('eff called')
-
-    if (currTabId === -1) return
-
-    console.log('eff registering listener')
-
-    const activatedListener = ({ tabId }) => {
-      // if (currTabId !== tabId) return
-      chrome.windows.getCurrent({ populate: true }, w => {
-        setState(mergeDeepLeft({ tabId: currTabId, tabs: w.tabs }))
-      })
-    }
-    chrome.tabs.onActivated.addListener(activatedListener)
-
-    return () => {
-      chrome.tabs.onActivated.removeListener(activatedListener)
-    }
-  }, [state.tabId, setState])
+  useListener(
+    chrome.tabs.onActivated,
+    async ({ tabId }) => {
+      const { win, tab } = await getCurrentTabAndWindow()
+      if (tabId !== tab.id) return
+      setState(mergeLeft({ tabs: win.tabs }))
+    },
+    [setState],
+  )
 
   return (
     <div>
