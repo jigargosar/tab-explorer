@@ -8,6 +8,7 @@
     "start": "nodemon -w yarn.lock -w webpack.config.js -x webpack -- --mode=development --watch"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.86",
     "ava": "^1.4.1",
     "copy-webpack-plugin": "^5.0.3",
     "nodemon": "^1.19.0",
