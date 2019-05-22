@@ -7,12 +7,25 @@
   "scripts": {
     "start": "nodemon -w yarn.lock -w webpack.config.js -x webpack -- --mode=development --watch"
   },
+  "babel": {
+    "presets": [
+      "@babel/react"
+    ]
+  },
   "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-react": "^7.0.0",
     "@types/chrome": "^0.0.86",
     "ava": "^1.4.1",
+    "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "^5.0.3",
+    "css-loader": "^2.1.1",
     "nodemon": "^1.19.0",
     "ramda": "^0.26.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "styles-loader": "^1.0.0",
+    "tachyons": "^4.11.1",
     "webpack": "^4.32.0",
     "webpack-cli": "^3.3.2"
   },

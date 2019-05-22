@@ -38,3 +38,15 @@ onBrowserAction(async () => {
     console.log('existing tab made active ;)', updatedTab)
   }
 })
+
+// chrome.tabs.onActivated.addRules({})
+
+chrome.runtime.onMessage.addListener((message, sender, reply) => {
+  console.log('bg: onMessage', message, sender, reply)
+  if (message === 'whoami') {
+    reply(sender)
+  } else {
+    reply(new Error('Oops'))
+  }
+  return true
+})

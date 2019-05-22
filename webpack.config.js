@@ -13,6 +13,19 @@ module.exports = {
   context: pth(__dirname),
   entry: {
     background: pth('src/background.js'),
+    'tab-explorer': pth('src/tab-explorer.jsx'),
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css/,
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.jsx?/,
+        use: ['babel-loader'],
+      },
+    ],
   },
   plugins: [
     new CopyPlugin([
