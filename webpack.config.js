@@ -1,15 +1,16 @@
-var path = require('path')
-var CopyPlugin = require('copy-webpack-plugin')
+const path = require('path')
+const CopyPlugin = require('copy-webpack-plugin')
+const pth = path.resolve
 
 module.exports = {
-  context: path.resolve(__dirname),
+  context: pth(__dirname),
   entry: {
-    background: path.resolve('src/background.js'),
+    background: pth('src/background.js'),
   },
   plugins: [
     new CopyPlugin([
-      { from: 'src/manifest.json' },
-      { from: 'src/tab-explorer.html' },
+      { from: pth('src/manifest.json') },
+      { from: pth('src/tab-explorer.html') },
     ]),
   ],
   devtool: 'source-map',
