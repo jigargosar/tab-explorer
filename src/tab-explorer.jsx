@@ -7,6 +7,7 @@ import { resolve } from 'path'
 import mergeLeft from 'ramda/es/mergeLeft'
 import compose from 'ramda/es/compose'
 import pipe from 'ramda/es/pipe'
+import map from 'ramda/es/map'
 
 console.log('tab-explorer.js loaded')
 
@@ -83,8 +84,15 @@ const App = () => {
   )
 
   return (
-    <div>
+    <div className="">
       <div>HW</div>
+      <div>
+        {map(t => (
+          <div key={t.id}>
+            <div>{t.title}</div>
+          </div>
+        ))(state.tabs)}
+      </div>
     </div>
   )
 }
