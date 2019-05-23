@@ -3,11 +3,13 @@ import { render } from 'react-dom'
 import 'tachyons'
 import './main.css'
 import mergeDeepLeft from 'ramda/es/mergeDeepLeft'
-import { resolve } from 'path'
 import mergeLeft from 'ramda/es/mergeLeft'
 import compose from 'ramda/es/compose'
 import pipe from 'ramda/es/pipe'
 import map from 'ramda/es/map'
+import over from 'ramda/es/over'
+import lensProp from 'ramda/es/lensProp'
+import nanoid from 'nanoid'
 
 console.log('tab-explorer.js loaded')
 
@@ -55,9 +57,24 @@ const useListener = (event, listener, deps) => {
 }
 
 const App = () => {
-  const [state, setState] = useState(() => ({ tabId: -1, tabs: [] }))
+  const [state, setState] = useState(() => ({
+    tabId: -1,
+    tabs: [],
+    sessions: {},
+  }))
 
   const currentTabs = state.tabs.filter(t => t.id !== state.tabId)
+  const saveSession = useCallback(() => {
+    const session = {
+      id: 'S_' + nanoid(),
+      createdAt: Date.now(),
+      tabs: currentTabs,
+    }
+
+    mergeState(
+      over(lensProp('sessions'))(mergeLeft({ [session.id]: session })),
+    )
+  }, [currentTabs, setState])
 
   const mergeState = useCallback(
     pipe(
@@ -88,6 +105,11 @@ const App = () => {
   return (
     <div className="pa2">
       <div className="pa3 f3">Tab Explorer</div>
+      <div className="pa1">
+        <button className="ph2">Save Session</button>
+        {/* <button className="ph2" />
+        <button className="ph2" /> */}
+      </div>
       <div>{map(renderTabItem)(currentTabs)}</div>
     </div>
   )
