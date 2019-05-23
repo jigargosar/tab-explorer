@@ -20,6 +20,7 @@ import prop from 'ramda/es/prop'
 import propEq from 'ramda/es/propEq'
 import reject from 'ramda/es/reject'
 import startsWith from 'ramda/es/startsWith'
+import propSatisfies from 'ramda/es/propSatisfies'
 
 console.log('tab-explorer.js loaded')
 
@@ -43,6 +44,10 @@ console.log('tab-explorer.js loaded')
 // logCurrent()
 
 const pageUrl = chrome.runtime.getURL('tab-explorer.html')
+const defaultFavIconUrl =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAARklEQVR4Xu3M0QkAIAzE0M7pNN1cBwhFDkUFL/l/8VatF6cAiASBEs0VIEFoQAQIFQChAiBUAIQC8JMA+wUwYMDA/O3A/QbXNAnXAnMZWQAAAABJRU5ErkJggg=='
+
+console.log('pageUrl', pageUrl)
 
 const getPopulatedWindow = () =>
   new Promise(resolve =>
@@ -147,7 +152,7 @@ render(<App />, document.getElementById('root'))
 
 function useSessionTabs() {
   const windowTabs = useCurrentWindowTabs()
-  return reject(startsWith(pageUrl))(windowTabs)
+  return reject(propSatisfies(startsWith(pageUrl))('url'))(windowTabs)
 }
 
 function useSaveSessionCallback(mergeState) {
@@ -169,7 +174,14 @@ function useSaveSessionCallback(mergeState) {
 
 function renderTabItem(t) {
   return (
-    <div className="pa2" key={t.id}>
+    <div className="flex items-center pa2" key={t.id}>
+      <img
+        className="pr3"
+        src={t.favIconUrl || defaultFavIconUrl}
+        alt="F"
+        width={24}
+        height={24}
+      />
       <div>{t.title}</div>
     </div>
   )
