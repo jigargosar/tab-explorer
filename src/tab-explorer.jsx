@@ -21,6 +21,9 @@ import propEq from 'ramda/es/propEq'
 import reject from 'ramda/es/reject'
 import startsWith from 'ramda/es/startsWith'
 import propSatisfies from 'ramda/es/propSatisfies'
+import values from 'ramda/es/values'
+import sortWith from 'ramda/es/sortWith'
+import descend from 'ramda/es/descend'
 
 console.log('tab-explorer.js loaded')
 
@@ -120,6 +123,10 @@ const App = () => {
   }))
 
   const sessionTabs = useSessionTabs()
+  const savedSessionList = compose(
+    sortWith([descend(prop('createdAt'))]),
+    values,
+  )(state.sessions)
 
   const mergeState = useCallback(
     pipe(
@@ -144,6 +151,8 @@ const App = () => {
         <button className="ph2" /> */}
       </div>
       <div>{map(renderTabItem)(sessionTabs)}</div>
+      <div className="pa3 f3">Saved Sessions</div>
+      <div>{map(renderSavedSession)(savedSessionList)}</div>
     </div>
   )
 }
@@ -183,6 +192,15 @@ function renderTabItem(t) {
         height={24}
       />
       <div>{t.title}</div>
+    </div>
+  )
+}
+
+function renderSavedSession(session) {
+  return (
+    <div>
+      <div>TS: {session.createdAt}</div>
+      {map(renderTabItem)(session.tabs)}
     </div>
   )
 }
