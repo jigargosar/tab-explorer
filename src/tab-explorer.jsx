@@ -84,17 +84,19 @@ const App = () => {
   )
 
   return (
-    <div className="">
-      <div>HW</div>
-      <div>
-        {map(t => (
-          <div key={t.id}>
-            <div>{t.title}</div>
-          </div>
-        ))(state.tabs)}
-      </div>
+    <div className="pa2">
+      <div className="pa3 f3">Tab Explorer</div>
+      <div>{map(renderTabItem)(state.tabs)}</div>
     </div>
   )
 }
 
 render(<App />, document.getElementById('root'))
+
+function renderTabItem(t) {
+  return (
+    <div className="pa2" key={t.id}>
+      <div>{t.title}</div>
+    </div>
+  )
+}
