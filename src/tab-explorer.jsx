@@ -25,6 +25,8 @@ import values from 'ramda/es/values'
 import sortWith from 'ramda/es/sortWith'
 import descend from 'ramda/es/descend'
 import tap from 'ramda/es/tap'
+import mergeDeepRight from 'ramda/es/mergeDeepRight'
+import defaultTo from 'ramda/es/defaultTo'
 
 console.log('tab-explorer.js loaded')
 
@@ -118,10 +120,29 @@ const useCurrentTabId = () => {
   return id
 }
 
+const getCache = key => localStorage.getItem(key)
+const setCache = key => value => localStorage.setItem(key, value)
+
+const loadCachedState = () => {
+  const defaultState = { sessions: {} }
+  const decodeCached = pipe(
+    getCache,
+    defaultTo('{}'),
+    JSON.parse,
+    mergeDeepRight(defaultState),
+  )
+
+  return decodeCached('te-app-state')
+}
+
+const useCacheState = state =>
+  useEffect(
+    () => setCache('te-app-state', JSON.stringify(state, null, 2)),
+    [state],
+  )
+
 const App = () => {
-  const [state, setState] = useState(() => ({
-    sessions: {},
-  }))
+  const [state, setState] = useState(loadCachedState)
 
   const sessionTabs = useSessionTabs()
   const sessionList = compose(
@@ -130,6 +151,8 @@ const App = () => {
   )(state.sessions)
 
   const saveSession = useSaveSessionCallback(setState)
+
+  useCacheState(state)
 
   useEffect(() => console.log('state changed', state), [state])
 
