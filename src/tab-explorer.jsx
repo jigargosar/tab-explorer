@@ -124,18 +124,10 @@ const App = () => {
   }))
 
   const sessionTabs = useSessionTabs()
-  const savedSessionList = compose(
+  const sessionList = compose(
     sortWith([descend(prop('createdAt'))]),
     values,
   )(state.sessions)
-
-  const mergeState = useCallback(
-    pipe(
-      mergeLeft,
-      setState,
-    ),
-    [setState],
-  )
 
   const saveSession = useSaveSessionCallback(setState)
 
@@ -153,7 +145,7 @@ const App = () => {
       </div>
       <div>{map(renderTabItem)(sessionTabs)}</div>
       <div className="pa3 f3">Saved Sessions</div>
-      <div>{map(renderSavedSession)(savedSessionList)}</div>
+      <div>{map(renderSavedSession)(sessionList)}</div>
     </div>
   )
 }
