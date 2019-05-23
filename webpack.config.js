@@ -36,5 +36,5 @@ module.exports = {
       { from: pth('src/tab-explorer.html') },
     ]),
   ],
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
 }

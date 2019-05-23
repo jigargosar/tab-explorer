@@ -27,6 +27,7 @@ import descend from 'ramda/es/descend'
 import tap from 'ramda/es/tap'
 import mergeDeepRight from 'ramda/es/mergeDeepRight'
 import defaultTo from 'ramda/es/defaultTo'
+import identity from 'ramda/es/identity'
 
 console.log('tab-explorer.js loaded')
 
@@ -145,6 +146,7 @@ const App = () => {
   const [state, setState] = useState(loadCachedState)
 
   const sessionTabs = useSessionTabs()
+
   const sessionList = compose(
     sortWith([descend(prop('createdAt'))]),
     values,
@@ -166,14 +168,12 @@ const App = () => {
         {/* <button className="ph2" />
         <button className="ph2" /> */}
       </div>
-      <div>{map(renderTabItem)(sessionTabs)}</div>
+      <div>{map(renderTabItem(identity))(sessionTabs)}</div>
       <div className="pa3 f3">Saved Sessions</div>
       <div>{map(renderSavedSession)(sessionList)}</div>
     </div>
   )
 }
-
-render(<App />, document.getElementById('root'))
 
 function useSessionTabs() {
   const windowTabs = useCurrentWindowTabs()
@@ -202,9 +202,13 @@ function useSaveSessionCallback(setState) {
   )
 }
 
-function renderTabItem(t) {
+const renderTabItem = onTabItemClicked => t => {
   return (
-    <div className="flex items-center pa2" key={t.id}>
+    <div
+      className="flex items-center pa2"
+      key={t.id}
+      onClick={() => onTabItemClicked(t)}
+    >
       <img
         className="pr3"
         src={t.favIconUrl || defaultFavIconUrl}
@@ -221,7 +225,9 @@ function renderSavedSession(session) {
   return (
     <div className="pa3" key={session.id}>
       <div className="pa3">TS: {session.createdAt}</div>
-      {map(renderTabItem)(session.tabs)}
+      {map(renderTabItem(identity))(session.tabs)}
     </div>
   )
 }
+
+render(<App />, document.getElementById('root'))
