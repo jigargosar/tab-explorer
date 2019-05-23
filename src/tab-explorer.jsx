@@ -64,6 +64,15 @@ const App = () => {
   }))
 
   const currentTabs = state.tabs.filter(t => t.id !== state.tabId)
+
+  const mergeState = useCallback(
+    pipe(
+      mergeLeft,
+      setState,
+    ),
+    [setState],
+  )
+
   const saveSession = useCallback(() => {
     const session = {
       id: 'S_' + nanoid(),
@@ -75,14 +84,6 @@ const App = () => {
       over(lensProp('sessions'))(mergeLeft({ [session.id]: session })),
     )
   }, [currentTabs, setState])
-
-  const mergeState = useCallback(
-    pipe(
-      mergeLeft,
-      setState,
-    ),
-    [setState],
-  )
 
   useEffect(() => console.log('state changed', state), [state])
 
