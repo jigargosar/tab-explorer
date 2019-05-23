@@ -137,7 +137,7 @@ const loadCachedState = () => {
 
 const useCacheState = state =>
   useEffect(
-    () => setCache('te-app-state', JSON.stringify(state, null, 2)),
+    () => setCache('te-app-state')(JSON.stringify(state, null, 2)),
     [state],
   )
 
