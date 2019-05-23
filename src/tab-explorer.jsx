@@ -79,15 +79,18 @@ const useCurrentWindowTabs = () => {
 
   useEffect(() => void updateCurrentTabs(), [])
 
-  const useListnerHelp = e =>
-    useListener(e, updateCurrentTabs, [updateCurrentTabs])
+  const events = [
+    chrome.tabs.onCreated,
+    chrome.tabs.onUpdated,
+    chrome.tabs.onAttached,
+    chrome.tabs.onDetached,
+    chrome.tabs.onReplaced,
+    chrome.tabs.onRemoved,
+  ]
 
-  useListnerHelp(chrome.tabs.onCreated)
-  useListnerHelp(chrome.tabs.onUpdated)
-  useListnerHelp(chrome.tabs.onAttached)
-  useListnerHelp(chrome.tabs.onDetached)
-  useListnerHelp(chrome.tabs.onReplaced)
-  useListnerHelp(chrome.tabs.onRemoved)
+  events.forEach(e =>
+    useListener(e, updateCurrentTabs, [updateCurrentTabs]),
+  )
 
   return tabs
 }
