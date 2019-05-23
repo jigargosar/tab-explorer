@@ -40,6 +40,8 @@ console.log('tab-explorer.js loaded')
 
 // logCurrent()
 
+const pageUrl = chrome.runtime.getURL('tab-explorer.html')
+
 const getPopulatedWindow = () =>
   new Promise(resolve =>
     chrome.windows.getCurrent({ populate: true }, resolve),
@@ -110,10 +112,7 @@ const App = () => {
     sessions: {},
   }))
 
-  const windowTabs = useCurrentWindowTabs()
-  const currentTabId = useCurrentTabId()
-
-  const otherTabs = windowTabs.filter(t => t.id !== currentTabId)
+  const sessionTabs = useSessionTabs()
 
   const mergeState = useCallback(
     pipe(
@@ -131,18 +130,23 @@ const App = () => {
     <div className="pa2">
       <div className="pa3 f3">Tab Explorer</div>
       <div className="pa1">
-        <button className="ph2" onClick={() => saveSession(otherTabs)}>
+        <button className="ph2" onClick={() => saveSession(sessionTabs)}>
           Save Session
         </button>
         {/* <button className="ph2" />
         <button className="ph2" /> */}
       </div>
-      <div>{map(renderTabItem)(otherTabs)}</div>
+      <div>{map(renderTabItem)(sessionTabs)}</div>
     </div>
   )
 }
 
 render(<App />, document.getElementById('root'))
+
+function useSessionTabs() {
+  const windowTabs = useCurrentWindowTabs()
+  return windowTabs.filter(t => t.url !== pageUrl)
+}
 
 function useSaveSessionCallback(mergeState) {
   return useCallback(
