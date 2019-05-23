@@ -18,6 +18,8 @@ import lensProp from 'ramda/es/lensProp'
 import nanoid from 'nanoid'
 import prop from 'ramda/es/prop'
 import propEq from 'ramda/es/propEq'
+import reject from 'ramda/es/reject'
+import startsWith from 'ramda/es/startsWith'
 
 console.log('tab-explorer.js loaded')
 
@@ -145,7 +147,7 @@ render(<App />, document.getElementById('root'))
 
 function useSessionTabs() {
   const windowTabs = useCurrentWindowTabs()
-  return windowTabs.filter(t => t.url !== pageUrl)
+  return reject(startsWith(pageUrl))(windowTabs)
 }
 
 function useSaveSessionCallback(mergeState) {
