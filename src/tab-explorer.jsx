@@ -10,6 +10,7 @@ import map from 'ramda/es/map'
 import over from 'ramda/es/over'
 import lensProp from 'ramda/es/lensProp'
 import nanoid from 'nanoid'
+import prop from 'ramda/es/prop';
 
 console.log('tab-explorer.js loaded')
 
@@ -48,6 +49,8 @@ const getCurrentTabAndWindow = async () => {
   return { win, tab }
 }
 
+const closeTabs = (tabIds) => new Promise(resolve=>chrome.tabs.remove(tabIds, resolve))
+
 const useListener = (event, listener, deps) => {
   const callback = useCallback(listener, deps)
   useEffect(() => {
@@ -55,6 +58,8 @@ const useListener = (event, listener, deps) => {
     return () => event.removeListener(callback)
   }, deps)
 }
+
+
 
 const App = () => {
   const [state, setState] = useState(() => ({
@@ -73,17 +78,19 @@ const App = () => {
     [setState],
   )
 
-  const saveSession = useCallback(() => {
+  const saveSession = useCallback((sessionTabs) => {
     const session = {
       id: 'S_' + nanoid(),
       createdAt: Date.now(),
-      tabs: currentTabs,
+      tabs: sessionTabs,
     }
 
     mergeState(
       over(lensProp('sessions'))(mergeLeft({ [session.id]: session })),
     )
-  }, [currentTabs, setState])
+    await closeTabs(sessionTabs.map(prop('id')))
+    
+  }, [mergeState])
 
   useEffect(() => console.log('state changed', state), [state])
 
@@ -107,7 +114,7 @@ const App = () => {
     <div className="pa2">
       <div className="pa3 f3">Tab Explorer</div>
       <div className="pa1">
-        <button className="ph2">Save Session</button>
+        <button className="ph2" onClick={()=>saveSession(currentTabs)}>Save Session</button>
         {/* <button className="ph2" />
         <button className="ph2" /> */}
       </div>
