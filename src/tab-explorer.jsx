@@ -57,6 +57,8 @@ const useListener = (event, listener, deps) => {
 const App = () => {
   const [state, setState] = useState(() => ({ tabId: -1, tabs: [] }))
 
+  const currentTabs = state.tabs.filter(t => t.id !== state.tabId)
+
   const mergeState = useCallback(
     pipe(
       mergeLeft,
@@ -86,7 +88,7 @@ const App = () => {
   return (
     <div className="pa2">
       <div className="pa3 f3">Tab Explorer</div>
-      <div>{map(renderTabItem)(state.tabs)}</div>
+      <div>{map(renderTabItem)(currentTabs)}</div>
     </div>
   )
 }
