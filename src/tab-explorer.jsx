@@ -24,6 +24,7 @@ import propSatisfies from 'ramda/es/propSatisfies'
 import values from 'ramda/es/values'
 import sortWith from 'ramda/es/sortWith'
 import descend from 'ramda/es/descend'
+import tap from 'ramda/es/tap'
 
 console.log('tab-explorer.js loaded')
 
@@ -136,7 +137,7 @@ const App = () => {
     [setState],
   )
 
-  const saveSession = useSaveSessionCallback(mergeState)
+  const saveSession = useSaveSessionCallback(setState)
 
   useEffect(() => console.log('state changed', state), [state])
 
@@ -164,7 +165,7 @@ function useSessionTabs() {
   return reject(propSatisfies(startsWith(pageUrl))('url'))(windowTabs)
 }
 
-function useSaveSessionCallback(mergeState) {
+function useSaveSessionCallback(setState) {
   return useCallback(
     async otherTabs => {
       const session = {
@@ -172,12 +173,17 @@ function useSaveSessionCallback(mergeState) {
         createdAt: Date.now(),
         tabs: otherTabs,
       }
-      mergeState(
-        over(lensProp('sessions'))(mergeLeft({ [session.id]: session })),
+      console.log('session :', session)
+      setState(s =>
+        compose(
+          tap(console.log),
+          over(lensProp('sessions'))(mergeLeft({ [session.id]: session })),
+          tap(console.log),
+        )(s),
       )
-      await closeTabs(otherTabs.map(prop('id')))
+      // await closeTabs(otherTabs.map(prop('id')))
     },
-    [mergeState],
+    [setState],
   )
 }
 
@@ -198,8 +204,8 @@ function renderTabItem(t) {
 
 function renderSavedSession(session) {
   return (
-    <div>
-      <div>TS: {session.createdAt}</div>
+    <div className="pa3" key={session.id}>
+      <div className="pa3">TS: {session.createdAt}</div>
       {map(renderTabItem)(session.tabs)}
     </div>
   )
