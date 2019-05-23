@@ -1,4 +1,10 @@
-import React, { Component, useEffect, useState, useCallback } from 'react'
+import React, {
+  Component,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './main.css'
@@ -11,6 +17,7 @@ import over from 'ramda/es/over'
 import lensProp from 'ramda/es/lensProp'
 import nanoid from 'nanoid'
 import prop from 'ramda/es/prop'
+import propEq from 'ramda/es/propEq'
 
 console.log('tab-explorer.js loaded')
 
@@ -60,14 +67,50 @@ const useListener = (event, listener, deps) => {
   }, deps)
 }
 
+const useCurrentWindowTabs = () => {
+  const [tabs, setTabs] = useState([])
+
+  const updateCurrentTabs = useCallback(async () => {
+    const win = await getPopulatedWindow()
+    setTabs(win.tabs)
+  }, [setTabs])
+
+  useEffect(() => console.log('current window tabs changed', tabs), [tabs])
+
+  useEffect(() => void updateCurrentTabs(), [])
+
+  const useListnerHelp = e =>
+    useListener(e, updateCurrentTabs, [updateCurrentTabs])
+
+  useListnerHelp(chrome.tabs.onCreated)
+  useListnerHelp(chrome.tabs.onUpdated)
+  useListnerHelp(chrome.tabs.onAttached)
+  useListnerHelp(chrome.tabs.onDetached)
+  useListnerHelp(chrome.tabs.onReplaced)
+  useListnerHelp(chrome.tabs.onRemoved)
+
+  return tabs
+}
+
+const useCurrentTabId = () => {
+  const [id, setId] = useState(-1)
+
+  useEffect(() => {
+    getCurrentTab().then(t => setId(t.id))
+  }, [])
+
+  return id
+}
+
 const App = () => {
   const [state, setState] = useState(() => ({
-    tabId: -1,
-    tabs: [],
     sessions: {},
   }))
 
-  const currentTabs = state.tabs.filter(t => t.id !== state.tabId)
+  const windowTabs = useCurrentWindowTabs()
+  const currentTabId = useCurrentTabId()
+
+  const otherTabs = windowTabs.filter(t => t.id !== currentTabId)
 
   const mergeState = useCallback(
     pipe(
@@ -77,56 +120,43 @@ const App = () => {
     [setState],
   )
 
-  const saveSession = useCallback(
-    async sessionTabs => {
-      const session = {
-        id: 'S_' + nanoid(),
-        createdAt: Date.now(),
-        tabs: sessionTabs,
-      }
-
-      mergeState(
-        over(lensProp('sessions'))(mergeLeft({ [session.id]: session })),
-      )
-      await closeTabs(sessionTabs.map(prop('id')))
-    },
-    [mergeState],
-  )
+  const saveSession = useSaveSessionCallback(mergeState)
 
   useEffect(() => console.log('state changed', state), [state])
-
-  useEffect(() => {
-    getCurrentTabAndWindow().then(({ win, tab }) =>
-      mergeState({ tabId: tab.id, tabs: win.tabs }),
-    )
-  }, [mergeState])
-
-  useListener(
-    chrome.tabs.onActivated,
-    async ({ tabId }) => {
-      const { win, tab } = await getCurrentTabAndWindow()
-      if (tabId !== tab.id) return
-      mergeState({ tabs: win.tabs })
-    },
-    [mergeState],
-  )
 
   return (
     <div className="pa2">
       <div className="pa3 f3">Tab Explorer</div>
       <div className="pa1">
-        <button className="ph2" onClick={() => saveSession(currentTabs)}>
+        <button className="ph2" onClick={() => saveSession(otherTabs)}>
           Save Session
         </button>
         {/* <button className="ph2" />
         <button className="ph2" /> */}
       </div>
-      <div>{map(renderTabItem)(currentTabs)}</div>
+      <div>{map(renderTabItem)(otherTabs)}</div>
     </div>
   )
 }
 
 render(<App />, document.getElementById('root'))
+
+function useSaveSessionCallback(mergeState) {
+  return useCallback(
+    async otherTabs => {
+      const session = {
+        id: 'S_' + nanoid(),
+        createdAt: Date.now(),
+        tabs: otherTabs,
+      }
+      mergeState(
+        over(lensProp('sessions'))(mergeLeft({ [session.id]: session })),
+      )
+      await closeTabs(otherTabs.map(prop('id')))
+    },
+    [mergeState],
+  )
+}
 
 function renderTabItem(t) {
   return (
