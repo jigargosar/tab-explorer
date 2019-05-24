@@ -50,6 +50,13 @@ console.log('tab-explorer.js loaded')
 
 // logCurrent()
 
+// HELPERS
+const overProp = pipe(
+  lensProp,
+  over,
+)
+const mergeModel = m => mergeLeft({ [m.id]: m })
+
 const pageUrl = chrome.runtime.getURL('tab-explorer.html')
 const defaultFavIconUrl =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAARklEQVR4Xu3M0QkAIAzE0M7pNN1cBwhFDkUFL/l/8VatF6cAiASBEs0VIEFoQAQIFQChAiBUAIQC8JMA+wUwYMDA/O3A/QbXNAnXAnMZWQAAAABJRU5ErkJggg=='
@@ -171,8 +178,13 @@ const App = () => {
         <button className="ph2" onClick={() => saveSession(sessionTabs)}>
           Save Session
         </button>
-        {/* <button className="ph2" />
-        <button className="ph2" /> */}
+        <button
+          className="ph2"
+          onClick={() => saveAndCloseSession(sessionTabs)}
+        >
+          Save And Close Session
+        </button>
+        {/* <button className="ph2" /> */}
       </div>
       <div>{map(renderTabItem(onTabItemClicked))(sessionTabs)}</div>
       <div className="pa3 f3">Saved Sessions</div>
@@ -195,13 +207,7 @@ function useSaveSessionCallback(setState) {
         tabs: otherTabs,
       }
       console.log('session :', session)
-      setState(s =>
-        compose(
-          tap(console.log),
-          over(lensProp('sessions'))(mergeLeft({ [session.id]: session })),
-          tap(console.log),
-        )(s),
-      )
+      setState(s => compose(overProp('sessions')(mergeModel(session)))(s))
       // await closeTabs(otherTabs.map(prop('id')))
     },
     [setState],
