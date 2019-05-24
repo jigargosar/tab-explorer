@@ -200,11 +200,13 @@ const App = () => {
     )
   })
 
-  // const renderSessionItem = session => SessionItem({ actions, session })
   const renderSessionItem = session => {
     return <SessionItem key={session.id} {...{ actions, session }} />
   }
 
+  const renderTabItem = tab => (
+    <TabItem key={tab.id} {...{ onTabItemClicked, tab }} />
+  )
   return (
     <div className="pa2">
       <div className="pa3 f3">Tab Explorer</div>
@@ -223,7 +225,7 @@ const App = () => {
         </button>
         {/* <button className="ph2" /> */}
       </div>
-      <div>{map(renderTabItem(onTabItemClicked))(currentSessionTabs)}</div>
+      <div>{map(renderTabItem)(currentSessionTabs)}</div>
       <div className="pa4" />
       <div className="ph3 f3">Saved Sessions</div>
       {/* <div className="pa3" /> */}
@@ -232,25 +234,27 @@ const App = () => {
   )
 }
 
-const renderTabItem = onTabItemClicked => t => {
+function TabItem({ onTabItemClicked, tab }) {
   return (
     <div
       className="pa2 pointer flex items-center "
-      key={t.id}
-      onClick={() => onTabItemClicked(t)}
+      onClick={() => onTabItemClicked(tab)}
     >
       <img
         className="pr3"
-        src={t.favIconUrl || defaultFavIconUrl}
+        src={tab.favIconUrl || defaultFavIconUrl}
         width={24}
         height={24}
       />
-      <div>{t.title}</div>
+      <div>{tab.title}</div>
     </div>
   )
 }
 
 function SessionItem({ actions, session }) {
+  const renderTabItem = tab => (
+    <TabItem key={tab.id} {...{ onTabItemClicked: identity, tab }} />
+  )
   return (
     <div className="pa3">
       <div className="pa3">TS: {session.createdAt}</div>
@@ -259,7 +263,7 @@ function SessionItem({ actions, session }) {
           Delete
         </button>
       </div>
-      {map(renderTabItem(identity))(session.tabs)}
+      {map(renderTabItem)(session.tabs)}
     </div>
   )
 }
