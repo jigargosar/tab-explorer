@@ -177,13 +177,13 @@ const App = () => {
       <div className="pa3 f3">Tab Explorer</div>
       <div className="pa1">
         <button
-          className="ph2"
+          className="ma2"
           onClick={() => saveSession(currentSessionTabs)}
         >
           Save Session
         </button>
         <button
-          className="ph2"
+          className="ma2"
           onClick={() => saveAndCloseSession(currentSessionTabs)}
         >
           Save And Close Session
