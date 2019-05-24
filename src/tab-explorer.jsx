@@ -194,7 +194,7 @@ const App = () => {
 
   useEffect(() => console.log('state changed', state), [state])
 
-  const onTabItemClicked = useCallback(tab => {
+  const onCurrentSessionTabItemClicked = useCallback(tab => {
     chrome.tabs.update(tab.id, { active: true }, updatedTab =>
       console.log('tab updated', updatedTab),
     )
@@ -205,7 +205,10 @@ const App = () => {
   }
 
   const renderTabItem = tab => (
-    <SessionTabItem key={tab.id} {...{ onTabItemClicked, tab }} />
+    <CurrentSessionTabItem
+      key={tab.id}
+      {...{ onCurrentSessionTabItemClicked, tab }}
+    />
   )
   return (
     <div className="pa2">
@@ -234,11 +237,11 @@ const App = () => {
   )
 }
 
-function SessionTabItem({ onTabItemClicked, tab }) {
+function CurrentSessionTabItem({ onCurrentSessionTabItemClicked, tab }) {
   return (
     <div
       className="pa2 pointer flex items-center "
-      onClick={() => onTabItemClicked(tab)}
+      onClick={() => onCurrentSessionTabItemClicked(tab)}
     >
       <img
         className=""
@@ -252,13 +255,23 @@ function SessionTabItem({ onTabItemClicked, tab }) {
   )
 }
 
-function SessionItem({ actions, session }) {
-  const renderTabItem = tab => (
-    <SessionTabItem
-      key={tab.id}
-      {...{ onTabItemClicked: identity, tab }}
-    />
+function SessionTabItem({ tab }) {
+  return (
+    <div className="pa2 flex items-center ">
+      <img
+        className=""
+        src={tab.favIconUrl || defaultFavIconUrl}
+        width={24}
+        height={24}
+      />
+      <div className="pa2" />
+      <div>{tab.title}</div>
+    </div>
   )
+}
+
+function SessionItem({ actions, session }) {
+  const renderTabItem = tab => <SessionTabItem key={tab.id} tab={tab} />
   return (
     <div className="pa3">
       <div className="pa3">TS: {session.createdAt}</div>
