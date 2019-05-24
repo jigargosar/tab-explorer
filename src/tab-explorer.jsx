@@ -210,23 +210,26 @@ const App = () => {
         {...{ onCurrentSessionTabItemClicked, tab }}
       />
     )
+    const viewBtn = (label, onClick) => (
+      <button className="ma2" onClick={onClick}>
+        {label}
+      </button>
+    )
+
+    const viewToolbar = (
+      <div className="pa1">
+        {viewBtn('Save Session', () => saveSession(currentSessionTabs))}
+        {viewBtn('Save And Close Session', () =>
+          saveAndCloseSession(currentSessionTabs),
+        )}
+      </div>
+    )
+    const viewTabList = <div>{map(renderTabItem)(currentSessionTabs)}</div>
+
     return (
       <div>
-        <div className="pa1">
-          <button
-            className="ma2"
-            onClick={() => saveSession(currentSessionTabs)}
-          >
-            Save Session
-          </button>
-          <button
-            className="ma2"
-            onClick={() => saveAndCloseSession(currentSessionTabs)}
-          >
-            Save And Close Session
-          </button>
-        </div>
-        <div>{map(renderTabItem)(currentSessionTabs)}</div>
+        {viewToolbar}
+        {viewTabList}
       </div>
     )
   }
