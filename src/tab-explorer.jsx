@@ -1,11 +1,5 @@
 /* eslint-disable no-console */
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-  useRef,
-} from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './main.css'
@@ -26,8 +20,6 @@ import descend from 'ramda/es/descend'
 import mergeDeepRight from 'ramda/es/mergeDeepRight'
 import defaultTo from 'ramda/es/defaultTo'
 import omit from 'ramda/es/omit'
-import assoc from 'ramda/es/assoc'
-import is from 'ramda/es/is'
 
 console.log('tab-explorer.js loaded')
 
@@ -211,40 +203,21 @@ const App = () => {
     return <SessionItem key={session.id} {...{ actions, session }} />
   }
 
-  const renderCurrentSession = () => {
-    const renderTabItem = tab => (
-      <CurrentSessionTabItem
-        key={tab.id}
-        {...{ onCurrentSessionTabItemClicked, tab }}
-      />
-    )
-    const viewBtn = (label, onClick) => (
-      <button className="ma2" onClick={onClick}>
-        {label}
-      </button>
-    )
+  const renderCurrentSession = (
+    <RCS
+      {...{
+        onCurrentSessionTabItemClicked,
+        saveSession,
+        currentSessionTabs,
+        saveAndCloseSession,
+      }}
+    />
+  )
 
-    const viewToolbar = (
-      <div className="pa1">
-        {viewBtn('Save Session', () => saveSession(currentSessionTabs))}
-        {viewBtn('Save And Close Session', () =>
-          saveAndCloseSession(currentSessionTabs),
-        )}
-      </div>
-    )
-    const viewTabList = <div>{map(renderTabItem)(currentSessionTabs)}</div>
-
-    return (
-      <div>
-        {viewToolbar}
-        {viewTabList}
-      </div>
-    )
-  }
   return (
     <div className="pa2">
       <div className="pa3 f3">Tab Explorer</div>
-      {renderCurrentSession()}
+      {renderCurrentSession}
       <div className="pa4" />
       <div className="ph3 f3">Saved Sessions</div>
       {/* <div className="pa3" /> */}
@@ -253,7 +226,41 @@ const App = () => {
   )
 }
 
-function CurrentSessionTabItem({ onCurrentSessionTabItemClicked, tab }) {
+function RCS({
+  onCurrentSessionTabItemClicked,
+  saveSession,
+  currentSessionTabs,
+  saveAndCloseSession,
+}) {
+  const renderTabItem = tab => (
+    <CurrentWindowTabItem
+      key={tab.id}
+      {...{ onCurrentSessionTabItemClicked, tab }}
+    />
+  )
+  const viewBtn = (label, onClick) => (
+    <button className="ma2" onClick={onClick}>
+      {label}
+    </button>
+  )
+  const viewToolbar = (
+    <div className="pa1">
+      {viewBtn('Save Session', () => saveSession(currentSessionTabs))}
+      {viewBtn('Save And Close Session', () =>
+        saveAndCloseSession(currentSessionTabs),
+      )}
+    </div>
+  )
+  const viewTabList = <div>{map(renderTabItem)(currentSessionTabs)}</div>
+  return (
+    <div>
+      {viewToolbar}
+      {viewTabList}
+    </div>
+  )
+}
+
+function CurrentWindowTabItem({ onCurrentSessionTabItemClicked, tab }) {
   return (
     <div
       className="pa2 pointer flex items-center "
