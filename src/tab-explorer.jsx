@@ -19,7 +19,6 @@ import sortWith from 'ramda/es/sortWith'
 import descend from 'ramda/es/descend'
 import mergeDeepRight from 'ramda/es/mergeDeepRight'
 import defaultTo from 'ramda/es/defaultTo'
-import identity from 'ramda/es/identity'
 import omit from 'ramda/es/omit'
 
 console.log('tab-explorer.js loaded')
