@@ -254,21 +254,6 @@ function CurrentSessionTabItem({ onCurrentSessionTabItemClicked, tab }) {
   )
 }
 
-function SessionTabItem({ tab }) {
-  return (
-    <div className="pa2 flex items-center ">
-      <img
-        className=""
-        src={tab.favIconUrl || defaultFavIconUrl}
-        width={24}
-        height={24}
-      />
-      <div className="pa2" />
-      <div>{tab.title}</div>
-    </div>
-  )
-}
-
 function SessionItem({ actions, session }) {
   const renderTabItem = tab => <SessionTabItem key={tab.id} tab={tab} />
   return (
@@ -280,6 +265,21 @@ function SessionItem({ actions, session }) {
         </button>
       </div>
       {map(renderTabItem)(session.tabs)}
+    </div>
+  )
+}
+
+function SessionTabItem({ tab }) {
+  return (
+    <div className="pa2 flex items-center ">
+      <img
+        className=""
+        src={tab.favIconUrl || defaultFavIconUrl}
+        width={24}
+        height={24}
+      />
+      <div className="pa2" />
+      <div>{tab.title}</div>
     </div>
   )
 }
