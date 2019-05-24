@@ -124,57 +124,7 @@ const useCacheStateEffect = state =>
     [state],
   )
 
-const App = () => {
-  const [state, setState] = useState(loadCachedState)
-
-  const currentSessionTabs = useCurrentSessionTabs()
-
-  const displaySessions = compose(
-    sortWith([descend(prop('createdAt'))]),
-    values,
-  )(state.sessions)
-
-  const saveSession = useSaveSessionCallback(setState)
-  const saveAndCloseSession = useSaveAndCloseSessionCallback(setState)
-  const act = usePureActions(setState)
-
-  useCacheStateEffect(state)
-
-  useEffect(() => console.log('state changed', state), [state])
-
-  const onTabItemClicked = useCallback(tab => {
-    chrome.tabs.update(tab.id, { active: true }, updatedTab =>
-      console.log('tab updated', updatedTab),
-    )
-  })
-
-  return (
-    <div className="pa2">
-      <div className="pa3 f3">Tab Explorer</div>
-      <div className="pa1">
-        <button
-          className="ma2"
-          onClick={() => saveSession(currentSessionTabs)}
-        >
-          Save Session
-        </button>
-        <button
-          className="ma2"
-          onClick={() => saveAndCloseSession(currentSessionTabs)}
-        >
-          Save And Close Session
-        </button>
-        {/* <button className="ph2" /> */}
-      </div>
-      <div>{map(renderTabItem(onTabItemClicked))(currentSessionTabs)}</div>
-      <div className="pa4" />
-      <div className="ph3 f3">Saved Sessions</div>
-      {/* <div className="pa3" /> */}
-      <div>{map(renderSavedSession(act))(displaySessions)}</div>
-    </div>
-  )
-}
-
+// HOOKS
 function useCurrentSessionTabs() {
   const windowTabs = useCurrentWindowTabs()
   return reject(propSatisfies(startsWith(pageUrl))('url'))(windowTabs)
@@ -232,6 +182,59 @@ function usePureActions(setState) {
   )
 }
 
+// VIEW
+
+const App = () => {
+  const [state, setState] = useState(loadCachedState)
+
+  const currentSessionTabs = useCurrentSessionTabs()
+
+  const displaySessions = compose(
+    sortWith([descend(prop('createdAt'))]),
+    values,
+  )(state.sessions)
+
+  const saveSession = useSaveSessionCallback(setState)
+  const saveAndCloseSession = useSaveAndCloseSessionCallback(setState)
+  const act = usePureActions(setState)
+
+  useCacheStateEffect(state)
+
+  useEffect(() => console.log('state changed', state), [state])
+
+  const onTabItemClicked = useCallback(tab => {
+    chrome.tabs.update(tab.id, { active: true }, updatedTab =>
+      console.log('tab updated', updatedTab),
+    )
+  })
+
+  return (
+    <div className="pa2">
+      <div className="pa3 f3">Tab Explorer</div>
+      <div className="pa1">
+        <button
+          className="ma2"
+          onClick={() => saveSession(currentSessionTabs)}
+        >
+          Save Session
+        </button>
+        <button
+          className="ma2"
+          onClick={() => saveAndCloseSession(currentSessionTabs)}
+        >
+          Save And Close Session
+        </button>
+        {/* <button className="ph2" /> */}
+      </div>
+      <div>{map(renderTabItem(onTabItemClicked))(currentSessionTabs)}</div>
+      <div className="pa4" />
+      <div className="ph3 f3">Saved Sessions</div>
+      {/* <div className="pa3" /> */}
+      <div>{map(renderSavedSession(act))(displaySessions)}</div>
+    </div>
+  )
+}
+
 const renderTabItem = onTabItemClicked => t => {
   return (
     <div
@@ -262,5 +265,7 @@ const renderSavedSession = act => session => (
     {map(renderTabItem(identity))(session.tabs)}
   </div>
 )
+
+// MAIN
 
 render(<App />, document.getElementById('root'))
