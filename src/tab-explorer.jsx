@@ -243,35 +243,33 @@ function CurrentWindowTabs({
       {viewBtn('Save And Close Session', () => saveAndCloseSession(tabs))}
     </div>
   )
-  const viewTab = tab => (
-    <CurrentWindowTabItem
-      key={tab.id}
-      {...{ onCurrentSessionTabItemClicked, tab }}
-    />
+
+  function TabItem({ onCurrentSessionTabItemClicked, tab }) {
+    return (
+      <div
+        className="pa2 pointer flex items-center "
+        onClick={() => onCurrentSessionTabItemClicked(tab)}
+      >
+        <img
+          className=""
+          src={tab.favIconUrl || defaultFavIconUrl}
+          width={24}
+          height={24}
+        />
+        <div className="pa2" />
+        <div>{tab.title}</div>
+      </div>
+    )
+  }
+
+  const viewTabItem = tab => (
+    <TabItem key={tab.id} {...{ onCurrentSessionTabItemClicked, tab }} />
   )
-  const viewTabList = <div>{map(viewTab)(tabs)}</div>
+  const viewTabList = <div>{map(viewTabItem)(tabs)}</div>
   return (
     <div>
       {viewToolbar}
       {viewTabList}
-    </div>
-  )
-}
-
-function CurrentWindowTabItem({ onCurrentSessionTabItemClicked, tab }) {
-  return (
-    <div
-      className="pa2 pointer flex items-center "
-      onClick={() => onCurrentSessionTabItemClicked(tab)}
-    >
-      <img
-        className=""
-        src={tab.favIconUrl || defaultFavIconUrl}
-        width={24}
-        height={24}
-      />
-      <div className="pa2" />
-      <div>{tab.title}</div>
     </div>
   )
 }
