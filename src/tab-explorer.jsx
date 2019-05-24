@@ -205,7 +205,7 @@ const App = () => {
   }
 
   const renderTabItem = tab => (
-    <TabItem key={tab.id} {...{ onTabItemClicked, tab }} />
+    <SessionTabItem key={tab.id} {...{ onTabItemClicked, tab }} />
   )
   return (
     <div className="pa2">
@@ -234,18 +234,19 @@ const App = () => {
   )
 }
 
-function TabItem({ onTabItemClicked, tab }) {
+function SessionTabItem({ onTabItemClicked, tab }) {
   return (
     <div
       className="pa2 pointer flex items-center "
       onClick={() => onTabItemClicked(tab)}
     >
       <img
-        className="pr3"
+        className=""
         src={tab.favIconUrl || defaultFavIconUrl}
         width={24}
         height={24}
       />
+      <div className="pa2" />
       <div>{tab.title}</div>
     </div>
   )
@@ -253,7 +254,10 @@ function TabItem({ onTabItemClicked, tab }) {
 
 function SessionItem({ actions, session }) {
   const renderTabItem = tab => (
-    <TabItem key={tab.id} {...{ onTabItemClicked: identity, tab }} />
+    <SessionTabItem
+      key={tab.id}
+      {...{ onTabItemClicked: identity, tab }}
+    />
   )
   return (
     <div className="pa3">
