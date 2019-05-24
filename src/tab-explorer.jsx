@@ -236,6 +236,24 @@ function useSaveAndCloseSessionCallback(setState) {
   )
 }
 
+function usePureActions(setState) {
+  const overStateProp = prop => fn => setState(overProp(prop)(fn))
+  const overSessions = overStateProp('sessions')
+
+  return useMemo(
+    () =>
+      ({
+        deleteSessionWithId: id => {
+          overSessions(omit([id]))
+        },
+        addNewSessionFromTabs: tabs => {
+          const session = sessionFromTabs(tabs)
+          overSessions(mergeModel(session))
+        },
+      }[setState]),
+  )
+}
+
 const renderTabItem = onTabItemClicked => t => {
   return (
     <div
