@@ -24,48 +24,43 @@ import omit from 'ramda/es/omit'
 
 console.log('tab-explorer.js loaded')
 
-// chrome.runtime.sendMessage('whoami', res => {
-//   console.log('whoami response :', res)
-//   const selfTabId = res.tab.id
-//   chrome.tabs.onActivated.addListener(info => {
-//     if (info.tabId === selfTabId) {
-//       console.log('current tab activated :', info)
-//     }
-//   })
-// })
+// BASICS
 
-// function logCurrent() {
-//   chrome.windows.getCurrent({ populate: true }, w =>
-//     console.log('current window', w.id, w),
-//   )
-//   chrome.tabs.getCurrent(t => console.log('current tab', t.id, t))
-// }
-
-// logCurrent()
-
-// HELPERS
 const overProp = pipe(
   lensProp,
   over,
 )
 const mergeModel = m => mergeLeft({ [m.id]: m })
 
-const pageUrl = chrome.runtime.getURL('tab-explorer.html')
-const defaultFavIconUrl =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAARklEQVR4Xu3M0QkAIAzE0M7pNN1cBwhFDkUFL/l/8VatF6cAiASBEs0VIEFoQAQIFQChAiBUAIQC8JMA+wUwYMDA/O3A/QbXNAnXAnMZWQAAAABJRU5ErkJggg=='
+// BROWSER TASKS
 
+const getCache = key => localStorage.getItem(key)
+const setCache = key => value => localStorage.setItem(key, value)
+
+// CHROME API
+
+const pageUrl = chrome.runtime.getURL('tab-explorer.html')
 console.log('pageUrl', pageUrl)
 
-const getPopulatedWindow = () =>
-  new Promise(resolve =>
+const defaultFavIconUrl =
+  //#region
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAARklEQVR4Xu3M0QkAIAzE0M7pNN1cBwhFDkUFL/l/8VatF6cAiASBEs0VIEFoQAQIFQChAiBUAIQC8JMA+wUwYMDA/O3A/QbXNAnXAnMZWQAAAABJRU5ErkJggg=='
+//#endregion
+
+const getPopulatedWindow = () => {
+  return new Promise(resolve =>
     chrome.windows.getCurrent({ populate: true }, resolve),
   )
+}
 
 // const getCurrentTab = () =>
 //   new Promise(resolve => chrome.tabs.getCurrent(resolve))
 
-const closeTabs = tabIds =>
-  new Promise(resolve => chrome.tabs.remove(tabIds, resolve))
+const closeTabs = tabIds => {
+  return new Promise(resolve => chrome.tabs.remove(tabIds, resolve))
+}
+
+// HOOKS & MODEL
 
 const useListener = (event, listener, deps) => {
   const callback = useCallback(listener, deps)
@@ -103,9 +98,6 @@ const useCurrentWindowTabs = () => {
   return tabs
 }
 
-const getCache = key => localStorage.getItem(key)
-const setCache = key => value => localStorage.setItem(key, value)
-
 const loadCachedState = () => {
   const defaultState = { sessions: {} }
   const decodeCached = pipe(
@@ -118,13 +110,13 @@ const loadCachedState = () => {
   return decodeCached('te-app-state')
 }
 
-const useCacheStateEffect = state =>
-  useEffect(
+const useCacheStateEffect = state => {
+  return useEffect(
     () => setCache('te-app-state')(JSON.stringify(state, null, 2)),
     [state],
   )
+}
 
-// HOOKS
 function useCurrentSessionTabs() {
   const windowTabs = useCurrentWindowTabs()
   return reject(propSatisfies(startsWith(pageUrl))('url'))(windowTabs)
@@ -254,17 +246,19 @@ const renderTabItem = onTabItemClicked => t => {
   )
 }
 
-const renderSavedSession = act => session => (
-  <div className="pa3" key={session.id}>
-    <div className="pa3">TS: {session.createdAt}</div>
-    <div>
-      <button onClick={() => act.deleteSessionWithId(session.id)}>
-        Delete
-      </button>
+const renderSavedSession = act => session => {
+  return (
+    <div className="pa3" key={session.id}>
+      <div className="pa3">TS: {session.createdAt}</div>
+      <div>
+        <button onClick={() => act.deleteSessionWithId(session.id)}>
+          Delete
+        </button>
+      </div>
+      {map(renderTabItem(identity))(session.tabs)}
     </div>
-    {map(renderTabItem(identity))(session.tabs)}
-  </div>
-)
+  )
+}
 
 // MAIN
 
