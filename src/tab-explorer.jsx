@@ -161,6 +161,7 @@ const App = () => {
 
   const saveSession = useSaveSessionCallback(setState)
   const saveAndCloseSession = useSaveAndCloseSessionCallback(setState)
+  const act = usePureActions(setState)
 
   useCacheStateEffect(state)
 
@@ -192,7 +193,7 @@ const App = () => {
       </div>
       <div>{map(renderTabItem(onTabItemClicked))(currentSessionTabs)}</div>
       <div className="pa3 f3">Saved Sessions</div>
-      <div>{map(renderSavedSession)(displaySessions)}</div>
+      <div>{map(renderSavedSession(act))(displaySessions)}</div>
     </div>
   )
 }
@@ -273,13 +274,16 @@ const renderTabItem = onTabItemClicked => t => {
   )
 }
 
-function renderSavedSession(session) {
-  return (
-    <div className="pa3" key={session.id}>
-      <div className="pa3">TS: {session.createdAt}</div>
-      {map(renderTabItem(identity))(session.tabs)}
+const renderSavedSession = act => session => (
+  <div className="pa3" key={session.id}>
+    <div className="pa3">TS: {session.createdAt}</div>
+    <div>
+      <button onClick={() => act.deleteSessionWithId(session.id)}>
+        Delete
+      </button>
     </div>
-  )
-}
+    {map(renderTabItem(identity))(session.tabs)}
+  </div>
+)
 
 render(<App />, document.getElementById('root'))
