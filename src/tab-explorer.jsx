@@ -242,7 +242,6 @@ const renderTabItem = onTabItemClicked => t => {
       <img
         className="pr3"
         src={t.favIconUrl || defaultFavIconUrl}
-        alt="F"
         width={24}
         height={24}
       />
