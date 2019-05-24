@@ -1,5 +1,11 @@
 /* eslint-disable no-console */
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './main.css'
@@ -20,6 +26,8 @@ import descend from 'ramda/es/descend'
 import mergeDeepRight from 'ramda/es/mergeDeepRight'
 import defaultTo from 'ramda/es/defaultTo'
 import omit from 'ramda/es/omit'
+import assoc from 'ramda/es/assoc'
+import is from 'ramda/es/is'
 
 console.log('tab-explorer.js loaded')
 
@@ -175,7 +183,7 @@ function usePureActions(setState) {
 
 // VIEW
 
-const App1 = () => {
+const App = () => {
   const [state, setState] = useState(loadCachedState)
 
   const currentSessionTabs = useCurrentSessionTabs()
@@ -295,9 +303,89 @@ function SessionTabItem({ tab }) {
 
 // MAIN
 
-function App() {
-  return <div>HW</div>
-}
+//#region ALT IMP
 
-render(<App />, document.getElementById('root'))
-render(<App1 />, document.getElementById('root1'))
+// const Cmd = {
+//   batch: (...l) => l,
+//   none: [],
+// }
+
+// function useStateRef(init) {
+//   const [state, setState] = useState(init)
+
+//   const stateRef = useRef(state)
+
+//   const setStateRef = useCallback(
+//     stateOrFn => {
+//       stateRef.current = is(Function)(stateOrFn)
+//         ? stateOrFn(stateRef.current)
+//         : stateOrFn
+
+//       setState(stateRef.current)
+//     },
+//     [setState, stateRef],
+//   )
+
+//   return [stateRef, setStateRef]
+// }
+
+// function App({ flags, init, update, view }) {
+//   const [initialModel, initialCmd] = useMemo(() => init(flags), [])
+
+//   function runCmd(cmd) {
+//     console.log('cmd', cmd)
+//   }
+
+//   useEffect(() => {
+//     console.log('initialModel', initialModel)
+//     runCmd(initialCmd)
+//   }, [initialModel, initialCmd])
+
+//   const [modelRef, setModel] = useStateRef(initialModel)
+
+//   function send(kind, args) {
+//     const msg = { kind, args }
+//     const [model, cmd] = update(msg, modelRef.current)
+//     setModel(model)
+//     runCmd(cmd)
+//   }
+
+//   return view(modelRef.current, send)
+// }
+
+// function init(/* flags */) {
+//   return [{ type: 'LOADING' }, Cmd.none]
+// }
+
+// function update(msg, model) {
+//   if (msg.kind === 'CycleState') {
+//     const nextTypeMap = {
+//       LOADING: 'SUCCESS',
+//       SUCCESS: 'REFRESHING',
+//       REFRESHING: 'LOADING',
+//     }
+//     return [assoc('type')(nextTypeMap[model.type])(model), Cmd.none]
+//   } else {
+//     return [model, Cmd.none]
+//   }
+// }
+
+// function view(model, send) {
+//   return (
+//     <div>
+//       <div>HW</div>
+//       <div onClick={() => send('CycleState')}>
+//         {JSON.stringify(model.type)}
+//       </div>
+//     </div>
+//   )
+// }
+
+// render(
+//   <App flags={{}} init={init} update={update} view={view} />,
+//   document.getElementById('root'),
+// )
+
+//#endregion
+
+render(<App />, document.getElementById('root1'))
