@@ -59,6 +59,12 @@ const closeTabs = tabIds => {
   return new Promise(resolve => chrome.tabs.remove(tabIds, resolve))
 }
 
+const openTabs = tabs => {
+  tabs.forEach(tab => {
+    chrome.tabs.create({ url: tab.url, active: false })
+  })
+}
+
 // HOOKS & MODEL
 
 const useListener = (event, listener, deps) => {
@@ -228,9 +234,9 @@ const App = () => {
 
 function CurrentWindowTabs({
   onCurrentSessionTabItemClicked,
-  saveSession,
+  saveSession: save,
   currentSessionTabs: tabs,
-  saveAndCloseSession,
+  saveAndCloseSession: saveAndClose,
 }) {
   const viewBtn = (label, onClick) => (
     <button className="ma2" onClick={onClick}>
@@ -239,8 +245,8 @@ function CurrentWindowTabs({
   )
   const viewToolbar = (
     <div className="pa1">
-      {viewBtn('Save Session', () => saveSession(tabs))}
-      {viewBtn('Save And Close Session', () => saveAndCloseSession(tabs))}
+      {viewBtn('Save Session', () => save(tabs))}
+      {viewBtn('Save And Close Session', () => saveAndClose(tabs))}
     </div>
   )
 
@@ -282,6 +288,12 @@ function SessionItem({ actions, session }) {
       <div>
         <button onClick={() => actions.deleteSessionWithId(session.id)}>
           Delete
+        </button>
+        <button
+          disabled={session.tabs.length === 0}
+          onClick={() => openTabs(session.tabs)}
+        >
+          Open {session.tabs.length} tabs
         </button>
       </div>
       {map(renderTabItem)(session.tabs)}
