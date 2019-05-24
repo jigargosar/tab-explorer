@@ -1,14 +1,8 @@
-import React, {
-  Component,
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-} from 'react'
+/* eslint-disable no-console */
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './main.css'
-import mergeDeepLeft from 'ramda/es/mergeDeepLeft'
 import mergeLeft from 'ramda/es/mergeLeft'
 import compose from 'ramda/es/compose'
 import pipe from 'ramda/es/pipe'
@@ -17,17 +11,16 @@ import over from 'ramda/es/over'
 import lensProp from 'ramda/es/lensProp'
 import nanoid from 'nanoid'
 import prop from 'ramda/es/prop'
-import propEq from 'ramda/es/propEq'
 import reject from 'ramda/es/reject'
 import startsWith from 'ramda/es/startsWith'
 import propSatisfies from 'ramda/es/propSatisfies'
 import values from 'ramda/es/values'
 import sortWith from 'ramda/es/sortWith'
 import descend from 'ramda/es/descend'
-import tap from 'ramda/es/tap'
 import mergeDeepRight from 'ramda/es/mergeDeepRight'
 import defaultTo from 'ramda/es/defaultTo'
 import identity from 'ramda/es/identity'
+import omit from 'ramda/es/omit'
 
 console.log('tab-explorer.js loaded')
 
@@ -68,16 +61,8 @@ const getPopulatedWindow = () =>
     chrome.windows.getCurrent({ populate: true }, resolve),
   )
 
-const getCurrentTab = () =>
-  new Promise(resolve => chrome.tabs.getCurrent(resolve))
-
-const getCurrentTabAndWindow = async () => {
-  const [win, tab] = await Promise.all([
-    getPopulatedWindow(),
-    getCurrentTab(),
-  ])
-  return { win, tab }
-}
+// const getCurrentTab = () =>
+//   new Promise(resolve => chrome.tabs.getCurrent(resolve))
 
 const closeTabs = tabIds =>
   new Promise(resolve => chrome.tabs.remove(tabIds, resolve))
@@ -116,16 +101,6 @@ const useCurrentWindowTabs = () => {
   )
 
   return tabs
-}
-
-const useCurrentTabId = () => {
-  const [id, setId] = useState(-1)
-
-  useEffect(() => {
-    getCurrentTab().then(t => setId(t.id))
-  }, [])
-
-  return id
 }
 
 const getCache = key => localStorage.getItem(key)
@@ -242,16 +217,16 @@ function usePureActions(setState) {
   const overSessions = overStateProp('sessions')
 
   return useMemo(
-    () =>
-      ({
-        deleteSessionWithId: id => {
-          overSessions(omit([id]))
-        },
-        addNewSessionFromTabs: tabs => {
-          const session = sessionFromTabs(tabs)
-          overSessions(mergeModel(session))
-        },
-      }[setState]),
+    () => ({
+      deleteSessionWithId: id => {
+        overSessions(omit([id]))
+      },
+      addNewSessionFromTabs: tabs => {
+        const session = sessionFromTabs(tabs)
+        overSessions(mergeModel(session))
+      },
+    }),
+    [setState],
   )
 }
 
