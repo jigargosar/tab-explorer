@@ -167,7 +167,9 @@ const App = () => {
         {/* <button className="ph2" /> */}
       </div>
       <div>{map(renderTabItem(onTabItemClicked))(currentSessionTabs)}</div>
-      <div className="pa3 f3">Saved Sessions</div>
+      <div className="pa4" />
+      <div className="ph3 f3">Saved Sessions</div>
+      {/* <div className="pa3" /> */}
       <div>{map(renderSavedSession(act))(displaySessions)}</div>
     </div>
   )
