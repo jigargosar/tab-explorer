@@ -143,7 +143,7 @@ const loadCachedState = () => {
   return decodeCached('te-app-state')
 }
 
-const useCacheState = state =>
+const useCacheStateEffect = state =>
   useEffect(
     () => setCache('te-app-state')(JSON.stringify(state, null, 2)),
     [state],
@@ -152,16 +152,17 @@ const useCacheState = state =>
 const App = () => {
   const [state, setState] = useState(loadCachedState)
 
-  const sessionTabs = useSessionTabs()
+  const currentSessionTabs = useCurrentSessionTabs()
 
-  const sessionList = compose(
+  const displaySessions = compose(
     sortWith([descend(prop('createdAt'))]),
     values,
   )(state.sessions)
 
   const saveSession = useSaveSessionCallback(setState)
+  const saveAndCloseSession = useSaveAndCloseSessionCallback(setState)
 
-  useCacheState(state)
+  useCacheStateEffect(state)
 
   useEffect(() => console.log('state changed', state), [state])
 
@@ -175,40 +176,61 @@ const App = () => {
     <div className="pa2">
       <div className="pa3 f3">Tab Explorer</div>
       <div className="pa1">
-        <button className="ph2" onClick={() => saveSession(sessionTabs)}>
+        <button
+          className="ph2"
+          onClick={() => saveSession(currentSessionTabs)}
+        >
           Save Session
         </button>
         <button
           className="ph2"
-          onClick={() => saveAndCloseSession(sessionTabs)}
+          onClick={() => saveAndCloseSession(currentSessionTabs)}
         >
           Save And Close Session
         </button>
         {/* <button className="ph2" /> */}
       </div>
-      <div>{map(renderTabItem(onTabItemClicked))(sessionTabs)}</div>
+      <div>{map(renderTabItem(onTabItemClicked))(currentSessionTabs)}</div>
       <div className="pa3 f3">Saved Sessions</div>
-      <div>{map(renderSavedSession)(sessionList)}</div>
+      <div>{map(renderSavedSession)(displaySessions)}</div>
     </div>
   )
 }
 
-function useSessionTabs() {
+function useCurrentSessionTabs() {
   const windowTabs = useCurrentWindowTabs()
   return reject(propSatisfies(startsWith(pageUrl))('url'))(windowTabs)
+}
+
+function sessionFromTabs(tabs) {
+  const session = {
+    id: 'S_' + nanoid(),
+    createdAt: Date.now(),
+    tabs: tabs,
+  }
+  console.log('session :', session)
+  return session
+}
+
+function createAndAddSessionFromTabs(otherTabs, setState) {
+  const session = sessionFromTabs(otherTabs)
+  setState(overProp('sessions')(mergeModel(session)))
 }
 
 function useSaveSessionCallback(setState) {
   return useCallback(
     async otherTabs => {
-      const session = {
-        id: 'S_' + nanoid(),
-        createdAt: Date.now(),
-        tabs: otherTabs,
-      }
-      console.log('session :', session)
-      setState(s => compose(overProp('sessions')(mergeModel(session)))(s))
-      // await closeTabs(otherTabs.map(prop('id')))
+      createAndAddSessionFromTabs(otherTabs, setState)
+    },
+    [setState],
+  )
+}
+
+function useSaveAndCloseSessionCallback(setState) {
+  return useCallback(
+    async otherTabs => {
+      createAndAddSessionFromTabs(otherTabs, setState)
+      await closeTabs(otherTabs.map(prop('id')))
     },
     [setState],
   )
