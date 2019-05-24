@@ -175,7 +175,7 @@ function usePureActions(setState) {
 
 // VIEW
 
-const App = () => {
+const App1 = () => {
   const [state, setState] = useState(loadCachedState)
 
   const currentSessionTabs = useCurrentSessionTabs()
@@ -295,4 +295,9 @@ function SessionTabItem({ tab }) {
 
 // MAIN
 
+function App() {
+  return <div>HW</div>
+}
+
 render(<App />, document.getElementById('root'))
+render(<App1 />, document.getElementById('root1'))
