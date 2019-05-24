@@ -204,7 +204,7 @@ const App = () => {
   }
 
   const renderCurrentSession = (
-    <RCS
+    <CurrentWindowTabs
       {...{
         onCurrentSessionTabItemClicked,
         saveSession,
@@ -226,18 +226,12 @@ const App = () => {
   )
 }
 
-function RCS({
+function CurrentWindowTabs({
   onCurrentSessionTabItemClicked,
   saveSession,
-  currentSessionTabs,
+  currentSessionTabs: tabs,
   saveAndCloseSession,
 }) {
-  const renderTabItem = tab => (
-    <CurrentWindowTabItem
-      key={tab.id}
-      {...{ onCurrentSessionTabItemClicked, tab }}
-    />
-  )
   const viewBtn = (label, onClick) => (
     <button className="ma2" onClick={onClick}>
       {label}
@@ -245,13 +239,17 @@ function RCS({
   )
   const viewToolbar = (
     <div className="pa1">
-      {viewBtn('Save Session', () => saveSession(currentSessionTabs))}
-      {viewBtn('Save And Close Session', () =>
-        saveAndCloseSession(currentSessionTabs),
-      )}
+      {viewBtn('Save Session', () => saveSession(tabs))}
+      {viewBtn('Save And Close Session', () => saveAndCloseSession(tabs))}
     </div>
   )
-  const viewTabList = <div>{map(renderTabItem)(currentSessionTabs)}</div>
+  const viewTab = tab => (
+    <CurrentWindowTabItem
+      key={tab.id}
+      {...{ onCurrentSessionTabItemClicked, tab }}
+    />
+  )
+  const viewTabList = <div>{map(viewTab)(tabs)}</div>
   return (
     <div>
       {viewToolbar}
