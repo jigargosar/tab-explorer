@@ -158,6 +158,12 @@ const App = () => {
 
   useEffect(() => console.log('state changed', state), [state])
 
+  const onTabItemClicked = useCallback(tab => {
+    chrome.tabs.update(tab.id, { active: true }, updatedTab =>
+      console.log('tab updated', updatedTab),
+    )
+  })
+
   return (
     <div className="pa2">
       <div className="pa3 f3">Tab Explorer</div>
@@ -168,7 +174,7 @@ const App = () => {
         {/* <button className="ph2" />
         <button className="ph2" /> */}
       </div>
-      <div>{map(renderTabItem(identity))(sessionTabs)}</div>
+      <div>{map(renderTabItem(onTabItemClicked))(sessionTabs)}</div>
       <div className="pa3 f3">Saved Sessions</div>
       <div>{map(renderSavedSession)(sessionList)}</div>
     </div>
@@ -205,7 +211,7 @@ function useSaveSessionCallback(setState) {
 const renderTabItem = onTabItemClicked => t => {
   return (
     <div
-      className="flex items-center pa2"
+      className="pa2 pointer flex items-center "
       key={t.id}
       onClick={() => onTabItemClicked(t)}
     >
