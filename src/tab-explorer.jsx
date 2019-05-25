@@ -225,9 +225,9 @@ const App = () => {
       <div className="lh-copy f3">Tab Explorer</div>
       <div className="pv1" />
       {renderOpenTabs}
-      <div className="pa4" />
-      <div className="ph3 f3">Saved Sessions</div>
-      {/* <div className="pa3" /> */}
+      <div className="pv1" />
+      <div className="pv1 f3">Saved Sessions</div>
+      <div className="pv1" />
       <div>{map(renderSessionItem)(displaySessions)}</div>
     </div>
   )
@@ -259,16 +259,17 @@ function OpenTabs(props) {
   function TabItem({ onCurrentSessionTabItemClicked, tab }) {
     return (
       <div
-        className="pa2 pointer flex items-center "
+        className="pv1 pointer flex items-center "
         onClick={() => onCurrentSessionTabItemClicked(tab)}
       >
+        <div className="ph1" />
         <img
           className=""
           src={tab.favIconUrl || defaultFavIconUrl}
           width={24}
           height={24}
         />
-        <div className="pa2" />
+        <div className="ph1" />
         <div>{tab.title}</div>
       </div>
     )
@@ -277,7 +278,7 @@ function OpenTabs(props) {
   const viewTabItem = tab => (
     <TabItem key={tab.id} {...{ onCurrentSessionTabItemClicked, tab }} />
   )
-  const viewTabList = <div>{map(viewTabItem)(tabs)}</div>
+  const viewTabList = <div className="pv1">{map(viewTabItem)(tabs)}</div>
   return (
     <div className="">
       {viewToolbar}
@@ -289,18 +290,21 @@ function OpenTabs(props) {
 function SessionItem({ actions, session }) {
   const renderTabItem = tab => <SessionTabItem key={tab.id} tab={tab} />
   return (
-    <div className="pa3">
-      <div className="pa3">TS: {session.createdAt}</div>
-      <div>
+    <div className="pv2">
+      <div className="pv1 flex items-center">
+        <div className="pv1">TS: {session.createdAt}</div>
+        <div className="ph1" />
         <button onClick={() => actions.deleteSessionWithId(session.id)}>
           Delete
         </button>
+        <div className="ph1" />
         <button
           disabled={session.tabs.length === 0}
           onClick={() => openTabs(session.tabs)}
         >
           Open {session.tabs.length} tabs
         </button>
+        <div className="ph1" />
       </div>
       {map(renderTabItem)(session.tabs)}
     </div>
@@ -309,15 +313,15 @@ function SessionItem({ actions, session }) {
 
 function SessionTabItem({ tab }) {
   return (
-    <div className="pa2 flex items-center ">
-      <img
-        className=""
-        src={tab.favIconUrl || defaultFavIconUrl}
-        width={24}
-        height={24}
-      />
-      <div className="pa2" />
-      <div>{tab.title}</div>
+    <div className=" flex ">
+      <div className="pa1 flex items-center">
+        <img
+          src={tab.favIconUrl || defaultFavIconUrl}
+          width={16}
+          height={16}
+        />
+      </div>
+      <div className=" ph1 flex-auto flex items-center">{tab.title}</div>
     </div>
   )
 }
