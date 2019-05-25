@@ -307,6 +307,7 @@ function SessionItem({ session }) {
 }
 
 function SessionTabItem({ tab }) {
+  const actions = useAppActions()
   return (
     <div className="lh-copy flex ">
       <div className="pa1 flex items-center">
@@ -316,7 +317,13 @@ function SessionTabItem({ tab }) {
           height={24}
         />
       </div>
-      <div className=" ph1 flex-auto flex items-center">{tab.title}</div>
+      <div
+        className=" ph1 flex-auto flex items-center"
+        // onClick={() => actions.onSessionTabsListItemClicked()}
+        onClick={() => actions.onSessionTabsListItemClicked()}
+      >
+        {tab.title}
+      </div>
     </div>
   )
 }
