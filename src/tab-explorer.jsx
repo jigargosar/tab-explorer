@@ -210,7 +210,7 @@ const App = () => {
   }
 
   const renderCurrentSession = (
-    <CurrentWindowTabs
+    <OpenTabs
       {...{
         onCurrentSessionTabItemClicked,
         saveSession,
@@ -232,19 +232,22 @@ const App = () => {
   )
 }
 
-function CurrentWindowTabs({
-  onCurrentSessionTabItemClicked,
-  saveSession: save,
-  currentSessionTabs: tabs,
-  saveAndCloseSession: saveAndClose,
-}) {
+function OpenTabs(props) {
+  const {
+    onCurrentSessionTabItemClicked,
+    saveSession: save,
+    currentSessionTabs: tabs,
+    saveAndCloseSession: saveAndClose,
+  } = props
+
   const viewBtn = (label, onClick) => (
     <button className="ma2" onClick={onClick}>
       {label}
     </button>
   )
   const viewToolbar = (
-    <div className="pa1">
+    <div className="pa1 flex items-center">
+      <div className="ph3">Open Tabs</div>
       {viewBtn('Save Session', () => save(tabs))}
       {viewBtn('Save And Close Session', () => saveAndClose(tabs))}
     </div>
@@ -274,6 +277,7 @@ function CurrentWindowTabs({
   const viewTabList = <div>{map(viewTabItem)(tabs)}</div>
   return (
     <div>
+      <div className="pv3" />
       {viewToolbar}
       {viewTabList}
     </div>
