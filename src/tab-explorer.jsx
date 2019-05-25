@@ -172,39 +172,33 @@ function useActions(setState) {
   )
 }
 
+function useAppState() {
+  const [state, setState] = useState(loadCachedState)
+  useCacheStateEffect(state)
+  useEffect(() => console.log('state changed', state), [state])
+  const actions = useActions(setState)
+  return [state, actions]
+}
+
 // VIEW
 
 const App = () => {
-  const [state, setState] = useState(loadCachedState)
+  const [state, actions] = useAppState()
 
   const displaySessions = compose(
     sortWith([descend(prop('createdAt'))]),
     values,
   )(state.sessions)
 
-  const actions = useActions(setState)
-
-  useCacheStateEffect(state)
-
-  useEffect(() => console.log('state changed', state), [state])
-
   const renderSessionItem = session => {
     return <SessionItem key={session.id} {...{ actions, session }} />
   }
-
-  const renderOpenTabs = (
-    <OpenTabs
-      {...{
-        actions,
-      }}
-    />
-  )
 
   return (
     <div className="pa3">
       <div className="lh-copy f3">Tab Explorer</div>
       <div className="pv1" />
-      {renderOpenTabs}
+      <OpenTabs actions={actions} />
       <div className="pv2" />
       <div className="pv1 ttu tracked b">Collections</div>
       <div className="pv1" />
