@@ -225,8 +225,8 @@ const App = () => {
       <div className="lh-copy f3">Tab Explorer</div>
       <div className="pv1" />
       {renderOpenTabs}
-      <div className="pv1" />
-      <div className="pv1 f3">Saved Sessions</div>
+      <div className="pv2" />
+      <div className="pv1 ttu tracked b">Collections</div>
       <div className="pv1" />
       <div>{map(renderSessionItem)(displaySessions)}</div>
     </div>
