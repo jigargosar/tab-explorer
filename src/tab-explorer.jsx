@@ -122,7 +122,7 @@ const useCacheStateEffect = state => {
   )
 }
 
-function useCurrentSessionTabs() {
+function useOpenTabsList() {
   const windowTabs = useCurrentWindowTabs()
   return reject(propSatisfies(startsWith(pageUrl))('url'))(windowTabs)
 }
@@ -177,8 +177,6 @@ function useActions(setState) {
 const App = () => {
   const [state, setState] = useState(loadCachedState)
 
-  const currentSessionTabs = useCurrentSessionTabs()
-
   const displaySessions = compose(
     sortWith([descend(prop('createdAt'))]),
     values,
@@ -197,7 +195,6 @@ const App = () => {
   const renderOpenTabs = (
     <OpenTabs
       {...{
-        currentSessionTabs,
         actions,
       }}
     />
@@ -216,8 +213,8 @@ const App = () => {
   )
 }
 
-function OpenTabs(props) {
-  const { currentSessionTabs: tabs, actions } = props
+function OpenTabs({ actions }) {
+  const tabs = useOpenTabsList()
 
   const viewBtn = (label, onClick) => (
     <button className="" onClick={onClick}>
