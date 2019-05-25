@@ -242,14 +242,16 @@ function OpenTabs(props) {
   } = props
 
   const viewBtn = (label, onClick) => (
-    <button className="ma2" onClick={onClick}>
+    <button className="" onClick={onClick}>
       {label}
     </button>
   )
   const viewToolbar = (
-    <div className="pa1 flex items-center">
-      <div className="ph3">Open Tabs</div>
+    <div className="pv1 flex items-center">
+      <div className="ph2">Open Tabs</div>
+      <div className="ph1" />
       {viewBtn('Save Session', () => save(tabs))}
+      <div className="ph1" />
       {viewBtn('Save And Close Session', () => saveAndClose(tabs))}
     </div>
   )
