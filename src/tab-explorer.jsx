@@ -142,25 +142,6 @@ function createAndAddSessionFromTabs(otherTabs, setState) {
   setState(overProp('sessions')(mergeModel(session)))
 }
 
-function useSaveSessionCallback(setState) {
-  return useCallback(
-    async otherTabs => {
-      createAndAddSessionFromTabs(otherTabs, setState)
-    },
-    [setState],
-  )
-}
-
-function useSaveAndCloseSessionCallback(setState) {
-  return useCallback(
-    async otherTabs => {
-      createAndAddSessionFromTabs(otherTabs, setState)
-      await closeTabs(otherTabs.map(prop('id')))
-    },
-    [setState],
-  )
-}
-
 function useActions(setState) {
   const overStateProp = prop => fn => setState(overProp(prop)(fn))
   const overSessions = overStateProp('sessions')
@@ -198,8 +179,6 @@ const App = () => {
     values,
   )(state.sessions)
 
-  const saveSession = useSaveSessionCallback(setState)
-  const saveAndCloseSession = useSaveAndCloseSessionCallback(setState)
   const actions = useActions(setState)
 
   useCacheStateEffect(state)
@@ -220,9 +199,8 @@ const App = () => {
     <OpenTabs
       {...{
         onCurrentSessionTabItemClicked,
-        saveSession,
         currentSessionTabs,
-        saveAndCloseSession,
+        actions,
       }}
     />
   )
@@ -243,9 +221,8 @@ const App = () => {
 function OpenTabs(props) {
   const {
     onCurrentSessionTabItemClicked,
-    saveSession: save,
     currentSessionTabs: tabs,
-    saveAndCloseSession: saveAndClose,
+    actions,
   } = props
 
   const viewBtn = (label, onClick) => (
@@ -257,9 +234,11 @@ function OpenTabs(props) {
     <div className="pv1 flex items-center">
       <div className="ph2">Open Tabs</div>
       <div className="ph1" />
-      {viewBtn('Save Session', () => save(tabs))}
+      {viewBtn('Save Session', () => actions.saveSession(tabs))}
       <div className="ph1" />
-      {viewBtn('Save And Close Session', () => saveAndClose(tabs))}
+      {viewBtn('Save And Close Session', () =>
+        actions.saveAndCloseSession(tabs),
+      )}
     </div>
   )
 
