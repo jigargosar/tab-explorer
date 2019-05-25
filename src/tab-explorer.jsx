@@ -209,7 +209,7 @@ const App = () => {
     return <SessionItem key={session.id} {...{ actions, session }} />
   }
 
-  const renderCurrentSession = (
+  const renderOpenTabs = (
     <OpenTabs
       {...{
         onCurrentSessionTabItemClicked,
@@ -221,9 +221,10 @@ const App = () => {
   )
 
   return (
-    <div className="pa2">
-      <div className="pa3 f3">Tab Explorer</div>
-      {renderCurrentSession}
+    <div className="pa3">
+      <div className="lh-copy f3">Tab Explorer</div>
+      <div className="pv1" />
+      {renderOpenTabs}
       <div className="pa4" />
       <div className="ph3 f3">Saved Sessions</div>
       {/* <div className="pa3" /> */}
@@ -276,8 +277,7 @@ function OpenTabs(props) {
   )
   const viewTabList = <div>{map(viewTabItem)(tabs)}</div>
   return (
-    <div>
-      <div className="pv3" />
+    <div className="">
       {viewToolbar}
       {viewTabList}
     </div>
