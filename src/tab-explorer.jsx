@@ -292,13 +292,17 @@ function SessionItem({ actions, session }) {
   return (
     <div className="pv2">
       <div className="pv1 flex items-center">
-        <div className="pv1">TS: {session.createdAt}</div>
+        <div className="pv1 b">TS: {session.createdAt}</div>
         <div className="ph1" />
-        <button onClick={() => actions.deleteSessionWithId(session.id)}>
+        <button
+          className="ttu f7"
+          onClick={() => actions.deleteSessionWithId(session.id)}
+        >
           Delete
         </button>
         <div className="ph1" />
         <button
+          className="ttu f7"
           disabled={session.tabs.length === 0}
           onClick={() => openTabs(session.tabs)}
         >
@@ -313,12 +317,12 @@ function SessionItem({ actions, session }) {
 
 function SessionTabItem({ tab }) {
   return (
-    <div className=" flex ">
+    <div className="lh-copy flex ">
       <div className="pa1 flex items-center">
         <img
           src={tab.favIconUrl || defaultFavIconUrl}
-          width={16}
-          height={16}
+          width={24}
+          height={24}
         />
       </div>
       <div className=" ph1 flex-auto flex items-center">{tab.title}</div>
