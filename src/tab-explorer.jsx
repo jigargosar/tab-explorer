@@ -161,7 +161,7 @@ function useSaveAndCloseSessionCallback(setState) {
   )
 }
 
-function usePureActions(setState) {
+function useActions(setState) {
   const overStateProp = prop => fn => setState(overProp(prop)(fn))
   const overSessions = overStateProp('sessions')
 
@@ -193,7 +193,7 @@ const App = () => {
 
   const saveSession = useSaveSessionCallback(setState)
   const saveAndCloseSession = useSaveAndCloseSessionCallback(setState)
-  const actions = usePureActions(setState)
+  const actions = useActions(setState)
 
   useCacheStateEffect(state)
 
