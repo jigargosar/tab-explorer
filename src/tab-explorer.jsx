@@ -151,7 +151,7 @@ function useActions(setState) {
       saveSession: otherTabs => {
         createAndAddSessionFromTabs(otherTabs, setState)
       },
-      saveAndCloseSession: async otherTabs => {
+      saveSessionAndCloseTabs: async otherTabs => {
         createAndAddSessionFromTabs(otherTabs, setState)
         await closeTabs(otherTabs.map(prop('id')))
       },
@@ -231,7 +231,7 @@ function OpenTabs(props) {
       {viewBtn('Save Session', () => actions.saveSession(tabs))}
       <div className="ph1" />
       {viewBtn('Save And Close Session', () =>
-        actions.saveAndCloseSession(tabs),
+        actions.saveSessionAndCloseTabs(tabs),
       )}
     </div>
   )
