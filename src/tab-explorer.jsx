@@ -155,7 +155,7 @@ function useActions(setState) {
         createAndAddSessionFromTabs(otherTabs, setState)
         await closeTabs(otherTabs.map(prop('id')))
       },
-      onCurrentSessionTabItemClicked: tab => {
+      onOpenTabsListItemClicked: tab => {
         chrome.tabs.update(tab.id, { active: true }, updatedTab =>
           console.log('tab updated', updatedTab),
         )
@@ -190,12 +190,6 @@ const App = () => {
 
   useEffect(() => console.log('state changed', state), [state])
 
-  const onCurrentSessionTabItemClicked = useCallback(tab => {
-    chrome.tabs.update(tab.id, { active: true }, updatedTab =>
-      console.log('tab updated', updatedTab),
-    )
-  })
-
   const renderSessionItem = session => {
     return <SessionItem key={session.id} {...{ actions, session }} />
   }
@@ -203,7 +197,6 @@ const App = () => {
   const renderOpenTabs = (
     <OpenTabs
       {...{
-        onCurrentSessionTabItemClicked,
         currentSessionTabs,
         actions,
       }}
@@ -224,11 +217,7 @@ const App = () => {
 }
 
 function OpenTabs(props) {
-  const {
-    onCurrentSessionTabItemClicked,
-    currentSessionTabs: tabs,
-    actions,
-  } = props
+  const { currentSessionTabs: tabs, actions } = props
 
   const viewBtn = (label, onClick) => (
     <button className="" onClick={onClick}>
@@ -247,11 +236,11 @@ function OpenTabs(props) {
     </div>
   )
 
-  function TabItem({ onCurrentSessionTabItemClicked, tab }) {
+  function TabListItem({ tab }) {
     return (
       <div
         className="pv1 pointer flex items-center "
-        onClick={() => onCurrentSessionTabItemClicked(tab)}
+        onClick={() => actions.onOpenTabsListItemClicked(tab)}
       >
         <div className="ph1" />
         <img
@@ -266,9 +255,7 @@ function OpenTabs(props) {
     )
   }
 
-  const viewTabItem = tab => (
-    <TabItem key={tab.id} {...{ onCurrentSessionTabItemClicked, tab }} />
-  )
+  const viewTabItem = tab => <TabListItem key={tab.id} tab={tab} />
   const viewTabList = <div className="pv1">{map(viewTabItem)(tabs)}</div>
   return (
     <div className="">
