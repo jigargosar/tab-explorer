@@ -319,8 +319,7 @@ function SessionTabItem({ tab }) {
       </div>
       <div
         className=" ph1 flex-auto flex items-center"
-        // onClick={() => actions.onSessionTabsListItemClicked()}
-        onClick={() => actions.onSessionTabsListItemClicked()}
+        onClick={() => actions.onSessionTabsListItemClicked(tab)}
       >
         {tab.title}
       </div>
