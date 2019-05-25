@@ -27,6 +27,8 @@ import descend from 'ramda/es/descend'
 import mergeDeepRight from 'ramda/es/mergeDeepRight'
 import defaultTo from 'ramda/es/defaultTo'
 import omit from 'ramda/es/omit'
+import lensPath from 'ramda/es/lensPath'
+import equals from 'ramda/es/equals'
 
 console.log('tab-explorer.js loaded')
 
@@ -175,6 +177,13 @@ function useActions(setState) {
       deleteSessionWithId: id => {
         overSessions(omit([id]))
       },
+      deleteSessionTab: (sessionId, tab) => {
+        const overPath = pipe(
+          lensPath,
+          over,
+        )
+        overSessions(overPath([sessionId, 'tabs'])(reject(equals(tab))))
+      },
       addNewSessionFromTabs: tabs => {
         const session = sessionFromTabs(tabs)
         overSessions(mergeModel(session))
@@ -279,7 +288,9 @@ function OpenTabs() {
 
 function SessionItem({ session }) {
   const actions = useAppActions()
-  const renderTabItem = tab => <SessionTabItem key={tab.id} tab={tab} />
+  const renderTabItem = tab => (
+    <SessionTabItem key={tab.id} tab={tab} sessionId={session.id} />
+  )
   return (
     <div className="pv2">
       <div className="pv1 flex items-center">
@@ -306,10 +317,17 @@ function SessionItem({ session }) {
   )
 }
 
-function SessionTabItem({ tab }) {
+function SessionTabItem({ sessionId, tab }) {
   const actions = useAppActions()
   return (
     <div className="lh-copy flex ">
+      <button
+        className="self-center ttu f7"
+        onClick={() => actions.deleteSessionTab(sessionId, tab)}
+      >
+        X
+      </button>
+      <div className="mh1" />
       <div className="pa1 flex items-center">
         <img
           src={tab.favIconUrl || defaultFavIconUrl}
@@ -318,7 +336,7 @@ function SessionTabItem({ tab }) {
         />
       </div>
       <div
-        className=" ph1 flex-auto flex items-center"
+        className=" ph1 flex-auto pointer flex items-center hover-blue black"
         onClick={() => actions.onSessionTabsListItemClicked(tab)}
       >
         {tab.title}
