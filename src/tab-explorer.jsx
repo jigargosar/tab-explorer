@@ -167,6 +167,13 @@ function useActions(setState) {
 
   return useMemo(
     () => ({
+      saveSession: otherTabs => {
+        createAndAddSessionFromTabs(otherTabs, setState)
+      },
+      saveAndCloseSession: async otherTabs => {
+        createAndAddSessionFromTabs(otherTabs, setState)
+        await closeTabs(otherTabs.map(prop('id')))
+      },
       deleteSessionWithId: id => {
         overSessions(omit([id]))
       },
