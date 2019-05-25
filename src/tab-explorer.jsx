@@ -1,5 +1,12 @@
 /* eslint-disable no-console */
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  createContext,
+  useContext,
+} from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './main.css'
@@ -172,6 +179,12 @@ function useActions(setState) {
   )
 }
 
+const AC = createContext()
+
+function useAppActions() {
+  return useContext(AC)
+}
+
 function useAppState() {
   const [state, setState] = useState(loadCachedState)
   useCacheStateEffect(state)
@@ -191,23 +204,26 @@ const App = () => {
   )(state.sessions)
 
   const renderSessionItem = session => {
-    return <SessionItem key={session.id} {...{ actions, session }} />
+    return <SessionItem key={session.id} {...{ session }} />
   }
 
   return (
-    <div className="pa3">
-      <div className="lh-copy f3">Tab Explorer</div>
-      <div className="pv1" />
-      <OpenTabs actions={actions} />
-      <div className="pv2" />
-      <div className="pv1 ttu tracked b">Collections</div>
-      <div className="pv1" />
-      <div>{map(renderSessionItem)(displaySessions)}</div>
-    </div>
+    <AC.Provider value={actions}>
+      <div className="pa3">
+        <div className="lh-copy f3">Tab Explorer</div>
+        <div className="pv1" />
+        <OpenTabs />
+        <div className="pv2" />
+        <div className="pv1 ttu tracked b">Collections</div>
+        <div className="pv1" />
+        <div>{map(renderSessionItem)(displaySessions)}</div>
+      </div>
+    </AC.Provider>
   )
 }
 
-function OpenTabs({ actions }) {
+function OpenTabs() {
+  const actions = useAppActions()
   const tabs = useOpenTabsList()
 
   const viewBtn = (label, onClick) => (
@@ -256,7 +272,8 @@ function OpenTabs({ actions }) {
   )
 }
 
-function SessionItem({ actions, session }) {
+function SessionItem({ session }) {
+  const actions = useAppActions()
   const renderTabItem = tab => <SessionTabItem key={tab.id} tab={tab} />
   return (
     <div className="pv2">
