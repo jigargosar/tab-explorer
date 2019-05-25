@@ -66,10 +66,12 @@ const closeTabs = tabIds => {
   return new Promise(resolve => chrome.tabs.remove(tabIds, resolve))
 }
 
+const openTab = tab => {
+  chrome.tabs.create({ url: tab.url, active: false })
+}
+
 const openTabs = tabs => {
-  tabs.forEach(tab => {
-    chrome.tabs.create({ url: tab.url, active: false })
-  })
+  tabs.forEach(openTab)
 }
 
 // HOOKS & MODEL
@@ -166,6 +168,9 @@ function useActions(setState) {
         chrome.tabs.update(tab.id, { active: true }, updatedTab =>
           console.log('tab updated', updatedTab),
         )
+      },
+      onSessionTabsListItemClicked: tab => {
+        openTab(tab)
       },
       deleteSessionWithId: id => {
         overSessions(omit([id]))
