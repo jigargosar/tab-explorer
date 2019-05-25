@@ -155,6 +155,11 @@ function useActions(setState) {
         createAndAddSessionFromTabs(otherTabs, setState)
         await closeTabs(otherTabs.map(prop('id')))
       },
+      onCurrentSessionTabItemClicked: tab => {
+        chrome.tabs.update(tab.id, { active: true }, updatedTab =>
+          console.log('tab updated', updatedTab),
+        )
+      },
       deleteSessionWithId: id => {
         overSessions(omit([id]))
       },
