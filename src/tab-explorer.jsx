@@ -108,8 +108,9 @@ function SessionItem({ session }) {
   const renderTabItem = tab => (
     <SessionTabItem key={tab.id} tab={tab} sessionId={session.id} />
   )
-  return (
-    <div className="pv2">
+
+  function renderSessionItemToolbar() {
+    return (
       <div className="pv1 flex items-center">
         <div className="pv1 b">TS: {session.createdAt}</div>
         <div className="ph1" />
@@ -128,7 +129,20 @@ function SessionItem({ session }) {
           Open {session.tabs.length} tabs
         </button>
         <div className="ph1" />
+        <button
+          className="ttu f7"
+          onClick={() => actions.onSessionTogglePinnedClicked(session.id)}
+        >
+          {session.pinned ? 'Unpin' : 'Pin'}
+        </button>
+        <div className="ph1" />
       </div>
+    )
+  }
+
+  return (
+    <div className="pv2">
+      {renderSessionItemToolbar()}
       {map(renderTabItem)(session.tabs)}
     </div>
   )
