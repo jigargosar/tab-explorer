@@ -13,8 +13,8 @@ import descend from 'ramda/es/descend'
 import {
   useAppActions,
   useAppState,
-  AppProvider,
   useOpenTabsList,
+  AppActionsProvider,
 } from './tab-explorer/hooks'
 
 console.log('tab-explorer.js loaded')
@@ -39,7 +39,7 @@ const App = () => {
   }
 
   return (
-    <AppProvider value={actions}>
+    <AppActionsProvider value={actions}>
       <div className="pa3">
         <div className="lh-copy f3">Tab Explorer</div>
         <div className="pv1" />
@@ -49,7 +49,7 @@ const App = () => {
         <div className="pv1" />
         <div>{map(renderSessionItem)(displaySessions)}</div>
       </div>
-    </AppProvider>
+    </AppActionsProvider>
   )
 }
 

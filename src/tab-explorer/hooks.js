@@ -14,6 +14,7 @@ import omit from 'ramda/es/omit'
 import lensPath from 'ramda/es/lensPath'
 import equals from 'ramda/es/equals'
 import { getCache, setCache, overProp, mergeModel } from './basics'
+import not from 'ramda/es/not'
 
 // CHROME API
 
@@ -111,6 +112,11 @@ function createAndAddSessionFromTabs(otherTabs, setState) {
   setState(overProp('sessions')(mergeModel(session)))
 }
 
+const overPath = pipe(
+  lensPath,
+  over,
+)
+
 function useActions(setState) {
   const overStateProp = prop => fn => setState(overProp(prop)(fn))
   const overSessions = overStateProp('sessions')
@@ -136,10 +142,6 @@ function useActions(setState) {
         overSessions(omit([id]))
       },
       deleteSessionTab: (sessionId, tab) => {
-        const overPath = pipe(
-          lensPath,
-          over,
-        )
         overSessions(overPath([sessionId, 'tabs'])(reject(equals(tab))))
       },
       addNewSessionFromTabs: tabs => {
@@ -148,6 +150,9 @@ function useActions(setState) {
       },
       onOpenTabsClicked: tabs => {
         tabs.forEach(createTab)
+      },
+      onSessionTogglePinnedClicked: sessionId => {
+        overSessions(overPath([sessionId, 'pinned'])(not))
       },
     }),
     [setState],
@@ -164,14 +169,7 @@ export function useAppState() {
 
 const ActionsContext = createContext()
 
-export function AppProvider({ children }) {
-  const [, actions] = useAppState()
-  return (
-    <ActionsContext.Provider value={actions}>
-      {children}
-    </ActionsContext.Provider>
-  )
-}
+export const AppActionsProvider = ActionsContext.Provider
 
 export function useAppActions() {
   return useContext(ActionsContext)
