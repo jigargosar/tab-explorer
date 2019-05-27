@@ -41,11 +41,6 @@ console.log('tab-explorer.js loaded')
 const pageUrl = chrome.runtime.getURL('tab-explorer.html')
 console.log('pageUrl', pageUrl)
 
-const defaultFavIconUrl =
-  //#region
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAARklEQVR4Xu3M0QkAIAzE0M7pNN1cBwhFDkUFL/l/8VatF6cAiASBEs0VIEFoQAQIFQChAiBUAIQC8JMA+wUwYMDA/O3A/QbXNAnXAnMZWQAAAABJRU5ErkJggg=='
-//#endregion
-
 const getPopulatedWindow = () => {
   return new Promise(resolve =>
     chrome.windows.getCurrent({ populate: true }, resolve),
@@ -59,12 +54,14 @@ const closeTabs = tabIds => {
   return new Promise(resolve => chrome.tabs.remove(tabIds, resolve))
 }
 
-const openTab = tab => {
-  chrome.tabs.create({ url: tab.url, active: false })
+const createTab = tab => {
+  return new Promise(resolve =>
+    chrome.tabs.create({ url: tab.url, active: false }, resolve),
+  )
 }
 
-const openTabs = tabs => {
-  tabs.forEach(openTab)
+const createTabs = tabs => {
+  return tabs.forEach(createTab)
 }
 
 // HOOKS & MODEL
@@ -163,7 +160,7 @@ function useActions(setState) {
         )
       },
       onSessionTabsListItemClicked: tab => {
-        openTab(tab)
+        createTab(tab)
       },
       deleteSessionWithId: id => {
         overSessions(omit([id]))
@@ -199,6 +196,11 @@ function useAppState() {
 }
 
 // VIEW
+
+const defaultFavIconUrl =
+  //#region
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAARklEQVR4Xu3M0QkAIAzE0M7pNN1cBwhFDkUFL/l/8VatF6cAiASBEs0VIEFoQAQIFQChAiBUAIQC8JMA+wUwYMDA/O3A/QbXNAnXAnMZWQAAAABJRU5ErkJggg=='
+//#endregion
 
 const App = () => {
   const [state, actions] = useAppState()
@@ -297,7 +299,7 @@ function SessionItem({ session }) {
         <button
           className="ttu f7"
           disabled={session.tabs.length === 0}
-          onClick={() => openTabs(session.tabs)}
+          onClick={() => createTabs(session.tabs)}
         >
           Open {session.tabs.length} tabs
         </button>
