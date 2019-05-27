@@ -123,7 +123,7 @@ function SessionItem({ session }) {
         <button
           className="ttu f7"
           disabled={session.tabs.length === 0}
-          onClick={() => actions.createTabs(session.tabs)}
+          onClick={() => actions.onOpenTabsClicked(session.tabs)}
         >
           Open {session.tabs.length} tabs
         </button>

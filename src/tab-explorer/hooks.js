@@ -39,10 +39,6 @@ const createTab = tab => {
   )
 }
 
-const createTabs = tabs => {
-  return tabs.forEach(createTab)
-}
-
 // HOOKS & MODEL
 
 const useListener = (event, listener, deps) => {
@@ -150,7 +146,9 @@ function useActions(setState) {
         const session = sessionFromTabs(tabs)
         overSessions(mergeModel(session))
       },
-      createTabs,
+      onOpenTabsClicked: tabs => {
+        tabs.forEach(createTab)
+      },
     }),
     [setState],
   )
