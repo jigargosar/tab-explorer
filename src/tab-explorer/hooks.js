@@ -21,6 +21,8 @@ import lensPath from 'ramda/es/lensPath'
 import equals from 'ramda/es/equals'
 import { getCache, setCache, overProp, mergeModel } from './basics'
 import not from 'ramda/es/not'
+import map from 'ramda/es/map'
+import assoc from 'ramda/es/assoc'
 
 // CHROME API
 
@@ -162,6 +164,12 @@ function useActions(setState) {
       },
       onSessionToggleCollapsedClicked: sessionId => {
         overSessions(overPath([sessionId, 'collapsed'])(not))
+      },
+      onCollapseAllSessionsClicked: () => {
+        overSessions(map(assoc('collapsed')(true)))
+      },
+      onExpandAllSessionsClicked: () => {
+        overSessions(map(assoc('collapsed')(false)))
       },
     }),
     [setState],

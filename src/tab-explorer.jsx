@@ -57,7 +57,15 @@ const App = () => {
         <div className="pv1" />
         <OpenTabs />
         <div className="pv2" />
-        <TextA>Collections</TextA>
+        <HSpaced>
+          <TextA>Collections</TextA>
+          <TBtn onClick={() => actions.onCollapseAllSessionsClicked()}>
+            Collapse All
+          </TBtn>
+          <TBtn onClick={() => actions.onExpandAllSessionsClicked()}>
+            Expand All
+          </TBtn>
+        </HSpaced>
         <div className="pv1" />
         <div>{map(renderSessionItem)(displaySessions)}</div>
       </div>
@@ -166,6 +174,10 @@ function hspaced(elList) {
     ),
   )
   return fn(elList)
+}
+
+function HSpaced(props) {
+  return hspaced(props.children)
 }
 
 function SessionTabItem({ sessionId, tab }) {
