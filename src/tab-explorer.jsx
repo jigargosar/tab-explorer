@@ -9,6 +9,7 @@ import prop from 'ramda/es/prop'
 import values from 'ramda/es/values'
 import sortWith from 'ramda/es/sortWith'
 import descend from 'ramda/es/descend'
+import { format } from 'date-fns'
 
 import {
   useAppActions,
@@ -139,7 +140,9 @@ function SessionListItem({ session }) {
     )
     return (
       <div className="pv1 flex items-center">
-        <div className="pv1 b">TS: {session.createdAt}</div>
+        <div className="pv1 b">
+          {format(session.createdAt, 'Do MMM hh:mma')}
+        </div>
         <div className="ph1" />
         {toolbar}
       </div>
