@@ -10,12 +10,10 @@ import React, {
 import { render } from 'react-dom'
 import 'tachyons'
 import './main.css'
-import mergeLeft from 'ramda/es/mergeLeft'
 import compose from 'ramda/es/compose'
 import pipe from 'ramda/es/pipe'
 import map from 'ramda/es/map'
 import over from 'ramda/es/over'
-import lensProp from 'ramda/es/lensProp'
 import nanoid from 'nanoid'
 import prop from 'ramda/es/prop'
 import reject from 'ramda/es/reject'
@@ -29,21 +27,14 @@ import defaultTo from 'ramda/es/defaultTo'
 import omit from 'ramda/es/omit'
 import lensPath from 'ramda/es/lensPath'
 import equals from 'ramda/es/equals'
+import {
+  getCache,
+  setCache,
+  overProp,
+  mergeModel,
+} from './tab-explorer/basics'
 
 console.log('tab-explorer.js loaded')
-
-// BASICS
-
-const overProp = pipe(
-  lensProp,
-  over,
-)
-const mergeModel = m => mergeLeft({ [m.id]: m })
-
-// BROWSER TASKS
-
-const getCache = key => localStorage.getItem(key)
-const setCache = key => value => localStorage.setItem(key, value)
 
 // CHROME API
 
@@ -193,10 +184,10 @@ function useActions(setState) {
   )
 }
 
-const AC = createContext()
+const ActionsContext = createContext()
 
 function useAppActions() {
-  return useContext(AC)
+  return useContext(ActionsContext)
 }
 
 function useAppState() {
@@ -222,7 +213,7 @@ const App = () => {
   }
 
   return (
-    <AC.Provider value={actions}>
+    <ActionsContext.Provider value={actions}>
       <div className="pa3">
         <div className="lh-copy f3">Tab Explorer</div>
         <div className="pv1" />
@@ -232,7 +223,7 @@ const App = () => {
         <div className="pv1" />
         <div>{map(renderSessionItem)(displaySessions)}</div>
       </div>
-    </AC.Provider>
+    </ActionsContext.Provider>
   )
 }
 
