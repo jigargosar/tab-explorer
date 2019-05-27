@@ -149,7 +149,7 @@ function SessionListItem({ session }) {
   return (
     <div className="pv2">
       {renderSessionItemToolbar()}
-      {map(renderTabItem)(session.tabs)}
+      {!session.collapsed && map(renderTabItem)(session.tabs)}
     </div>
   )
 }
