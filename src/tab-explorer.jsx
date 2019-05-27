@@ -31,6 +31,10 @@ const defaultFavIconUrl =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAARklEQVR4Xu3M0QkAIAzE0M7pNN1cBwhFDkUFL/l/8VatF6cAiASBEs0VIEFoQAQIFQChAiBUAIQC8JMA+wUwYMDA/O3A/QbXNAnXAnMZWQAAAABJRU5ErkJggg=='
 //#endregion
 
+function TextA(props) {
+  return <div className="pv1 ttu tracked b" {...props} />
+}
+
 const App = () => {
   const [state, actions] = useAppState()
 
@@ -53,7 +57,7 @@ const App = () => {
         <div className="pv1" />
         <OpenTabs />
         <div className="pv2" />
-        <div className="pv1 ttu tracked b">Collections</div>
+        <TextA>Collections</TextA>
         <div className="pv1" />
         <div>{map(renderSessionItem)(displaySessions)}</div>
       </div>
@@ -69,16 +73,15 @@ function OpenTabs() {
     return <TBtn onClick={onClick}>{label}</TBtn>
   }
 
-  const btnList = [
-    btn('Save Session', () => actions.saveSession(tabs)),
-    btn('Save And Close Session', () =>
-      actions.saveSessionAndCloseTabs(tabs),
-    ),
-  ]
   const toolbar = (
     <div className="pv1 flex items-center">
-      <div className="ph2">Open Tabs</div>
-      {hspaced(btnList)}
+      {hspaced([
+        <TextA key>Open Tabs</TextA>,
+        btn('Save Session', () => actions.saveSession(tabs)),
+        btn('Save And Close Session', () =>
+          actions.saveSessionAndCloseTabs(tabs),
+        ),
+      ])}
     </div>
   )
 
@@ -125,26 +128,23 @@ function SessionListItem({ session }) {
     const btn = (label, onClick) => {
       return <TBtn onClick={onClick}>{label}</TBtn>
     }
-    const btnList = [
-      btn('Delete', () => actions.deleteSessionWithId(session.id)),
-      btn(`Open ${session.tabs.length} tabs`, () =>
-        actions.onOpenTabsClicked(session.tabs),
-      ),
-      btn(session.pinned ? 'Unpin' : 'Pin', () =>
-        actions.onSessionTogglePinnedClicked(session.id),
-      ),
-      btn(session.collapsed ? 'Expand' : 'Collapse', () =>
-        actions.onSessionToggleCollapsedClicked(session.id),
-      ),
-    ]
-    const toolbar = hspaced(btnList)
     return (
       <div className="pv1 flex items-center">
-        <div className="lh-copy b">
-          {format(session.createdAt, 'Do MMM hh:mma')}
-        </div>
-        <div className="ph1" />
-        {toolbar}
+        {hspaced([
+          <div key className="lh-copy ">
+            {format(session.createdAt, 'Do MMM hh:mma')}
+          </div>,
+          btn('Delete', () => actions.deleteSessionWithId(session.id)),
+          btn(`Open ${session.tabs.length} tabs`, () =>
+            actions.onOpenTabsClicked(session.tabs),
+          ),
+          btn(session.pinned ? 'Unpin' : 'Pin', () =>
+            actions.onSessionTogglePinnedClicked(session.id),
+          ),
+          btn(session.collapsed ? 'Expand' : 'Collapse', () =>
+            actions.onSessionToggleCollapsedClicked(session.id),
+          ),
+        ])}
       </div>
     )
   }
