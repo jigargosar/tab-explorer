@@ -135,29 +135,6 @@ function SessionListItem({ session }) {
         <div className="pv1 b">TS: {session.createdAt}</div>
         <div className="ph1" />
         {toolbar}
-        {/* <div className="ph1" />
-        <button
-          className="ttu f7"
-          onClick={() => actions.deleteSessionWithId(session.id)}
-        >
-          Delete
-        </button>
-        <div className="ph1" />
-        <button
-          className="ttu f7"
-          disabled={session.tabs.length === 0}
-          onClick={() => actions.onOpenTabsClicked(session.tabs)}
-        >
-          Open {session.tabs.length} tabs
-        </button>
-        <div className="ph1" />
-        <button
-          className="ttu f7"
-          onClick={() => actions.onSessionTogglePinnedClicked(session.id)}
-        >
-          {session.pinned ? 'Unpin' : 'Pin'}
-        </button>
-        <div className="ph1" /> */}
       </div>
     )
   }
