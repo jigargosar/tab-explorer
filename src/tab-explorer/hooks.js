@@ -1,6 +1,12 @@
 /* eslint-disable no-console */
-import React, { useContext, useState, useEffect } from 'react'
-import { useCallback, useMemo, createContext } from 'react'
+import {
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  createContext,
+} from 'react'
 import pipe from 'ramda/es/pipe'
 import over from 'ramda/es/over'
 import nanoid from 'nanoid'
