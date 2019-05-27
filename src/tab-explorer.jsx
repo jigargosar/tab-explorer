@@ -19,6 +19,8 @@ import {
 } from './tab-explorer/hooks'
 import intersperse from 'ramda/es/intersperse'
 import propOr from 'ramda/es/propOr'
+import pipe from 'ramda/es/pipe'
+import addIndex from 'ramda/es/addIndex'
 
 console.log('tab-explorer.js loaded')
 
@@ -67,15 +69,16 @@ function OpenTabs() {
     return <TBtn onClick={onClick}>{label}</TBtn>
   }
 
-  const viewToolbar = (
+  const btnList = [
+    btn('Save Session', () => actions.saveSession(tabs)),
+    btn('Save And Close Session', () =>
+      actions.saveSessionAndCloseTabs(tabs),
+    ),
+  ]
+  const toolbar = (
     <div className="pv1 flex items-center">
       <div className="ph2">Open Tabs</div>
-      <div className="ph1" />
-      {btn('Save Session', () => actions.saveSession(tabs))}
-      <div className="ph1" />
-      {btn('Save And Close Session', () =>
-        actions.saveSessionAndCloseTabs(tabs),
-      )}
+      {hspaced(btnList)}
     </div>
   )
 
@@ -102,7 +105,7 @@ function OpenTabs() {
   const viewTabList = <div className="pv1">{map(viewTabItem)(tabs)}</div>
   return (
     <div className="">
-      {viewToolbar}
+      {toolbar}
       {viewTabList}
     </div>
   )
@@ -134,14 +137,10 @@ function SessionListItem({ session }) {
         actions.onSessionToggleCollapsedClicked(session.id),
       ),
     ]
-    const toolBarItems = intersperse(<div className="ph1" />)(btnList)
-
-    const toolbar = toolBarItems.map((el, idx) =>
-      React.cloneElement(el, { ...el.props, key: idx }),
-    )
+    const toolbar = hspaced(btnList)
     return (
       <div className="pv1 flex items-center">
-        <div className="pv1 b">
+        <div className="lh-copy b">
           {format(session.createdAt, 'Do MMM hh:mma')}
         </div>
         <div className="ph1" />
@@ -156,6 +155,17 @@ function SessionListItem({ session }) {
       {!session.collapsed && map(renderTabItem)(session.tabs)}
     </div>
   )
+}
+
+function hspaced(elList) {
+  const mapIndexed = addIndex(map)
+  const fn = pipe(
+    intersperse(<div className="ph1" />),
+    mapIndexed((el, idx) =>
+      React.cloneElement(el, { ...el.props, key: idx }),
+    ),
+  )
+  return fn(elList)
 }
 
 function SessionTabItem({ sessionId, tab }) {
