@@ -57,15 +57,17 @@ const App = () => {
         <div className="pv1" />
         <OpenTabs />
         <div className="pv2" />
-        <HSpaced>
-          <TextA>Collections</TextA>
-          <TBtn onClick={() => actions.onCollapseAllSessionsClicked()}>
-            Collapse All
-          </TBtn>
-          <TBtn onClick={() => actions.onExpandAllSessionsClicked()}>
-            Expand All
-          </TBtn>
-        </HSpaced>
+        <div className="flex items-center">
+          <HSpaced>
+            <TextA>Collections</TextA>
+            <TBtn onClick={() => actions.onCollapseAllSessionsClicked()}>
+              Collapse All
+            </TBtn>
+            <TBtn onClick={() => actions.onExpandAllSessionsClicked()}>
+              Expand All
+            </TBtn>
+          </HSpaced>
+        </div>
         <div className="pv1" />
         <div>{map(renderSessionItem)(displaySessions)}</div>
       </div>
