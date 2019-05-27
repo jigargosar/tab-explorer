@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React, { Fragment } from 'react'
+import React from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './main.css'
@@ -17,6 +17,7 @@ import {
   AppActionsProvider,
 } from './tab-explorer/hooks'
 import intersperse from 'ramda/es/intersperse'
+import propOr from 'ramda/es/propOr'
 
 console.log('tab-explorer.js loaded')
 
@@ -31,7 +32,10 @@ const App = () => {
   const [state, actions] = useAppState()
 
   const displaySessions = compose(
-    sortWith([descend(prop('createdAt'))]),
+    sortWith([
+      descend(propOr(false)('pinned')),
+      descend(prop('createdAt')),
+    ]),
     values,
   )(state.sessions)
 
