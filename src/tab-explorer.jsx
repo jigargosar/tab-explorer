@@ -109,6 +109,10 @@ function OpenTabs() {
   )
 }
 
+function TBtn(props) {
+  return <button className="ttu f7" {...props} />
+}
+
 function SessionListItem({ session }) {
   const actions = useAppActions()
   const renderTabItem = tab => (
@@ -116,11 +120,9 @@ function SessionListItem({ session }) {
   )
 
   function renderSessionItemToolbar() {
-    const btn = (label, onClick) => (
-      <button className="ttu f7" onClick={onClick}>
-        {label}
-      </button>
-    )
+    const btn = (label, onClick) => {
+      return <TBtn onClick={onClick}>{label}</TBtn>
+    }
     const btnList = [
       btn('Delete', () => actions.deleteSessionWithId(session.id)),
       btn(`Open ${session.tabs.length} tabs`, () =>
