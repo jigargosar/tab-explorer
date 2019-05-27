@@ -63,18 +63,17 @@ function OpenTabs() {
   const actions = useAppActions()
   const tabs = useOpenTabsList()
 
-  const viewBtn = (label, onClick) => (
-    <button className="" onClick={onClick}>
-      {label}
-    </button>
-  )
+  const btn = (label, onClick) => {
+    return <TBtn onClick={onClick}>{label}</TBtn>
+  }
+
   const viewToolbar = (
     <div className="pv1 flex items-center">
       <div className="ph2">Open Tabs</div>
       <div className="ph1" />
-      {viewBtn('Save Session', () => actions.saveSession(tabs))}
+      {btn('Save Session', () => actions.saveSession(tabs))}
       <div className="ph1" />
-      {viewBtn('Save And Close Session', () =>
+      {btn('Save And Close Session', () =>
         actions.saveSessionAndCloseTabs(tabs),
       )}
     </div>
