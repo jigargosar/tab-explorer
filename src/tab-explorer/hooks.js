@@ -6,6 +6,7 @@ import {
   useCallback,
   useMemo,
   createContext,
+  useRef,
 } from 'react'
 import pipe from 'ramda/es/pipe'
 import over from 'ramda/es/over'
@@ -23,6 +24,7 @@ import { getCache, setCache, overProp, mergeModel } from './basics'
 import not from 'ramda/es/not'
 import map from 'ramda/es/map'
 import assoc from 'ramda/es/assoc'
+import PouchDB from 'pouchdb-browser'
 
 // CHROME API
 
@@ -176,11 +178,41 @@ function useActions(setState) {
   )
 }
 
+function pouchDbPersistAppState(state, db) {
+  return db
+    .get('root')
+    .then(rootDoc => {
+      console.log('rootDoc :', rootDoc)
+    })
+    .catch(() => {
+      return db.put({ _id: 'root', state, createdAt: Date.now() })
+    })
+}
+
+function useCachePouchDBEffect(state) {
+  const pdbRef = useRef()
+  useEffect(() => {
+    const db = new PouchDB('tab-explorer-app-state')
+    pdbRef.current = db
+    return () => {
+      db.close()
+      pdbRef.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    const db = pdbRef.current
+    if (!db) return
+    pouchDbPersistAppState(state, db)
+  }, [state, pdbRef.current])
+}
+
 export function useAppState() {
   const [state, setState] = useState(loadCachedState)
   useCacheStateEffect(state)
-  useEffect(() => console.log('state changed', state), [state])
   const actions = useActions(setState)
+  useCachePouchDBEffect(state, actions)
+  useEffect(() => console.log('state changed', state), [state])
   return [state, actions]
 }
 
