@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React from 'react'
+import React, { Fragment } from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './main.css'
@@ -16,6 +16,7 @@ import {
   useOpenTabsList,
   AppActionsProvider,
 } from './tab-explorer/hooks'
+import intersperse from 'ramda/es/intersperse'
 
 console.log('tab-explorer.js loaded')
 
@@ -110,10 +111,30 @@ function SessionListItem({ session }) {
   )
 
   function renderSessionItemToolbar() {
+    const btn = (label, onClick) => (
+      <button className="ttu f7" onClick={onClick}>
+        {label}
+      </button>
+    )
+    const btnList = [
+      btn('Delete', () => actions.deleteSessionWithId(session.id)),
+      btn(`Open ${session.tabs.length} tabs`, () =>
+        actions.onOpenTabsClicked(session.tabs),
+      ),
+      btn(session.pinned ? 'Unpin' : 'Pin', () =>
+        actions.onSessionTogglePinnedClicked(session.id),
+      ),
+    ]
+    const toolBarItems = intersperse(<div className="ph1" />)(btnList)
+
     return (
       <div className="pv1 flex items-center">
         <div className="pv1 b">TS: {session.createdAt}</div>
         <div className="ph1" />
+        {toolBarItems.map((x, i) =>
+          React.cloneElement(x, { ...x.props, key: i }),
+        )}
+        {/* <div className="ph1" />
         <button
           className="ttu f7"
           onClick={() => actions.deleteSessionWithId(session.id)}
@@ -135,7 +156,7 @@ function SessionListItem({ session }) {
         >
           {session.pinned ? 'Unpin' : 'Pin'}
         </button>
-        <div className="ph1" />
+        <div className="ph1" /> */}
       </div>
     )
   }
