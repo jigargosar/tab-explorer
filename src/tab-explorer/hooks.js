@@ -100,11 +100,6 @@ const useCacheStateEffect = state => {
   )
 }
 
-export function useOpenTabsList() {
-  const windowTabs = useCurrentWindowTabs()
-  return reject(propSatisfies(startsWith(pageUrl))('url'))(windowTabs)
-}
-
 function sessionFromTabs(tabs) {
   const session = {
     id: 'S_' + nanoid(),
@@ -161,12 +156,6 @@ function useActions(setState) {
   )
 }
 
-const ActionsContext = createContext()
-
-export function useAppActions() {
-  return useContext(ActionsContext)
-}
-
 export function useAppState() {
   const [state, setState] = useState(loadCachedState)
   useCacheStateEffect(state)
@@ -175,6 +164,8 @@ export function useAppState() {
   return [state, actions]
 }
 
+const ActionsContext = createContext()
+
 export function AppProvider({ children }) {
   const [, actions] = useAppState()
   return (
@@ -182,4 +173,13 @@ export function AppProvider({ children }) {
       {children}
     </ActionsContext.Provider>
   )
+}
+
+export function useAppActions() {
+  return useContext(ActionsContext)
+}
+
+export function useOpenTabsList() {
+  const windowTabs = useCurrentWindowTabs()
+  return reject(propSatisfies(startsWith(pageUrl))('url'))(windowTabs)
 }
