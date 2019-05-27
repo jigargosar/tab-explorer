@@ -160,6 +160,9 @@ function useActions(setState) {
       onSessionTogglePinnedClicked: sessionId => {
         overSessions(overPath([sessionId, 'pinned'])(not))
       },
+      onSessionToggleCollapsedClicked: sessionId => {
+        overSessions(overPath([sessionId, 'collapsed'])(not))
+      },
     }),
     [setState],
   )

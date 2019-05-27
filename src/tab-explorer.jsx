@@ -128,6 +128,9 @@ function SessionListItem({ session }) {
       btn(session.pinned ? 'Unpin' : 'Pin', () =>
         actions.onSessionTogglePinnedClicked(session.id),
       ),
+      btn(session.collapsed ? 'Expand' : 'Collapse', () =>
+        actions.onSessionToggleCollapsedClicked(session.id),
+      ),
     ]
     const toolBarItems = intersperse(<div className="ph1" />)(btnList)
 
