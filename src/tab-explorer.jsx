@@ -35,7 +35,7 @@ const App = () => {
   )(state.sessions)
 
   const renderSessionItem = session => {
-    return <SessionItem key={session.id} {...{ session }} />
+    return <SessionListItem key={session.id} {...{ session }} />
   }
 
   return (
@@ -103,7 +103,7 @@ function OpenTabs() {
   )
 }
 
-function SessionItem({ session }) {
+function SessionListItem({ session }) {
   const actions = useAppActions()
   const renderTabItem = tab => (
     <SessionTabItem key={tab.id} tab={tab} sessionId={session.id} />
