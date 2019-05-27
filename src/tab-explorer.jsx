@@ -127,13 +127,14 @@ function SessionListItem({ session }) {
     ]
     const toolBarItems = intersperse(<div className="ph1" />)(btnList)
 
+    const toolbar = toolBarItems.map((el, idx) =>
+      React.cloneElement(el, { ...el.props, key: idx }),
+    )
     return (
       <div className="pv1 flex items-center">
         <div className="pv1 b">TS: {session.createdAt}</div>
         <div className="ph1" />
-        {toolBarItems.map((x, i) =>
-          React.cloneElement(x, { ...x.props, key: i }),
-        )}
+        {toolbar}
         {/* <div className="ph1" />
         <button
           className="ttu f7"
