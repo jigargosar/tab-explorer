@@ -17,20 +17,16 @@ import mergeDeepRight from 'ramda/es/mergeDeepRight'
 import defaultTo from 'ramda/es/defaultTo'
 import lensPath from 'ramda/es/lensPath'
 import equals from 'ramda/es/equals'
-import { getCache, setCache, overProp, mergeModel } from './basics'
+import { getCache, setCache, mergeModel } from './basics'
 import not from 'ramda/es/not'
 import map from 'ramda/es/map'
 import assoc from 'ramda/es/assoc'
-import { pipe, invariant } from './safe-basics'
+import { pipe, mapProp } from './safe-basics'
 import pick from 'ramda/es/pick'
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth'
-import T from 'ramda/es/T'
-import is from 'ramda/es/is'
-import isNil from 'ramda/es/isNil'
-import { when } from 'q'
 
 // CHROME API
 
@@ -97,7 +93,7 @@ const useCurrentWindowTabs = () => {
 function decodeSessionFromCache(session) {
   const fn = pipe(
     //
-    overProp('modifiedAt')(defaultTo(session.createdAt)),
+    mapProp('modifiedAt')(defaultTo(session.createdAt)),
   )
   return fn(session)
 }
@@ -111,7 +107,7 @@ const loadCachedState = () => {
     JSON.parse,
     pick(stateProps),
     mergeDeepRight(defaultState),
-    overProp('sessions')(map(decodeSessionFromCache)),
+    mapProp('sessions')(map(decodeSessionFromCache)),
   )
 
   return decodeCached('te-app-state')
@@ -148,12 +144,10 @@ const overPath = pipe(
 function useActions(setState) {
   return useMemo(() => {
     const setStateProp = prop => fn => {
-      invariant(is(String)(prop))
-      invariant(is(Function)(fn))
-      return setState(overProp(prop)(fn))
+      return setState(mapProp(prop)(fn))
     }
     const setSessions = setStateProp('sessions')
-    const updateSessionWithId = sid => fn => setSessions(overProp(sid)(fn))
+    const updateSessionWithId = sid => fn => setSessions(mapProp(sid)(fn))
 
     function createAndAddSessionFromTabs(tabs) {
       const session = sessionFromTabs(tabs)
