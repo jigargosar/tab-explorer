@@ -319,7 +319,10 @@ export function useAppState() {
   useEffect(() => {
     if (!user) return
     const sref = sessionsCRef(user)
-    const disposer = sref.onSnapshot(console.log, console.error)
+    const disposer = sref.onSnapshot(
+      qs => console.log('Fire Sessions Changed', qs.docs.length, qs),
+      console.error,
+    )
     return disposer
   }, [user])
 
@@ -337,11 +340,13 @@ export function useAppState() {
         const docSnaps = await Promise.all(dps)
         docSnaps.forEach(ds =>
           ds.exists
-            ? t.update(ds.ref, {})
+            ? t.update(ds.ref, sessionMap[ds.id])
             : t.set(ds.ref, sessionMap[ds.id]),
         )
       })
-      .then(console.log)
+      .then(() =>
+        console.log('fire: write all docs transaction success. '),
+      )
       .catch(console.error)
   }, [user, state.sessions])
 
