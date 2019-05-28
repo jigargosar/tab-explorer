@@ -88,23 +88,67 @@ const useCurrentWindowTabs = () => {
   return tabs
 }
 
+class Session {
+  constructor(id, createdAt) {
+    this.id = id
+    this.createdAt = createdAt
+  }
+  encode() {
+    const { id, createdAt } = this
+    return { id, createdAt }
+  }
+  static encode(session) {
+    return session.encode()
+  }
+  static decode({ id, createdAt }) {
+    return new Session(id, createdAt)
+  }
+}
+
+class SessionStore {
+  constructor(byId) {
+    this.byId = byId
+  }
+  static empty() {
+    return new SessionStore({})
+  }
+  static encode(store) {
+    return Object.values(store.byId).map(Session.encode)
+  }
+  static decode(sessionAttrList) {
+    const byId = sessionAttrList.reduce((byId, attrs) => {
+      byId[attrs.id] = Session.decode(attrs)
+      return byId
+    }, {})
+    return new SessionStore(byId)
+  }
+}
+
 const loadCachedState = () => {
-  const defaultState = { sessions: {} }
+  const defaultState = { sessions: {}, sessionStore: SessionStore.empty() }
   const decodeCached = pipe(
     getCache,
     defaultTo('{}'),
     JSON.parse,
     mergeDeepRight(defaultState),
+    overProp('sessionStore')(SessionStore.decode),
   )
 
   return decodeCached('te-app-state')
 }
 
-const useCacheStateEffect = state => {
-  return useEffect(
-    () => setCache('te-app-state')(JSON.stringify(state, null, 2)),
-    [state],
+function encodeState(state) {
+  const fn = pipe(
+    overProp('sessionStore')(SessionStore.encode),
+    JSON.stringify(state, null, 2),
   )
+  return fn(state)
+}
+
+const useCacheStateEffect = state => {
+  return useEffect(() => setCache('te-app-state')(encodeState(state)), [
+    state,
+  ])
 }
 
 function sessionFromTabs(tabs) {
