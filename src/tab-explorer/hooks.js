@@ -25,6 +25,7 @@ import map from 'ramda/es/map'
 import assoc from 'ramda/es/assoc'
 import PouchDB from 'pouchdb-browser'
 import { pipe } from './safe-basics'
+import pick from 'ramda/es/pick'
 
 // CHROME API
 
@@ -88,68 +89,70 @@ const useCurrentWindowTabs = () => {
   return tabs
 }
 
-class Session {
-  constructor(id, createdAt, tabs) {
-    this.id = id
-    this.createdAt = createdAt
-    this.tabs = tabs
-  }
-  encode() {
-    const { id, createdAt, tabs } = this
-    return { id, createdAt, tabs }
-  }
-  static encode(session) {
-    return session.encode()
-  }
-  static decode({ id, createdAt, tabs }) {
-    return new Session(id, createdAt, tabs)
-  }
-  static newFromTabs(tabs) {
-    return new Session('S_' + nanoid(), Date.now(), tabs)
-  }
-}
+// class Session {
+//   constructor(id, createdAt, tabs) {
+//     this.id = id
+//     this.createdAt = createdAt
+//     this.tabs = tabs
+//   }
+//   encode() {
+//     const { id, createdAt, tabs } = this
+//     return { id, createdAt, tabs }
+//   }
+//   static encode(session) {
+//     return session.encode()
+//   }
+//   static decode({ id, createdAt, tabs }) {
+//     return new Session(id, createdAt, tabs)
+//   }
+//   static newFromTabs(tabs) {
+//     return new Session('S_' + nanoid(), Date.now(), tabs)
+//   }
+// }
+//
+// class SessionStore {
+//   constructor(byId) {
+//     this.byId = byId
+//   }
+//   static empty() {
+//     return new SessionStore({})
+//   }
+//   static encode(store) {
+//     return Object.values(store.byId).map(Session.encode)
+//   }
+//   static decode(sessionAttrList) {
+//     const byId = sessionAttrList.reduce((byId, attrs) => {
+//       byId[attrs.id] = Session.decode(attrs)
+//       return byId
+//     }, {})
+//     return new SessionStore(byId)
+//   }
 
-class SessionStore {
-  constructor(byId) {
-    this.byId = byId
-  }
-  static empty() {
-    return new SessionStore({})
-  }
-  static encode(store) {
-    return Object.values(store.byId).map(Session.encode)
-  }
-  static decode(sessionAttrList) {
-    const byId = sessionAttrList.reduce((byId, attrs) => {
-      byId[attrs.id] = Session.decode(attrs)
-      return byId
-    }, {})
-    return new SessionStore(byId)
-  }
+//   mapById(fn) {
+//     return new SessionStore(fn(this.byId))
+//   }
 
-  mapById(fn) {
-    return new SessionStore(fn(this.byId))
-  }
+//   static createAndAddNewSessionFromTabs(tabs, ss) {
+//     const session = Session.newFromTabs(tabs)
+//     return ss.mapById(mergeModel(session))
+//   }
+// }
 
-  static createAndAddNewSessionFromTabs(tabs, ss) {
-    const session = Session.newFromTabs(tabs)
-    return ss.mapById(mergeModel(session))
-  }
-}
-
-const overSessionStore = overProp('sessionStore')
+// const overSessionStore = overProp('sessionStore')
 
 const loadCachedState = () => {
   const defaultState = { sessions: {} }
+  const stateProps = Object.keys(defaultState)
   const decodeCached = pipe(
     getCache,
     defaultTo('{}'),
     JSON.parse,
+    pick(stateProps),
     mergeDeepRight(defaultState),
-    s =>
-      assoc('sessionStore')(
-        SessionStore.decode(Object.values(s.sessions)),
-      )(s),
+    // s =>
+    //   assoc('sessionStore')(
+    //     SessionStore.decode(Object.values(s.sessions)),
+    //   )(s),
     // overSessionStore(
     //   ifElse(isNil)(() => SessionStore.empty())(SessionStore.decode),
     // ),
@@ -160,7 +163,7 @@ const loadCachedState = () => {
 
 function encodeState(state) {
   const fn = pipe(
-    overSessionStore(SessionStore.encode),
+    // overSessionStore(SessionStore.encode),
     state => JSON.stringify(state, null, 2),
   )
   return fn(state)
@@ -191,14 +194,14 @@ function useActions(setState) {
   return useMemo(() => {
     const setStateProp = prop => fn => setState(overProp(prop)(fn))
     const setSessions = setStateProp('sessions')
-    const setSessionStore = setStateProp('sessionStore')
+    // const setSessionStore = setStateProp('sessionStore')
 
     function createAndAddSessionFromTabs(tabs) {
       const session = sessionFromTabs(tabs)
       setSessions(mergeModel(session))
-      setSessionStore(ss =>
-        SessionStore.createAndAddNewSessionFromTabs(tabs, ss),
-      )
+      // setSessionStore(ss =>
+      //   SessionStore.createAndAddNewSessionFromTabs(tabs, ss),
+      // )
     }
 
     return {
