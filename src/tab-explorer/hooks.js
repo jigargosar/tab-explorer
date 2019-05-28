@@ -172,27 +172,27 @@ function sessionFromTabs(tabs) {
   return session
 }
 
-function createAndAddSessionFromTabs(otherTabs, setState) {
-  const session = sessionFromTabs(otherTabs)
-  setState(overProp('sessions')(mergeModel(session)))
-}
-
 const overPath = pipe(
   lensPath,
   over,
 )
 
 function useActions(setState) {
-  const overStateProp = prop => fn => setState(overProp(prop)(fn))
-  const overSessions = overStateProp('sessions')
+  return useMemo(() => {
+    const overStateProp = prop => fn => setState(overProp(prop)(fn))
+    const setSessions = overStateProp('sessions')
 
-  return useMemo(
-    () => ({
+    function createAndAddSessionFromTabs(otherTabs) {
+      const session = sessionFromTabs(otherTabs)
+      setSessions(mergeModel(session))
+    }
+
+    return {
       saveSession: otherTabs => {
-        createAndAddSessionFromTabs(otherTabs, setState)
+        createAndAddSessionFromTabs(otherTabs)
       },
       saveSessionAndCloseTabs: async otherTabs => {
-        createAndAddSessionFromTabs(otherTabs, setState)
+        createAndAddSessionFromTabs(otherTabs)
         await closeTabs(otherTabs.map(prop('id')))
       },
       onOpenTabsListItemClicked: tab => {
@@ -204,33 +204,32 @@ function useActions(setState) {
         createTab(tab)
       },
       deleteSessionWithId: id => {
-        overSessions(omit([id]))
+        setSessions(omit([id]))
       },
       deleteSessionTab: (sessionId, tab) => {
-        overSessions(overPath([sessionId, 'tabs'])(reject(equals(tab))))
+        setSessions(overPath([sessionId, 'tabs'])(reject(equals(tab))))
       },
       addNewSessionFromTabs: tabs => {
         const session = sessionFromTabs(tabs)
-        overSessions(mergeModel(session))
+        setSessions(mergeModel(session))
       },
       onOpenTabsClicked: tabs => {
         tabs.forEach(createTab)
       },
       onSessionTogglePinnedClicked: sessionId => {
-        overSessions(overPath([sessionId, 'pinned'])(not))
+        setSessions(overPath([sessionId, 'pinned'])(not))
       },
       onSessionToggleCollapsedClicked: sessionId => {
-        overSessions(overPath([sessionId, 'collapsed'])(not))
+        setSessions(overPath([sessionId, 'collapsed'])(not))
       },
       onCollapseAllSessionsClicked: () => {
-        overSessions(map(assoc('collapsed')(true)))
+        setSessions(map(assoc('collapsed')(true)))
       },
       onExpandAllSessionsClicked: () => {
-        overSessions(map(assoc('collapsed')(false)))
+        setSessions(map(assoc('collapsed')(false)))
       },
-    }),
-    [setState],
-  )
+    }
+  }, [setState])
 }
 
 function pouchDbPersistAppState(state, db) {
