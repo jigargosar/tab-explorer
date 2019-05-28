@@ -29,6 +29,7 @@ import 'firebase/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import T from 'ramda/es/T'
 import F from 'ramda/es/F'
+import mergeLeft from 'ramda/es/mergeLeft'
 
 // CHROME API
 
@@ -138,11 +139,6 @@ function sessionFromTabs(tabs) {
   return session
 }
 
-const overPath = pipe(
-  lensPath,
-  over,
-)
-
 function useActions(setState) {
   return useMemo(() => {
     const setStateProp = prop => fn => setState(mapProp(prop)(fn))
@@ -171,6 +167,20 @@ function useActions(setState) {
       },
       signOut: () => {
         firebase.auth().signOut()
+      },
+      updateSessionsIfNewer: sessionList => {
+        setSessions(sessionMap => {
+          const updatedSessionMap = sessionList
+            .filter(updatedSession => {
+              const existingSession = sessionMap[updatedSession.id]
+              return (
+                !existingSession ||
+                existingSession.modifiedAt < updatedSession.modifiedAt
+              )
+            })
+            .reduce((acc, session) => mergeModel(session)(acc), {})
+          return mergeLeft(updatedSessionMap)(sessionMap)
+        })
       },
       saveSession: otherTabs => {
         createAndAddSessionFromTabs(otherTabs)
@@ -241,17 +251,17 @@ export function useAppState() {
 
   useEffect(() => {
     if (!user) return
-    const sref = sessionsCRef(user)
-    const disposer = sref.onSnapshot(
-      qs => console.log('Fire Sessions Changed', qs.docs.length, qs),
-      console.error,
-    )
+    const scRef = getSessionsCRef(user)
+    const disposer = scRef.onSnapshot(qs => {
+      console.log('Fire Sessions Changed', qs.docs.length, qs)
+      actions.updateSessionsIfNewer(qs.docs.map(ds => ds.data()))
+    }, console.error)
     return disposer
   }, [user])
 
   useEffect(() => {
     if (!user) return
-    const sref = sessionsCRef(user)
+    const sref = getSessionsCRef(user)
     firebase
       .firestore()
       .runTransaction(async t => {
@@ -280,7 +290,7 @@ const ActionsContext = createContext()
 
 export const AppActionsProvider = ActionsContext.Provider
 
-function sessionsCRef(user) {
+function getSessionsCRef(user) {
   const db = firebase.firestore()
   const sref = db.collection(`users/${user.uid}/tab-ex-sessions`)
   return sref
