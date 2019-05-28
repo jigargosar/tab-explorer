@@ -179,8 +179,8 @@ const overPath = pipe(
 
 function useActions(setState) {
   return useMemo(() => {
-    const overStateProp = prop => fn => setState(overProp(prop)(fn))
-    const setSessions = overStateProp('sessions')
+    const setStateProp = prop => fn => setState(overProp(prop)(fn))
+    const setSessions = setStateProp('sessions')
 
     function createAndAddSessionFromTabs(otherTabs) {
       const session = sessionFromTabs(otherTabs)
