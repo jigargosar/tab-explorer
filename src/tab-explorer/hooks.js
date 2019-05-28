@@ -91,19 +91,20 @@ const useCurrentWindowTabs = () => {
 }
 
 class Session {
-  constructor(id, createdAt) {
+  constructor(id, createdAt, tabs) {
     this.id = id
     this.createdAt = createdAt
+    this.tabs = tabs
   }
   encode() {
-    const { id, createdAt } = this
-    return { id, createdAt }
+    const { id, createdAt, tabs } = this
+    return { id, createdAt, tabs }
   }
   static encode(session) {
     return session.encode()
   }
-  static decode({ id, createdAt }) {
-    return new Session(id, createdAt)
+  static decode({ id, createdAt, tabs }) {
+    return new Session(id, createdAt, tabs)
   }
 }
 
@@ -135,9 +136,13 @@ const loadCachedState = () => {
     defaultTo('{}'),
     JSON.parse,
     mergeDeepRight(defaultState),
-    overSessionStore(
-      ifElse(isNil)(() => SessionStore.empty())(SessionStore.decode),
-    ),
+    s =>
+      assoc('sessionStore')(
+        SessionStore.decode(Object.values(s.sessions)),
+      )(s),
+    // overSessionStore(
+    //   ifElse(isNil)(() => SessionStore.empty())(SessionStore.decode),
+    // ),
   )
 
   return decodeCached('te-app-state')
