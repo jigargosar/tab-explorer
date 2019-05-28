@@ -28,6 +28,7 @@ import { pipe } from './safe-basics'
 import pick from 'ramda/es/pick'
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import 'firebase/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth'
 
 // CHROME API
@@ -312,6 +313,14 @@ export function useAppState() {
   const actions = useActions(setState)
   // useCachePouchDBEffect(state, actions)
   useEffect(() => console.log('state changed', state), [state])
+  const [user] = useAuth()
+  useEffect(() => {
+    if (!user) return
+    const db = firebase.firestore()
+    const sref = db.collection(`users/${user.uid}/tab-ex/sessions`)
+    const disposer = sref.onSnapshot(console.log, console.error)
+    return disposer
+  }, [user])
   return [state, actions]
 }
 
