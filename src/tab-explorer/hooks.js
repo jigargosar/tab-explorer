@@ -21,13 +21,16 @@ import { getCache, setCache, overProp, mergeModel } from './basics'
 import not from 'ramda/es/not'
 import map from 'ramda/es/map'
 import assoc from 'ramda/es/assoc'
-import { pipe } from './safe-basics'
+import { pipe, invariant } from './safe-basics'
 import pick from 'ramda/es/pick'
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import T from 'ramda/es/T'
+import is from 'ramda/es/is'
+import isNil from 'ramda/es/isNil'
+import { when } from 'q'
 
 // CHROME API
 
@@ -91,6 +94,14 @@ const useCurrentWindowTabs = () => {
   return tabs
 }
 
+function decodeSessionFromCache(session) {
+  const fn = pipe(
+    //
+    overProp('modifiedAt')(defaultTo(session.createdAt)),
+  )
+  return fn(session)
+}
+
 const loadCachedState = () => {
   const defaultState = { sessions: {} }
   const stateProps = Object.keys(defaultState)
@@ -100,9 +111,7 @@ const loadCachedState = () => {
     JSON.parse,
     pick(stateProps),
     mergeDeepRight(defaultState),
-    overProp('sessions')(
-      map(s => (s.modifiedAt ? s : { ...s, modifiedAt: s.createdAt })),
-    ),
+    overProp('sessions')(map(decodeSessionFromCache)),
   )
 
   return decodeCached('te-app-state')
@@ -138,8 +147,13 @@ const overPath = pipe(
 
 function useActions(setState) {
   return useMemo(() => {
-    const setStateProp = prop => fn => setState(overProp(prop)(fn))
+    const setStateProp = prop => fn => {
+      invariant(is(String)(prop))
+      invariant(is(Function)(fn))
+      return setState(overProp(prop)(fn))
+    }
     const setSessions = setStateProp('sessions')
+    const updateSessionWithId = sid => fn => setSessions(overProp(sid)(fn))
 
     function createAndAddSessionFromTabs(tabs) {
       const session = sessionFromTabs(tabs)
@@ -172,7 +186,8 @@ function useActions(setState) {
         createTab(tab)
       },
       deleteSessionWithId: sessionId => {
-        setSessions(overPath([sessionId, 'deleted'])(T))
+        updateSessionWithId(sessionId)(assoc('deleted')(true))
+        // setSessions(overPath([sessionId, 'deleted'])(T))
       },
       deleteSessionTab: (sessionId, tab) => {
         setSessions(overPath([sessionId, 'tabs'])(reject(equals(tab))))

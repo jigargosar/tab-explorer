@@ -1,6 +1,6 @@
 import _pipe from 'ramda/es/pipe'
 
-function invariant(bool, msg = 'Invariant Failed') {
+export function invariant(bool, msg = 'Invariant Failed') {
   if (!bool) {
     throw new Error(msg)
   }
