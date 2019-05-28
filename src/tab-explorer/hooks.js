@@ -30,6 +30,7 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth'
+import T from 'ramda/es/T'
 
 // CHROME API
 
@@ -180,9 +181,11 @@ const useCacheStateEffect = state => {
 }
 
 function sessionFromTabs(tabs) {
+  const now = Date.now()
   const session = {
     id: 'S_' + nanoid(),
-    createdAt: Date.now(),
+    createdAt: now,
+    modifiedAt: now,
     tabs: tabs,
   }
   console.log('session :', session)
@@ -234,7 +237,7 @@ function useActions(setState) {
         createTab(tab)
       },
       deleteSessionWithId: sessionId => {
-        setSessions(omit([sessionId]))
+        setSessions(overPath([sessionId, 'deleted'])(T))
       },
       deleteSessionTab: (sessionId, tab) => {
         setSessions(overPath([sessionId, 'tabs'])(reject(equals(tab))))
