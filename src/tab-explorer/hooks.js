@@ -100,13 +100,9 @@ const loadCachedState = () => {
     JSON.parse,
     pick(stateProps),
     mergeDeepRight(defaultState),
-    // s =>
-    //   assoc('sessionStore')(
-    //     SessionStore.decode(Object.values(s.sessions)),
-    //   )(s),
-    // overSessionStore(
-    //   ifElse(isNil)(() => SessionStore.empty())(SessionStore.decode),
-    // ),
+    overProp('sessions')(
+      map(s => (s.modifiedAt ? s : { ...s, modifiedAt: s.createdAt })),
+    ),
   )
 
   return decodeCached('te-app-state')
