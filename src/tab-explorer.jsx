@@ -44,7 +44,6 @@ function UserToolbar() {
     <div className="flex items-center">
       <HSpaced>
         <div>User: {`${user}`}</div>
-        <div>Loading: {`${initialising}`}</div>
         <div>Error: {`${error}`}</div>
         <TBtn
           disabled={initialising}

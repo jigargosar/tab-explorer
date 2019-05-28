@@ -208,6 +208,15 @@ function useActions(setState) {
     }
 
     return {
+      signIn: () => {
+        const auth = firebase.auth()
+        const ap = new firebase.auth.GoogleAuthProvider()
+        ap.setCustomParameters({ prompt: 'select_account' })
+        auth.signInWithPopup(ap)
+      },
+      signOut: () => {
+        firebase.auth().signOut()
+      },
       saveSession: otherTabs => {
         createAndAddSessionFromTabs(otherTabs)
       },
