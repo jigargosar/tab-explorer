@@ -24,8 +24,6 @@ import not from 'ramda/es/not'
 import map from 'ramda/es/map'
 import assoc from 'ramda/es/assoc'
 import PouchDB from 'pouchdb-browser'
-import ifElse from 'ramda/es/ifElse'
-import isNil from 'ramda/es/isNil'
 import { pipe } from './safe-basics'
 
 // CHROME API
@@ -106,6 +104,9 @@ class Session {
   static decode({ id, createdAt, tabs }) {
     return new Session(id, createdAt, tabs)
   }
+  static newFromTabs(tabs) {
+    return new Session('S_' + nanoid(), Date.now(), tabs)
+  }
 }
 
 class SessionStore {
@@ -124,6 +125,15 @@ class SessionStore {
       return byId
     }, {})
     return new SessionStore(byId)
+  }
+
+  mapById(fn) {
+    return new SessionStore(fn(this.byId))
+  }
+
+  static createAndAddNewSessionFromTabs(tabs, ss) {
+    const session = Session.newFromTabs(tabs)
+    return ss.mapById(mergeModel(session))
   }
 }
 
@@ -181,10 +191,14 @@ function useActions(setState) {
   return useMemo(() => {
     const setStateProp = prop => fn => setState(overProp(prop)(fn))
     const setSessions = setStateProp('sessions')
+    const setSessionStore = setStateProp('sessionStore')
 
-    function createAndAddSessionFromTabs(otherTabs) {
-      const session = sessionFromTabs(otherTabs)
+    function createAndAddSessionFromTabs(tabs) {
+      const session = sessionFromTabs(tabs)
       setSessions(mergeModel(session))
+      setSessionStore(ss =>
+        SessionStore.createAndAddNewSessionFromTabs(tabs, ss),
+      )
     }
 
     return {
@@ -209,10 +223,10 @@ function useActions(setState) {
       deleteSessionTab: (sessionId, tab) => {
         setSessions(overPath([sessionId, 'tabs'])(reject(equals(tab))))
       },
-      addNewSessionFromTabs: tabs => {
-        const session = sessionFromTabs(tabs)
-        setSessions(mergeModel(session))
-      },
+      // addNewSessionFromTabs: tabs => {
+      //   const session = sessionFromTabs(tabs)
+      //   setSessions(mergeModel(session))
+      // },
       onOpenTabsClicked: tabs => {
         tabs.forEach(createTab)
       },
