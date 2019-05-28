@@ -313,20 +313,50 @@ export function useAppState() {
   const actions = useActions(setState)
   // useCachePouchDBEffect(state, actions)
   useEffect(() => console.log('state changed', state), [state])
+
   const [user] = useAuth()
+
   useEffect(() => {
     if (!user) return
-    const db = firebase.firestore()
-    const sref = db.collection(`users/${user.uid}/tab-ex-sessions`)
+    const sref = sessionsCRef(user)
     const disposer = sref.onSnapshot(console.log, console.error)
     return disposer
   }, [user])
+
+  useEffect(() => {
+    if (!user) return
+    const sref = sessionsCRef(user)
+    firebase
+      .firestore()
+      .runTransaction(async t => {
+        const sessionMap = state.sessions
+        const dps = Object.values(sessionMap).map(s => {
+          return t.get(sref.doc(s.id))
+        })
+
+        const docSnaps = await Promise.all(dps)
+        docSnaps.forEach(ds =>
+          ds.exists
+            ? t.update(ds.ref, {})
+            : t.set(ds.ref, sessionMap[ds.id]),
+        )
+      })
+      .then(console.log)
+      .catch(console.error)
+  }, [user, state.sessions])
+
   return [state, actions]
 }
 
 const ActionsContext = createContext()
 
 export const AppActionsProvider = ActionsContext.Provider
+
+function sessionsCRef(user) {
+  const db = firebase.firestore()
+  const sref = db.collection(`users/${user.uid}/tab-ex-sessions`)
+  return sref
+}
 
 export function useAppActions() {
   return useContext(ActionsContext)
