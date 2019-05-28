@@ -8,7 +8,6 @@ import {
   createContext,
   useRef,
 } from 'react'
-import pipe from 'ramda/es/pipe'
 import over from 'ramda/es/over'
 import nanoid from 'nanoid'
 import prop from 'ramda/es/prop'
@@ -25,6 +24,9 @@ import not from 'ramda/es/not'
 import map from 'ramda/es/map'
 import assoc from 'ramda/es/assoc'
 import PouchDB from 'pouchdb-browser'
+import ifElse from 'ramda/es/ifElse'
+import isNil from 'ramda/es/isNil'
+import { pipe } from './safe-basics'
 
 // CHROME API
 
@@ -127,13 +129,15 @@ class SessionStore {
 const overSessionStore = overProp('sessionStore')
 
 const loadCachedState = () => {
-  const defaultState = { sessions: {}, sessionStore: SessionStore.empty() }
+  const defaultState = { sessions: {} }
   const decodeCached = pipe(
     getCache,
     defaultTo('{}'),
     JSON.parse,
     mergeDeepRight(defaultState),
-    overSessionStore(SessionStore.decode),
+    overSessionStore(
+      ifElse(isNil)(() => SessionStore.empty())(SessionStore.decode),
+    ),
   )
 
   return decodeCached('te-app-state')
@@ -142,7 +146,7 @@ const loadCachedState = () => {
 function encodeState(state) {
   const fn = pipe(
     overSessionStore(SessionStore.encode),
-    JSON.stringify(state, null, 2),
+    state => JSON.stringify(state, null, 2),
   )
   return fn(state)
 }
