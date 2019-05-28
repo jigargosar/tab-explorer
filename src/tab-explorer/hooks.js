@@ -27,6 +27,8 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth'
+import T from 'ramda/es/T'
+import F from 'ramda/es/F'
 
 // CHROME API
 
@@ -186,8 +188,7 @@ function useActions(setState) {
         createTab(tab)
       },
       deleteSessionWithId: sessionId => {
-        updateSessionWithId(sessionId)(mapProp('deleted')(true))
-        // setSessions(overPath([sessionId, 'deleted'])(T))
+        updateSessionWithId(sessionId)(mapProp('deleted')(T))
       },
       deleteSessionTab: (sessionId, tab) => {
         updateSessionWithId(sessionId)(
@@ -198,16 +199,16 @@ function useActions(setState) {
         tabs.forEach(createTab)
       },
       onSessionTogglePinnedClicked: sessionId => {
-        setSessions(overPath([sessionId, 'pinned'])(not))
+        updateSessionWithId(sessionId)(mapProp('pinned')(not))
       },
       onSessionToggleCollapsedClicked: sessionId => {
-        setSessions(overPath([sessionId, 'collapsed'])(not))
+        updateSessionWithId(sessionId)(mapProp('collapsed')(not))
       },
       onCollapseAllSessionsClicked: () => {
-        setSessions(map(assoc('collapsed')(true)))
+        setSessions(map(mapProp('collapsed')(T)))
       },
       onExpandAllSessionsClicked: () => {
-        setSessions(map(assoc('collapsed')(false)))
+        setSessions(map(mapProp('collapsed')(F)))
       },
     }
   }, [setState])
