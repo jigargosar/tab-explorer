@@ -317,7 +317,7 @@ export function useAppState() {
   useEffect(() => {
     if (!user) return
     const db = firebase.firestore()
-    const sref = db.collection(`users/${user.uid}/tab-ex/sessions`)
+    const sref = db.collection(`users/${user.uid}/tab-ex-sessions`)
     const disposer = sref.onSnapshot(console.log, console.error)
     return disposer
   }, [user])
