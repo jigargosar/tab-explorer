@@ -36,9 +36,29 @@ function TextA(props) {
   return <div className="pv1 ttu tracked b" {...props} />
 }
 
+function UserToolbar() {
+  const [user, initialising, error] = useAuth()
+  const actions = useAppActions()
+
+  return (
+    <div className="flex items-center">
+      <HSpaced>
+        <div>User: {`${user}`}</div>
+        <div>Loading: {`${initialising}`}</div>
+        <div>Error: {`${error}`}</div>
+        <TBtn
+          disabled={initialising}
+          onClick={() => (user ? actions.signOut() : actions.signIn())}
+        >
+          {user ? 'SignOut' : 'SignIn'}
+        </TBtn>
+      </HSpaced>
+    </div>
+  )
+}
+
 const App = () => {
   const [state, actions] = useAppState()
-  const [user, initialising, error] = useAuth()
 
   const displaySessions = compose(
     sortWith([
@@ -55,13 +75,7 @@ const App = () => {
   return (
     <AppActionsProvider value={actions}>
       <div className="pa3">
-        <div className="flex items-center">
-          <HSpaced>
-            <div>User: {`${user}`}</div>
-            <div>Loading: {`${initialising}`}</div>
-            <div>Error: {`${error}`}</div>
-          </HSpaced>
-        </div>
+        <UserToolbar />
         <div className="lh-copy f3">Tab Explorer</div>
         <div className="pv1" />
         <OpenTabs />
