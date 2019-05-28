@@ -143,11 +143,17 @@ const overPath = pipe(
 
 function useActions(setState) {
   return useMemo(() => {
-    const setStateProp = prop => fn => {
-      return setState(mapProp(prop)(fn))
-    }
+    const setStateProp = prop => fn => setState(mapProp(prop)(fn))
     const setSessions = setStateProp('sessions')
-    const updateSessionWithId = sid => fn => setSessions(mapProp(sid)(fn))
+    const updateSessionWithId = sid => fn =>
+      setSessions(sessions => {
+        return mapProp(sid)(oldS => {
+          const newS = fn(oldS)
+          return equals(newS)(oldS)
+            ? oldS
+            : { ...newS, modifiedAt: Date.now() }
+        })(sessions)
+      })
 
     function createAndAddSessionFromTabs(tabs) {
       const session = sessionFromTabs(tabs)
