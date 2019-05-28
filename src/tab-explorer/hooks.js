@@ -186,11 +186,13 @@ function useActions(setState) {
         createTab(tab)
       },
       deleteSessionWithId: sessionId => {
-        updateSessionWithId(sessionId)(assoc('deleted')(true))
+        updateSessionWithId(sessionId)(mapProp('deleted')(true))
         // setSessions(overPath([sessionId, 'deleted'])(T))
       },
       deleteSessionTab: (sessionId, tab) => {
-        setSessions(overPath([sessionId, 'tabs'])(reject(equals(tab))))
+        updateSessionWithId(sessionId)(
+          mapProp('tabs')(reject(equals(tab))),
+        )
       },
       onOpenTabsClicked: tabs => {
         tabs.forEach(createTab)
