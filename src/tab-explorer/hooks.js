@@ -26,6 +26,9 @@ import assoc from 'ramda/es/assoc'
 // import PouchDB from 'pouchdb-browser'
 import { pipe } from './safe-basics'
 import pick from 'ramda/es/pick'
+import firebase from 'firebase/app'
+import 'firebase/auth'
+import { useAuthState } from 'react-firebase-hooks/auth'
 
 // CHROME API
 
@@ -277,6 +280,22 @@ function useActions(setState) {
 //     pouchDbPersistAppState(state, db)
 //   }, [state, pdbRef.current])
 // }
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyBVS1Tx23pScQz9w4ZDTGh307mqkCRy2Bw',
+  authDomain: 'not-now-142808.firebaseapp.com',
+  databaseURL: 'https://not-now-142808.firebaseio.com',
+  projectId: 'not-now-142808',
+  storageBucket: 'not-now-142808.appspot.com',
+  messagingSenderId: '476064436883',
+  appId: '1:476064436883:web:ebbcbed81661398e',
+}
+
+firebase.initializeApp(firebaseConfig)
+
+export function useAuth() {
+  return useAuthState(firebase.auth())
+}
 
 export function useAppState() {
   const [state, setState] = useState(loadCachedState)

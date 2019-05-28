@@ -16,6 +16,7 @@ import {
   useAppState,
   useOpenTabsList,
   AppActionsProvider,
+  useAuth,
 } from './tab-explorer/hooks'
 import intersperse from 'ramda/es/intersperse'
 import propOr from 'ramda/es/propOr'
@@ -37,6 +38,7 @@ function TextA(props) {
 
 const App = () => {
   const [state, actions] = useAppState()
+  const [user, initialising, error] = useAuth()
 
   const displaySessions = compose(
     sortWith([
@@ -53,6 +55,13 @@ const App = () => {
   return (
     <AppActionsProvider value={actions}>
       <div className="pa3">
+        <div className="flex items-center">
+          <HSpaced>
+            <div>User: {`${user}`}</div>
+            <div>Loading: {`${initialising}`}</div>
+            <div>Error: {`${error}`}</div>
+          </HSpaced>
+        </div>
         <div className="lh-copy f3">Tab Explorer</div>
         <div className="pv1" />
         <OpenTabs />
