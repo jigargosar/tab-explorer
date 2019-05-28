@@ -233,8 +233,8 @@ function useActions(setState) {
       onSessionTabsListItemClicked: tab => {
         createTab(tab)
       },
-      deleteSessionWithId: id => {
-        setSessions(omit([id]))
+      deleteSessionWithId: sessionId => {
+        setSessions(omit([sessionId]))
       },
       deleteSessionTab: (sessionId, tab) => {
         setSessions(overPath([sessionId, 'tabs'])(reject(equals(tab))))
