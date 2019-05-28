@@ -124,6 +124,8 @@ class SessionStore {
   }
 }
 
+const overSessionStore = overProp('sessionStore')
+
 const loadCachedState = () => {
   const defaultState = { sessions: {}, sessionStore: SessionStore.empty() }
   const decodeCached = pipe(
@@ -131,7 +133,7 @@ const loadCachedState = () => {
     defaultTo('{}'),
     JSON.parse,
     mergeDeepRight(defaultState),
-    overProp('sessionStore')(SessionStore.decode),
+    overSessionStore(SessionStore.decode),
   )
 
   return decodeCached('te-app-state')
@@ -139,7 +141,7 @@ const loadCachedState = () => {
 
 function encodeState(state) {
   const fn = pipe(
-    overProp('sessionStore')(SessionStore.encode),
+    overSessionStore(SessionStore.encode),
     JSON.stringify(state, null, 2),
   )
   return fn(state)
