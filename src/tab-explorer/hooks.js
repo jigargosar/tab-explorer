@@ -338,11 +338,11 @@ export function useAppState() {
         })
 
         const docSnaps = await Promise.all(dps)
-        docSnaps.forEach(ds =>
-          ds.exists
+        docSnaps.forEach(ds => {
+          return ds.exists
             ? t.update(ds.ref, sessionMap[ds.id])
-            : t.set(ds.ref, sessionMap[ds.id]),
-        )
+            : t.set(ds.ref, sessionMap[ds.id])
+        })
       })
       .then(() =>
         console.log('fire: write all docs transaction success. '),
