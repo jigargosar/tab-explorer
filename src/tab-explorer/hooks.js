@@ -214,10 +214,12 @@ function useActions(setState) {
         updateSessionWithId(sessionId)(toggleProp('collapsed'))
       },
       onCollapseAllSessionsClicked: () => {
-        setSessions(map(mapProp('collapsed')(T)))
+        const collapse = mapProp('collapsed')(T)
+        setSessions(map(collapse))
       },
       onExpandAllSessionsClicked: () => {
-        setSessions(map(mapProp('collapsed')(F)))
+        const expand = mapProp('collapsed')(F)
+        setSessions(map(expand))
       },
     }
   }, [setState])
