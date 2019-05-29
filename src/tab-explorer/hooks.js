@@ -39,9 +39,6 @@ const getPopulatedWindow = () => {
   )
 }
 
-// const getCurrentTab = () =>
-//   new Promise(resolve => chrome.tabs.getCurrent(resolve))
-
 const closeTabs = tabIds => {
   return new Promise(resolve => chrome.tabs.remove(tabIds, resolve))
 }
