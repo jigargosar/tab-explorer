@@ -12,17 +12,14 @@ import startsWith from 'ramda/es/startsWith'
 import propSatisfies from 'ramda/es/propSatisfies'
 import mergeDeepRight from 'ramda/es/mergeDeepRight'
 import defaultTo from 'ramda/es/defaultTo'
-import equals from 'ramda/es/equals'
 import { getCache, setCache, mergeModel } from './basics'
 import map from 'ramda/es/map'
-import { pipe, mapProp, toggleProp } from './safe-basics'
+import { pipe, mapProp } from './safe-basics'
 import pick from 'ramda/es/pick'
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth'
-import T from 'ramda/es/T'
-import F from 'ramda/es/F'
 import mergeLeft from 'ramda/es/mergeLeft'
 import pluck from 'ramda/es/pluck'
 import { SessionStore } from './sessions'
@@ -124,21 +121,10 @@ const useCacheStateEffect = state => {
   }, [state])
 }
 
-const modifySession = fn => session => {
-  const newSession = fn(session)
-  return equals(newSession)(session)
-    ? session
-    : { ...newSession, modifiedAt: Date.now() }
-}
-
 function useActions(setState) {
   return useMemo(() => {
     const setStateProp = prop => fn => setState(mapProp(prop)(fn))
     const setSessions = setStateProp('sessions')
-
-    const modifySessionWithId = sid => fn => {
-      return setSessions(mapProp(sid)(modifySession(fn)))
-    }
 
     function createAndAddSessionFromTabs(tabs) {
       setSessions(SessionStore.addNewFromTabs(tabs))
@@ -200,12 +186,10 @@ function useActions(setState) {
         setSessions(SessionStore.toggleCollapsed(sessionId))
       },
       onCollapseAllSessionsClicked: () => {
-        const collapse = mapProp('collapsed')(T)
-        setSessions(map(collapse))
+        setSessions(SessionStore.collapseAll)
       },
       onExpandAllSessionsClicked: () => {
-        const expand = mapProp('collapsed')(F)
-        setSessions(map(expand))
+        setSessions(SessionStore.expandAll)
       },
     }
   }, [setState])

@@ -5,6 +5,8 @@ import { mapProp, toggleProp } from './safe-basics'
 import T from 'ramda/es/T'
 import equals from 'ramda/es/equals'
 import { reject } from 'q'
+import map from 'ramda/es/map'
+import F from 'ramda/es/F'
 
 function sessionFromTabs(tabs) {
   const now = Date.now()
@@ -29,6 +31,9 @@ const modifyWithId = id => fn => lookup => {
   return mapProp(id)(modify(fn))(lookup)
 }
 
+const collapse = mapProp('collapsed')(T)
+const expand = mapProp('collapsed')(F)
+
 export const SessionStore = {
   addNewFromTabs: tabs => {
     const session = sessionFromTabs(tabs)
@@ -42,7 +47,12 @@ export const SessionStore = {
     const rejectTab = mapProp('tabs')(reject(equals(tab)))
     return modifyWithId(id)(rejectTab)
   },
+  togglePinned: id => {
+    return modifyWithId(id)(toggleProp('pinned'))
+  },
   toggleCollapsed: id => {
     return modifyWithId(id)(toggleProp('collapsed'))
   },
+  collapseAll: map(collapse),
+  expandAll: map(expand),
 }
