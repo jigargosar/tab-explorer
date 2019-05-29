@@ -1,3 +1,5 @@
+/* eslint-env node */
+
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const pth = path.resolve
@@ -36,5 +38,5 @@ module.exports = {
       { from: pth('src/tab-explorer.html') },
     ]),
   ],
-  devtool: 'inline-source-map',
+  devtool: 'source-map',
 }
