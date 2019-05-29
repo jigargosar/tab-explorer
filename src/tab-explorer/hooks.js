@@ -141,7 +141,7 @@ function useActions(setState) {
   return useMemo(() => {
     const setStateProp = prop => fn => setState(mapProp(prop)(fn))
     const setSessions = setStateProp('sessions')
-    const updateSessionWithId = sid => fn =>
+    const modifySessionWithId = sid => fn =>
       setSessions(sessions => {
         return mapProp(sid)(oldS => {
           const newS = fn(oldS)
@@ -201,17 +201,17 @@ function useActions(setState) {
       },
       deleteSessionWithId: sessionId => {
         const markDeleted = mapProp('deleted')(T)
-        updateSessionWithId(sessionId)(markDeleted)
+        modifySessionWithId(sessionId)(markDeleted)
       },
       deleteSessionTab: (sessionId, tab) => {
         const rejectTab = mapProp('tabs')(reject(equals(tab)))
-        updateSessionWithId(sessionId)(rejectTab)
+        modifySessionWithId(sessionId)(rejectTab)
       },
       onSessionTogglePinnedClicked: sessionId => {
-        updateSessionWithId(sessionId)(toggleProp('pinned'))
+        modifySessionWithId(sessionId)(toggleProp('pinned'))
       },
       onSessionToggleCollapsedClicked: sessionId => {
-        updateSessionWithId(sessionId)(toggleProp('collapsed'))
+        modifySessionWithId(sessionId)(toggleProp('collapsed'))
       },
       onCollapseAllSessionsClicked: () => {
         const collapse = mapProp('collapsed')(T)
