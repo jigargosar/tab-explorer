@@ -5,7 +5,7 @@
   "author": "Jigar Gosar <jigar.gosar@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon -w yarn.lock -w webpack.config.js -x webpack -- --mode=development --watch"
+    "start": "nodemon -w yarn.lock -w webpack.config.js -w tsconfig.json -x webpack -- --mode=development --watch"
   },
   "babel": {
     "presets": [
