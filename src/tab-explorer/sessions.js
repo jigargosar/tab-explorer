@@ -1,12 +1,13 @@
 /* eslint-disable no-console */
 import nanoid from 'nanoid'
 import { mergeModel } from './basics'
-import { mapProp, toggleProp } from './safe-basics'
+import { mapProp, toggleProp, pipe } from './safe-basics'
 import T from 'ramda/es/T'
 import equals from 'ramda/es/equals'
 import { reject } from 'q'
 import map from 'ramda/es/map'
 import F from 'ramda/es/F'
+import defaultTo from 'ramda/es/defaultTo'
 
 function sessionFromTabs(tabs) {
   const now = Date.now()
@@ -33,6 +34,13 @@ const modifyWithId = id => fn => lookup => {
 
 const collapse = mapProp('collapsed')(T)
 const expand = mapProp('collapsed')(F)
+function decodeSessionFromCache(session) {
+  const fn = pipe(
+    //
+    mapProp('modifiedAt')(defaultTo(session.createdAt)),
+  )
+  return fn(session)
+}
 
 export const SessionStore = {
   addNewFromTabs: tabs => {
@@ -55,4 +63,5 @@ export const SessionStore = {
   },
   collapseAll: map(collapse),
   expandAll: map(expand),
+  decode: map(decodeSessionFromCache),
 }

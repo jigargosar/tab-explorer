@@ -13,7 +13,6 @@ import propSatisfies from 'ramda/es/propSatisfies'
 import mergeDeepRight from 'ramda/es/mergeDeepRight'
 import defaultTo from 'ramda/es/defaultTo'
 import { getCache, setCache, mergeModel } from './basics'
-import map from 'ramda/es/map'
 import { pipe, mapProp } from './safe-basics'
 import pick from 'ramda/es/pick'
 import firebase from 'firebase/app'
@@ -83,14 +82,6 @@ const useCurrentWindowTabs = () => {
   return tabs
 }
 
-function decodeSessionFromCache(session) {
-  const fn = pipe(
-    //
-    mapProp('modifiedAt')(defaultTo(session.createdAt)),
-  )
-  return fn(session)
-}
-
 const loadCachedState = () => {
   const defaultState = { sessions: {} }
   const stateProps = Object.keys(defaultState)
@@ -100,7 +91,7 @@ const loadCachedState = () => {
     JSON.parse,
     pick(stateProps),
     mergeDeepRight(defaultState),
-    mapProp('sessions')(map(decodeSessionFromCache)),
+    mapProp('sessions')(SessionStore.decode),
   )
 
   return fn('te-app-state')
