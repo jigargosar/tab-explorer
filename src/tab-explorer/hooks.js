@@ -200,7 +200,8 @@ function useActions(setState) {
         tabs.forEach(createTab)
       },
       deleteSessionWithId: sessionId => {
-        updateSessionWithId(sessionId)(mapProp('deleted')(T))
+        const markDeleted = mapProp('deleted')(T)
+        updateSessionWithId(sessionId)(markDeleted)
       },
       deleteSessionTab: (sessionId, tab) => {
         const rejectTab = mapProp('tabs')(reject(equals(tab)))
