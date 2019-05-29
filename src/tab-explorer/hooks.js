@@ -191,8 +191,7 @@ function useActions(setState) {
         setSessions(SessionStore.deleteById(sessionId))
       },
       deleteSessionTab: (sessionId, tab) => {
-        const rejectTab = mapProp('tabs')(reject(equals(tab)))
-        modifySessionWithId(sessionId)(rejectTab)
+        setSessions(SessionStore.deleteTabInSessionWithId(sessionId)(tab))
       },
       onSessionTogglePinnedClicked: sessionId => {
         modifySessionWithId(sessionId)(toggleProp('pinned'))

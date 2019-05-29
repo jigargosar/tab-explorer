@@ -4,6 +4,7 @@ import { mergeModel } from './basics'
 import { mapProp } from './safe-basics'
 import T from 'ramda/es/T'
 import equals from 'ramda/es/equals'
+import { reject } from 'q'
 
 function sessionFromTabs(tabs) {
   const now = Date.now()
@@ -36,5 +37,9 @@ export const SessionStore = {
   deleteById: id => store => {
     const markDeleted = mapProp('deleted')(T)
     return modifyWithId(id)(markDeleted)(store)
+  },
+  deleteTabInSessionWithId: id => tab => {
+    const rejectTab = mapProp('tabs')(reject(equals(tab)))
+    return modifyWithId(id)(rejectTab)
   },
 }
