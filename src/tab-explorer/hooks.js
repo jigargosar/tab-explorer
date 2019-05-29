@@ -8,7 +8,6 @@ import {
   createContext,
 } from 'react'
 import nanoid from 'nanoid'
-import prop from 'ramda/es/prop'
 import reject from 'ramda/es/reject'
 import startsWith from 'ramda/es/startsWith'
 import propSatisfies from 'ramda/es/propSatisfies'
@@ -27,6 +26,7 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import T from 'ramda/es/T'
 import F from 'ramda/es/F'
 import mergeLeft from 'ramda/es/mergeLeft'
+import pluck from 'ramda/es/pluck'
 
 // CHROME API
 
@@ -119,9 +119,10 @@ function encodeState(state) {
 }
 
 const useCacheStateEffect = state => {
-  return useEffect(() => setCache('te-app-state')(encodeState(state)), [
-    state,
-  ])
+  return useEffect(() => {
+    const encoded = encodeState(state)
+    setCache('te-app-state')(encoded)
+  }, [state])
 }
 
 function sessionFromTabs(tabs) {
@@ -184,7 +185,8 @@ function useActions(setState) {
       },
       saveSessionAndCloseTabs: async otherTabs => {
         createAndAddSessionFromTabs(otherTabs)
-        await closeTabs(otherTabs.map(prop('id')))
+        const ids = pluck('id')(otherTabs)
+        await closeTabs(ids)
       },
       onOpenTabsListItemClicked: tab => {
         chrome.tabs.update(tab.id, { active: true }, updatedTab =>
@@ -194,6 +196,9 @@ function useActions(setState) {
       onSessionTabsListItemClicked: tab => {
         createTab(tab)
       },
+      onOpenTabsClicked: tabs => {
+        tabs.forEach(createTab)
+      },
       deleteSessionWithId: sessionId => {
         updateSessionWithId(sessionId)(mapProp('deleted')(T))
       },
@@ -201,9 +206,6 @@ function useActions(setState) {
         updateSessionWithId(sessionId)(
           mapProp('tabs')(reject(equals(tab))),
         )
-      },
-      onOpenTabsClicked: tabs => {
-        tabs.forEach(createTab)
       },
       onSessionTogglePinnedClicked: sessionId => {
         updateSessionWithId(sessionId)(mapProp('pinned')(not))
