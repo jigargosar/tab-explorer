@@ -8,6 +8,7 @@ import { reject } from 'q'
 import map from 'ramda/es/map'
 import F from 'ramda/es/F'
 import defaultTo from 'ramda/es/defaultTo'
+import mergeLeft from 'ramda/es/mergeLeft'
 
 function sessionFromTabs(tabs) {
   const now = Date.now()
@@ -64,4 +65,16 @@ export const SessionStore = {
   collapseAll: map(collapse),
   expandAll: map(expand),
   decode: map(decodeSessionFromCache),
+  replaceNewerSessions: sessionList => store => {
+    const newStore = sessionList
+      .filter(session => {
+        const existingSession = store[session.id]
+        return (
+          !existingSession ||
+          existingSession.modifiedAt < session.modifiedAt
+        )
+      })
+      .reduce((acc, session) => mergeModel(session)(acc), {})
+    return mergeLeft(newStore)(store)
+  },
 }

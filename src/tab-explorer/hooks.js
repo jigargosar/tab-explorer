@@ -132,18 +132,7 @@ function useActions(setState) {
         firebase.auth().signOut()
       },
       updateSessionsIfNewer: sessionList => {
-        setSessions(sessionMap => {
-          const updatedSessionMap = sessionList
-            .filter(updatedSession => {
-              const existingSession = sessionMap[updatedSession.id]
-              return (
-                !existingSession ||
-                existingSession.modifiedAt < updatedSession.modifiedAt
-              )
-            })
-            .reduce((acc, session) => mergeModel(session)(acc), {})
-          return mergeLeft(updatedSessionMap)(sessionMap)
-        })
+        setSessions(SessionStore.replaceNewerSessions(sessionList))
       },
       saveSession: otherTabs => {
         createAndAddSessionFromTabs(otherTabs)
