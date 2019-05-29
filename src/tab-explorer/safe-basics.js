@@ -6,6 +6,7 @@ import isNil from 'ramda/es/isNil'
 import complement from 'ramda/es/complement'
 import addIndex from 'ramda/es/addIndex'
 import map from 'ramda/es/map'
+import not from 'ramda/es/not'
 
 export function invariant(bool, msg = 'Invariant Failed') {
   if (!bool) {
@@ -35,3 +36,5 @@ export const mapProp = pname => fn => {
   invariant(isFunction(fn))
   return over(lensProp(pname))(fn)
 }
+
+export const toggleProp = pname => mapProp(pname)(not)

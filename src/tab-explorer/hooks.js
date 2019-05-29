@@ -17,7 +17,7 @@ import equals from 'ramda/es/equals'
 import { getCache, setCache, mergeModel } from './basics'
 import not from 'ramda/es/not'
 import map from 'ramda/es/map'
-import { pipe, mapProp } from './safe-basics'
+import { pipe, mapProp, toggleProp } from './safe-basics'
 import pick from 'ramda/es/pick'
 import firebase from 'firebase/app'
 import 'firebase/auth'
@@ -208,10 +208,10 @@ function useActions(setState) {
         )
       },
       onSessionTogglePinnedClicked: sessionId => {
-        updateSessionWithId(sessionId)(mapProp('pinned')(not))
+        updateSessionWithId(sessionId)(toggleProp('pinned'))
       },
       onSessionToggleCollapsedClicked: sessionId => {
-        updateSessionWithId(sessionId)(mapProp('collapsed')(not))
+        updateSessionWithId(sessionId)(toggleProp('collapsed'))
       },
       onCollapseAllSessionsClicked: () => {
         setSessions(map(mapProp('collapsed')(T)))
