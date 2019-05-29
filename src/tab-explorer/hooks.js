@@ -26,6 +26,7 @@ import T from 'ramda/es/T'
 import F from 'ramda/es/F'
 import mergeLeft from 'ramda/es/mergeLeft'
 import pluck from 'ramda/es/pluck'
+import { sessionFromTabs } from './sessions'
 
 // CHROME API
 
@@ -122,18 +123,6 @@ const useCacheStateEffect = state => {
     const encoded = encodeState(state)
     setCache('te-app-state')(encoded)
   }, [state])
-}
-
-function sessionFromTabs(tabs) {
-  const now = Date.now()
-  const session = {
-    id: 'S_' + nanoid(),
-    createdAt: now,
-    modifiedAt: now,
-    tabs: tabs,
-  }
-  console.log('session :', session)
-  return session
 }
 
 const modifySession = fn => session => {
