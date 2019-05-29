@@ -204,7 +204,7 @@ export function useAppState() {
     if (!user) return
     const scRef = getSessionsCRef(user)
     const disposer = scRef.onSnapshot(qs => {
-      console.log('Fire Sessions Changed', qs.docs.length, qs)
+      console.log('fire: Sessions Changed', qs.docs.length, qs)
       actions.updateSessionsIfNewer(qs.docs.map(ds => ds.data()))
     }, console.error)
     return disposer
