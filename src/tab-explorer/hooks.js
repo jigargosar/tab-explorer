@@ -98,7 +98,7 @@ function decodeSessionFromCache(session) {
 const loadCachedState = () => {
   const defaultState = { sessions: {} }
   const stateProps = Object.keys(defaultState)
-  const decodeCached = pipe(
+  const fn = pipe(
     getCache,
     defaultTo('{}'),
     JSON.parse,
@@ -107,11 +107,14 @@ const loadCachedState = () => {
     mapProp('sessions')(map(decodeSessionFromCache)),
   )
 
-  return decodeCached('te-app-state')
+  return fn('te-app-state')
 }
 
 function encodeState(state) {
-  const fn = pipe(state => JSON.stringify(state, null, 2))
+  const fn = pipe(
+    //
+    state => JSON.stringify(state, null, 2),
+  )
   return fn(state)
 }
 
