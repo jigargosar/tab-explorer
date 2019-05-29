@@ -24,8 +24,9 @@ module.exports = {
         use: ['style-loader', 'css-loader'],
       },
       {
-        test: /\.jsx?/,
-        use: ['babel-loader'],
+        test: /\.(jsx?|tsx?)$/,
+        include: pth('src'),
+        use: ['babel-loader', 'ts-loader'],
       },
     ],
   },
