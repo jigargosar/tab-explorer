@@ -2,12 +2,16 @@ import _pipe from 'ramda/es/pipe'
 import is from 'ramda/es/is'
 import over from 'ramda/es/over'
 import lensProp from 'ramda/es/lensProp'
+import isNil from 'ramda/es/isNil'
+import complement from 'ramda/es/complement'
 
 export function invariant(bool, msg = 'Invariant Failed') {
   if (!bool) {
     throw new Error(msg)
   }
 }
+export const isString = is(String)
+export const isFunction = is(Function)
 
 export function pipe(...args) {
   invariant(args.length >= 1)
@@ -20,8 +24,10 @@ export function pipe(...args) {
   return _pipe(...args)
 }
 
+export const notNil = complement(isNil)
+
 export const mapProp = pname => fn => {
-  invariant(is(String)(pname))
-  invariant(is(Function)(fn))
+  invariant(isString(pname))
+  invariant(isFunction(fn))
   return over(lensProp(pname))(fn)
 }
