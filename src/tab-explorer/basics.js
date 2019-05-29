@@ -9,6 +9,7 @@ export const getCache = key => {
   invariant(isString(key))
   return localStorage.getItem(key)
 }
+
 export const setCache = key => value => {
   invariant(isString(key))
   invariant(isNotNil(value))
