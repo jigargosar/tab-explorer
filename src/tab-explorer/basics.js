@@ -1,12 +1,5 @@
 import mergeLeft from 'ramda/es/mergeLeft'
-import {
-  mapProp,
-  invariant,
-  isString,
-  notNil as isNotNil,
-} from './safe-basics'
-
-export const overProp = mapProp
+import { invariant, isString, notNil as isNotNil } from './safe-basics'
 
 export const mergeModel = m => mergeLeft({ [m.id]: m })
 
