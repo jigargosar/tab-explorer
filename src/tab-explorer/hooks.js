@@ -137,19 +137,21 @@ function sessionFromTabs(tabs) {
   return session
 }
 
+const modifySession = fn => session => {
+  const newSession = fn(session)
+  return equals(newSession)(session)
+    ? session
+    : { ...newSession, modifiedAt: Date.now() }
+}
+
 function useActions(setState) {
   return useMemo(() => {
     const setStateProp = prop => fn => setState(mapProp(prop)(fn))
     const setSessions = setStateProp('sessions')
-    const modifySessionWithId = sid => fn =>
-      setSessions(sessions => {
-        return mapProp(sid)(oldS => {
-          const newS = fn(oldS)
-          return equals(newS)(oldS)
-            ? oldS
-            : { ...newS, modifiedAt: Date.now() }
-        })(sessions)
-      })
+
+    const modifySessionWithId = sid => fn => {
+      return setSessions(mapProp(sid)(modifySession(fn)))
+    }
 
     function createAndAddSessionFromTabs(tabs) {
       const session = sessionFromTabs(tabs)
