@@ -4,6 +4,8 @@ import over from 'ramda/es/over'
 import lensProp from 'ramda/es/lensProp'
 import isNil from 'ramda/es/isNil'
 import complement from 'ramda/es/complement'
+import addIndex from 'ramda/es/addIndex'
+import map from 'ramda/es/map'
 
 export function invariant(bool, msg = 'Invariant Failed') {
   if (!bool) {
@@ -25,6 +27,8 @@ export function pipe(...args) {
 }
 
 export const notNil = complement(isNil)
+
+export const mapIndexed = addIndex(map)
 
 export const mapProp = pname => fn => {
   invariant(isString(pname))
