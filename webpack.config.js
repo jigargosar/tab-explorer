@@ -17,6 +17,9 @@ module.exports = {
     background: pth('src/background.js'),
     'tab-explorer': pth('src/tab-explorer.jsx'),
   },
+  resolve: {
+    extensions: ['.tsx', '.ts', 'jsx', '.js'],
+  },
   module: {
     rules: [
       {
