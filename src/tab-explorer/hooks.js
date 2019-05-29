@@ -51,7 +51,7 @@ const createTab = tab => {
 
 // HOOKS & MODEL
 
-const useListener = (event, listener, deps) => {
+const useChromeEventListener = (event, listener, deps) => {
   const callback = useCallback(listener, deps)
   useEffect(() => {
     event.addListener(callback)
@@ -67,7 +67,7 @@ const useCurrentWindowTabs = () => {
     setTabs(win.tabs)
   }, [setTabs])
 
-  useEffect(() => console.log('current window tabs changed', tabs), [tabs])
+  // useEffect(() => console.log('current window tabs changed', tabs), [tabs])
 
   useEffect(() => void updateCurrentTabs(), [])
 
@@ -81,7 +81,7 @@ const useCurrentWindowTabs = () => {
   ]
 
   events.forEach(e =>
-    useListener(e, updateCurrentTabs, [updateCurrentTabs]),
+    useChromeEventListener(e, updateCurrentTabs, [updateCurrentTabs]),
   )
 
   return tabs
