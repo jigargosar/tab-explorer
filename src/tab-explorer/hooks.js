@@ -7,7 +7,6 @@ import {
   useMemo,
   createContext,
 } from 'react'
-import nanoid from 'nanoid'
 import reject from 'ramda/es/reject'
 import startsWith from 'ramda/es/startsWith'
 import propSatisfies from 'ramda/es/propSatisfies'
@@ -26,7 +25,7 @@ import T from 'ramda/es/T'
 import F from 'ramda/es/F'
 import mergeLeft from 'ramda/es/mergeLeft'
 import pluck from 'ramda/es/pluck'
-import { sessionFromTabs } from './sessions'
+import { SessionStore } from './sessions'
 
 // CHROME API
 
@@ -142,8 +141,7 @@ function useActions(setState) {
     }
 
     function createAndAddSessionFromTabs(tabs) {
-      const session = sessionFromTabs(tabs)
-      setSessions(mergeModel(session))
+      setSessions(SessionStore.addNewFromTabs(tabs))
     }
 
     return {
@@ -190,8 +188,7 @@ function useActions(setState) {
         tabs.forEach(createTab)
       },
       deleteSessionWithId: sessionId => {
-        const markDeleted = mapProp('deleted')(T)
-        modifySessionWithId(sessionId)(markDeleted)
+        setSessions(SessionStore.deleteById(sessionId))
       },
       deleteSessionTab: (sessionId, tab) => {
         const rejectTab = mapProp('tabs')(reject(equals(tab)))
