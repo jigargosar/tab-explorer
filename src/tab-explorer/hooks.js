@@ -194,10 +194,10 @@ function useActions(setState) {
         setSessions(SessionStore.deleteTabInSessionWithId(sessionId)(tab))
       },
       onSessionTogglePinnedClicked: sessionId => {
-        modifySessionWithId(sessionId)(toggleProp('pinned'))
+        setSessions(SessionStore.togglePinned(sessionId))
       },
       onSessionToggleCollapsedClicked: sessionId => {
-        modifySessionWithId(sessionId)(toggleProp('collapsed'))
+        setSessions(SessionStore.toggleCollapsed(sessionId))
       },
       onCollapseAllSessionsClicked: () => {
         const collapse = mapProp('collapsed')(T)

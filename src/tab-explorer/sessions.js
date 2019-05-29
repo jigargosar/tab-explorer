@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import nanoid from 'nanoid'
 import { mergeModel } from './basics'
-import { mapProp } from './safe-basics'
+import { mapProp, toggleProp } from './safe-basics'
 import T from 'ramda/es/T'
 import equals from 'ramda/es/equals'
 import { reject } from 'q'
@@ -30,16 +30,19 @@ const modifyWithId = id => fn => lookup => {
 }
 
 export const SessionStore = {
-  addNewFromTabs: tabs => store => {
+  addNewFromTabs: tabs => {
     const session = sessionFromTabs(tabs)
-    return mergeModel(session)(store)
+    return mergeModel(session)
   },
-  deleteById: id => store => {
+  deleteById: id => {
     const markDeleted = mapProp('deleted')(T)
-    return modifyWithId(id)(markDeleted)(store)
+    return modifyWithId(id)(markDeleted)
   },
   deleteTabInSessionWithId: id => tab => {
     const rejectTab = mapProp('tabs')(reject(equals(tab)))
     return modifyWithId(id)(rejectTab)
+  },
+  toggleCollapsed: id => {
+    return modifyWithId(id)(toggleProp('collapsed'))
   },
 }
