@@ -203,9 +203,8 @@ function useActions(setState) {
         updateSessionWithId(sessionId)(mapProp('deleted')(T))
       },
       deleteSessionTab: (sessionId, tab) => {
-        updateSessionWithId(sessionId)(
-          mapProp('tabs')(reject(equals(tab))),
-        )
+        const rejectTab = mapProp('tabs')(reject(equals(tab)))
+        updateSessionWithId(sessionId)(rejectTab)
       },
       onSessionTogglePinnedClicked: sessionId => {
         updateSessionWithId(sessionId)(toggleProp('pinned'))
