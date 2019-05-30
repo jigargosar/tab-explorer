@@ -22,10 +22,6 @@ import propOr from 'ramda/es/propOr'
 import pipe from 'ramda/es/pipe'
 import addIndex from 'ramda/es/addIndex'
 
-console.log('tab-explorer.js loaded')
-
-// VIEW
-
 const defaultFavIconUrl =
   //#region
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAARklEQVR4Xu3M0QkAIAzE0M7pNN1cBwhFDkUFL/l/8VatF6cAiASBEs0VIEFoQAQIFQChAiBUAIQC8JMA+wUwYMDA/O3A/QbXNAnXAnMZWQAAAABJRU5ErkJggg=='
