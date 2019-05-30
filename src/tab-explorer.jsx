@@ -74,6 +74,7 @@ const App = () => {
   return (
     <AppActionsProvider value={actions}>
       <div className="pa3">
+        <div>1</div>
         <UserToolbar />
         <div className="lh-copy f3">Tab Explorer</div>
         <div className="pv1" />
