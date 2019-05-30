@@ -62,10 +62,6 @@ const App = () => {
     values,
   )(state.sessions)
 
-  const renderSessionItem = session => {
-    return <SessionListItem key={session.id} {...{ session }} />
-  }
-
   return (
     <AppActionsProvider value={actions}>
       <div className="pa3">
@@ -75,21 +71,32 @@ const App = () => {
         <div className="pv1" />
         <OpenTabs />
         <div className="pv2" />
-        <div className="flex items-center">
-          <HSpaced>
-            <TextA>Collections</TextA>
-            <TBtn onClick={() => actions.onCollapseAllSessionsClicked()}>
-              Collapse All
-            </TBtn>
-            <TBtn onClick={() => actions.onExpandAllSessionsClicked()}>
-              Expand All
-            </TBtn>
-          </HSpaced>
-        </div>
-        <div className="pv1" />
-        <div>{map(renderSessionItem)(displaySessions)}</div>
+        <Collections actions={actions} sessions={displaySessions} />
       </div>
     </AppActionsProvider>
+  )
+}
+
+function Collections({ actions, sessions }) {
+  const renderSessionItem = session => {
+    return <SessionListItem key={session.id} {...{ session }} />
+  }
+  return (
+    <>
+      <div className="flex items-center">
+        <HSpaced>
+          <TextA>Collections</TextA>
+          <TBtn onClick={() => actions.onCollapseAllSessionsClicked()}>
+            Collapse All
+          </TBtn>
+          <TBtn onClick={() => actions.onExpandAllSessionsClicked()}>
+            Expand All
+          </TBtn>
+        </HSpaced>
+      </div>
+      <div className="pv1" />
+      <div>{map(renderSessionItem)(sessions)}</div>
+    </>
   )
 }
 
