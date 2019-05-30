@@ -32,7 +32,7 @@ export function useAuth() {
   return useAuthState(firebase.auth())
 }
 
-export function syncSessions(actions, sessions) {
+export function syncSessions(actions, sessionStore) {
   const [user] = useAuth()
 
   useEffect(() => {
@@ -51,22 +51,21 @@ export function syncSessions(actions, sessions) {
     firebase
       .firestore()
       .runTransaction(async t => {
-        const sessionMap = sessions
-        const dps = Object.values(sessionMap).map(s => {
+        const dps = Object.values(sessionStore).map(s => {
           return t.get(sref.doc(s.id))
         })
         const docSnaps = await Promise.all(dps)
         docSnaps.forEach(ds => {
           return ds.exists
-            ? t.update(ds.ref, sessionMap[ds.id])
-            : t.set(ds.ref, sessionMap[ds.id])
+            ? t.update(ds.ref, sessionStore[ds.id])
+            : t.set(ds.ref, sessionStore[ds.id])
         })
       })
       .then(() =>
         console.log('fire: write all docs transaction success. '),
       )
       .catch(console.error)
-  }, [user, sessions])
+  }, [user, sessionStore])
 }
 
 function getSessionsCRef(user) {
