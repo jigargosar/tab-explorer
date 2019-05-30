@@ -31,6 +31,25 @@ function TextA(props) {
   return <div className="pv1 ttu tracked b" {...props} />
 }
 
+function TBtn(props) {
+  return <button className="ttu f7" {...props} />
+}
+
+function hspaced(elList) {
+  const mapIndexed = addIndex(map)
+  const fn = pipe(
+    intersperse(<div className="ph1" />),
+    mapIndexed((el, idx) =>
+      React.cloneElement(el, { ...el.props, key: idx }),
+    ),
+  )
+  return fn(elList)
+}
+
+function HSpaced(props) {
+  return hspaced(props.children)
+}
+
 function UserToolbar() {
   const [user, initialising, error] = useAuthState()
   const actions = useAppActions()
@@ -149,10 +168,6 @@ function OpenTabs() {
   )
 }
 
-function TBtn(props) {
-  return <button className="ttu f7" {...props} />
-}
-
 function SessionListItem({ session }) {
   const actions = useAppActions()
   const renderTabItem = tab => (
@@ -190,21 +205,6 @@ function SessionListItem({ session }) {
       {!session.collapsed && map(renderTabItem)(session.tabs)}
     </div>
   )
-}
-
-function hspaced(elList) {
-  const mapIndexed = addIndex(map)
-  const fn = pipe(
-    intersperse(<div className="ph1" />),
-    mapIndexed((el, idx) =>
-      React.cloneElement(el, { ...el.props, key: idx }),
-    ),
-  )
-  return fn(elList)
-}
-
-function HSpaced(props) {
-  return hspaced(props.children)
 }
 
 function SessionTabItem({ sessionId, tab }) {
