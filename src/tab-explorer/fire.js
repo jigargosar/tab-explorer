@@ -48,6 +48,8 @@ export function syncSessions(actions, sessionStore) {
     return disposer
   }, [user])
 
+  const sessionLookup = SessionStore.toIdLookup(sessionStore)
+
   useEffect(() => {
     if (!user) return
     const sessionsCRef = getSessionsCRef(user)
@@ -62,7 +64,6 @@ export function syncSessions(actions, sessionStore) {
           Promise.all,
         )
 
-        const sessionLookup = SessionStore.toIdLookup(sessionStore)
         const docSnaps = await fetchDocsFromSessionLookup(sessionLookup)
 
         docSnaps.forEach(snap => {
@@ -76,7 +77,7 @@ export function syncSessions(actions, sessionStore) {
         console.log('fire: write all docs transaction success. '),
       )
       .catch(console.error)
-  }, [user, sessionStore])
+  }, [user, sessionLookup])
 }
 
 function getSessionsCRef(user) {
