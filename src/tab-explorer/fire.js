@@ -5,6 +5,8 @@ import 'firebase/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { useEffect } from 'react'
 import { SessionStore } from './session-store'
+import { pipe } from './safe-basics'
+import map from 'ramda/es/map'
 
 export const signIn = () => {
   const auth = firebase.auth()
@@ -38,8 +40,8 @@ export function syncSessions(actions, sessionStore) {
 
   useEffect(() => {
     if (!user) return
-    const scRef = getSessionsCRef(user)
-    const disposer = scRef.onSnapshot(qs => {
+    const sessionsCRef = getSessionsCRef(user)
+    const disposer = sessionsCRef.onSnapshot(qs => {
       console.log('fire: Sessions Changed', qs.docs.length, qs)
       actions.updateSessionsIfNewer(qs.docs.map(ds => ds.data()))
     }, console.error)
@@ -48,20 +50,26 @@ export function syncSessions(actions, sessionStore) {
 
   useEffect(() => {
     if (!user) return
-    const sref = getSessionsCRef(user)
+    const sessionsCRef = getSessionsCRef(user)
     firebase
       .firestore()
       .runTransaction(async t => {
+        const fetchDocWithSessionId = sid => t.get(sessionsCRef.doc(sid))
+
+        const fetchDocsFromSessionLookup = pipe(
+          Object.keys,
+          map(fetchDocWithSessionId),
+          Promise.all,
+        )
+
         const sessionLookup = SessionStore.toIdLookup(sessionStore)
-        const docSnapPromises = Object.values(sessionLookup).map(s => {
-          return t.get(sref.doc(s.id))
-        })
-        const docSnaps = await Promise.all(docSnapPromises)
-        docSnaps.forEach(ds => {
-          const session = sessionLookup[ds.id]
-          return ds.exists
-            ? t.update(ds.ref, session)
-            : t.set(ds.ref, session)
+        const docSnaps = await fetchDocsFromSessionLookup(sessionLookup)
+
+        docSnaps.forEach(snap => {
+          const session = sessionLookup[snap.id]
+          snap.exists
+            ? t.update(snap.ref, session)
+            : t.set(snap.ref, session)
         })
       })
       .then(() =>
