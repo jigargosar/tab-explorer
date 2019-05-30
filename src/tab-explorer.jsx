@@ -88,15 +88,15 @@ const App = () => {
         <UserToolbar />
         <div className="lh-copy f3">Tab Explorer</div>
         <div className="pv1" />
-        <OpenTabs />
+        <OpenTabsPanel />
         <div className="pv2" />
-        <Collections actions={actions} sessions={displaySessions} />
+        <SessionsPanel actions={actions} sessions={displaySessions} />
       </div>
     </AppActionsProvider>
   )
 }
 
-function Collections({ actions, sessions }) {
+function SessionsPanel({ actions, sessions }) {
   const renderSessionItem = session => {
     return <SessionListItem key={session.id} {...{ session }} />
   }
@@ -119,7 +119,7 @@ function Collections({ actions, sessions }) {
   )
 }
 
-function OpenTabs() {
+function OpenTabsPanel() {
   const actions = useAppActions()
   const tabs = useOpenTabs()
 
