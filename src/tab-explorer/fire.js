@@ -51,10 +51,10 @@ export function syncSessions(actions, sessionStore) {
     firebase
       .firestore()
       .runTransaction(async t => {
-        const dps = Object.values(sessionStore).map(s => {
+        const docSnapPromises = Object.values(sessionStore).map(s => {
           return t.get(sref.doc(s.id))
         })
-        const docSnaps = await Promise.all(dps)
+        const docSnaps = await Promise.all(docSnapPromises)
         docSnaps.forEach(ds => {
           return ds.exists
             ? t.update(ds.ref, sessionStore[ds.id])
