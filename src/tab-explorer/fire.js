@@ -63,10 +63,11 @@ export function syncSessions(actions, sessionStore) {
     if (!user) return
     const sessionsCRef = getSessionsCRef(user)
     const disposer = sessionsCRef.onSnapshot(qs => {
+      const sessionChanges = qs.docChanges({})
       console.log(
-        'fire: Sessions Changed',
-        qs.docChanges({}),
-        qs.docs.length,
+        'fire query: Session Changes',
+        sessionChanges.length,
+        sessionChanges,
         qs,
       )
       const fireSessions = qs.docs.map(ds => ds.data())
