@@ -11,13 +11,11 @@ import defaultTo from 'ramda/es/defaultTo'
 import { getCache, setCache } from './basics'
 import { pipe, mapProp } from './safe-basics'
 import pick from 'ramda/es/pick'
-import firebase from 'firebase/app'
-import 'firebase/auth'
-import 'firebase/firestore'
-import { useAuthState } from 'react-firebase-hooks/auth'
+
 import pluck from 'ramda/es/pluck'
 import { SessionStore } from './sessions'
 import { closeTabs, createTab, activateTabWithId } from './chrome-effects'
+import { signIn, signOut, syncSessions as useSyncSessions } from './fire'
 
 const loadCachedState = () => {
   const defaultState = { sessions: {} }
@@ -60,13 +58,10 @@ function useActions(setState) {
 
     return {
       signIn: () => {
-        const auth = firebase.auth()
-        const ap = new firebase.auth.GoogleAuthProvider()
-        ap.setCustomParameters({ prompt: 'select_account' })
-        auth.signInWithPopup(ap)
+        signIn()
       },
       signOut: () => {
-        firebase.auth().signOut()
+        signOut()
       },
       updateSessionsIfNewer: sessionList => {
         setSessions(SessionStore.replaceNewerSessions(sessionList))
@@ -110,22 +105,6 @@ function useActions(setState) {
   }, [setState])
 }
 
-const firebaseConfig = {
-  apiKey: 'AIzaSyBVS1Tx23pScQz9w4ZDTGh307mqkCRy2Bw',
-  authDomain: 'not-now-142808.firebaseapp.com',
-  databaseURL: 'https://not-now-142808.firebaseio.com',
-  projectId: 'not-now-142808',
-  storageBucket: 'not-now-142808.appspot.com',
-  messagingSenderId: '476064436883',
-  appId: '1:476064436883:web:ebbcbed81661398e',
-}
-
-firebase.initializeApp(firebaseConfig)
-
-export function useAuth() {
-  return useAuthState(firebase.auth())
-}
-
 export function useAppState() {
   const [state, setState] = useState(loadCachedState)
   useCacheStateEffect(state)
@@ -133,41 +112,7 @@ export function useAppState() {
   // useCachePouchDBEffect(state, actions)
   useEffect(() => console.log('state changed', state), [state])
 
-  const [user] = useAuth()
-
-  useEffect(() => {
-    if (!user) return
-    const scRef = getSessionsCRef(user)
-    const disposer = scRef.onSnapshot(qs => {
-      console.log('fire: Sessions Changed', qs.docs.length, qs)
-      actions.updateSessionsIfNewer(qs.docs.map(ds => ds.data()))
-    }, console.error)
-    return disposer
-  }, [user])
-
-  useEffect(() => {
-    if (!user) return
-    const sref = getSessionsCRef(user)
-    firebase
-      .firestore()
-      .runTransaction(async t => {
-        const sessionMap = state.sessions
-        const dps = Object.values(sessionMap).map(s => {
-          return t.get(sref.doc(s.id))
-        })
-
-        const docSnaps = await Promise.all(dps)
-        docSnaps.forEach(ds => {
-          return ds.exists
-            ? t.update(ds.ref, sessionMap[ds.id])
-            : t.set(ds.ref, sessionMap[ds.id])
-        })
-      })
-      .then(() =>
-        console.log('fire: write all docs transaction success. '),
-      )
-      .catch(console.error)
-  }, [user, state.sessions])
+  useSyncSessions(actions, state.sessions)
 
   return [state, actions]
 }
@@ -175,12 +120,6 @@ export function useAppState() {
 const ActionsContext = createContext()
 
 export const AppActionsProvider = ActionsContext.Provider
-
-function getSessionsCRef(user) {
-  const db = firebase.firestore()
-  const sref = db.collection(`users/${user.uid}/tab-ex-sessions`)
-  return sref
-}
 
 export function useAppActions() {
   return useContext(ActionsContext)
