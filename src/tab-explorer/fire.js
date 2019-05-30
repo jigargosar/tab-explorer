@@ -51,7 +51,7 @@ export function syncSessions(actions, sessionStore) {
   const sessionLookup = SessionStore.toIdLookup(sessionStore)
 
   useEffect(() => {
-    if (!user) return
+    if (!user || !sessionLookup) return
     const sessionsCRef = getSessionsCRef(user)
     firebase
       .firestore()
