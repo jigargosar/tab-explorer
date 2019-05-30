@@ -7,14 +7,10 @@ import { useEffect, useRef } from 'react'
 import { SessionStore } from './session-store'
 import { pipe } from './safe-basics'
 import map from 'ramda/es/map'
-import equals from 'ramda/es/equals'
-import keys from 'ramda/es/keys'
 import isEmpty from 'ramda/es/isEmpty'
-import differenceWith from 'ramda/es/differenceWith'
 import values from 'ramda/es/values'
 import difference from 'ramda/es/difference'
 import pluck from 'ramda/es/pluck'
-import tap from 'ramda/es/tap'
 
 export const signIn = () => {
   const auth = firebase.auth()
@@ -68,7 +64,7 @@ export function syncSessions(actions, sessionStore) {
         'fire query: Session Changes',
         sessionChanges.length,
         sessionChanges,
-        qs,
+        // qs,
       )
       const fireSessions = qs.docs.map(ds => ds.data())
       actions.updateSessionsIfNewer(fireSessions)
@@ -95,7 +91,7 @@ export function syncSessions(actions, sessionStore) {
 
         const fetchSessionsFromIds = pipe(
           map(fetchDocWithSessionId),
-          tap(console.log),
+          // tap(console.log),
           Promise.all.bind(Promise),
         )
 
@@ -109,7 +105,11 @@ export function syncSessions(actions, sessionStore) {
         })
       })
       .then(() =>
-        console.log('fire: write all docs transaction success. '),
+        console.log(
+          'fire transaction: sessions updated',
+          sessionIds.length,
+          sessionIds,
+        ),
       )
       .catch(console.error)
   }, [user, sLookup])
