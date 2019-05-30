@@ -3,13 +3,9 @@ import {
   useContext,
   useState,
   useEffect,
-  useCallback,
   useMemo,
   createContext,
 } from 'react'
-import reject from 'ramda/es/reject'
-import startsWith from 'ramda/es/startsWith'
-import propSatisfies from 'ramda/es/propSatisfies'
 import mergeDeepRight from 'ramda/es/mergeDeepRight'
 import defaultTo from 'ramda/es/defaultTo'
 import { getCache, setCache } from './basics'
@@ -21,64 +17,20 @@ import 'firebase/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import pluck from 'ramda/es/pluck'
 import { SessionStore } from './sessions'
+import {
+  closeTabs,
+  createTab,
+  useCurrentWindowTabs,
+} from './chrome-effects'
 
-// CHROME API
+import reject from 'ramda/es/reject'
+import propSatisfies from 'ramda/es/propSatisfies'
+import startsWith from 'ramda/es/startsWith'
 
-const pageUrl = chrome.runtime.getURL('tab-explorer.html')
-console.log('pageUrl', pageUrl)
-
-const getPopulatedWindow = () => {
-  return new Promise(resolve =>
-    chrome.windows.getCurrent({ populate: true }, resolve),
-  )
-}
-
-const closeTabs = tabIds => {
-  return new Promise(resolve => chrome.tabs.remove(tabIds, resolve))
-}
-
-const createTab = tab => {
-  return new Promise(resolve =>
-    chrome.tabs.create({ url: tab.url, active: false }, resolve),
-  )
-}
-
-// HOOKS & MODEL
-
-const useChromeEventListener = (event, listener, deps) => {
-  const callback = useCallback(listener, deps)
-  useEffect(() => {
-    event.addListener(callback)
-    return () => event.removeListener(callback)
-  }, deps)
-}
-
-const useCurrentWindowTabs = () => {
-  const [tabs, setTabs] = useState([])
-
-  const updateCurrentTabs = useCallback(async () => {
-    const win = await getPopulatedWindow()
-    setTabs(win.tabs)
-  }, [setTabs])
-
-  // useEffect(() => console.log('current window tabs changed', tabs), [tabs])
-
-  useEffect(() => void updateCurrentTabs(), [])
-
-  const events = [
-    chrome.tabs.onCreated,
-    chrome.tabs.onUpdated,
-    chrome.tabs.onAttached,
-    chrome.tabs.onDetached,
-    chrome.tabs.onReplaced,
-    chrome.tabs.onRemoved,
-  ]
-
-  events.forEach(e =>
-    useChromeEventListener(e, updateCurrentTabs, [updateCurrentTabs]),
-  )
-
-  return tabs
+export function useOpenTabsList() {
+  const pageUrl = chrome.runtime.getURL('tab-explorer.html')
+  const windowTabs = useCurrentWindowTabs()
+  return reject(propSatisfies(startsWith(pageUrl))('url'))(windowTabs)
 }
 
 const loadCachedState = () => {
@@ -248,9 +200,4 @@ function getSessionsCRef(user) {
 
 export function useAppActions() {
   return useContext(ActionsContext)
-}
-
-export function useOpenTabsList() {
-  const windowTabs = useCurrentWindowTabs()
-  return reject(propSatisfies(startsWith(pageUrl))('url'))(windowTabs)
 }
