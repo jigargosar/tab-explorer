@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React from 'react'
+import React, { useRef } from 'react'
 import { render } from 'react-dom'
 import 'tachyons'
 import './main.css'
@@ -26,6 +26,20 @@ const defaultFavIconUrl =
   //#region
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAARklEQVR4Xu3M0QkAIAzE0M7pNN1cBwhFDkUFL/l/8VatF6cAiASBEs0VIEFoQAQIFQChAiBUAIQC8JMA+wUwYMDA/O3A/QbXNAnXAnMZWQAAAABJRU5ErkJggg=='
 //#endregion
+
+const Fav = React.memo(function({ url }) {
+  const ref = useRef()
+  return (
+    <img
+      ref={ref}
+      src={url || defaultFavIconUrl}
+      style={{ width: 24, height: 24 }}
+      width={24}
+      height={24}
+      onError={() => (ref.current.src = defaultFavIconUrl)}
+    />
+  )
+})
 
 function TextA(props) {
   return <div className="pv1 ttu tracked b" {...props} />
@@ -139,31 +153,28 @@ function OpenTabsPanel() {
     </div>
   )
 
-  function TabListItem({ tab }) {
-    return (
-      <div
-        className="pv1 pointer flex items-center "
-        onClick={() => actions.onOpenTabsListItemClicked(tab)}
-      >
-        <div className="ph1" />
-        <img
-          className=""
-          src={tab.favIconUrl || defaultFavIconUrl}
-          width={24}
-          height={24}
-        />
-        <div className="ph1" />
-        <div>{tab.title}</div>
-      </div>
-    )
-  }
-
-  const viewTabItem = tab => <TabListItem key={tab.id} tab={tab} />
+  const viewTabItem = tab => <OpenTabsListItem key={tab.id} tab={tab} />
   const viewTabList = <div className="pv1">{map(viewTabItem)(tabs)}</div>
   return (
     <div className="">
       {toolbar}
       {viewTabList}
+    </div>
+  )
+}
+
+function OpenTabsListItem({ tab }) {
+  const actions = useAppActions()
+
+  return (
+    <div
+      className="pv1 pointer flex items-center "
+      onClick={() => actions.onOpenTabsListItemClicked(tab)}
+    >
+      <div className="ph1" />
+      <Fav url={tab.favIconUrl} />
+      <div className="ph1" />
+      <div>{tab.title}</div>
     </div>
   )
 }
@@ -219,11 +230,7 @@ function SessionTabItem({ sessionId, tab }) {
       </button>
       <div className="mh1" />
       <div className="pa1 flex items-center">
-        <img
-          src={tab.favIconUrl || defaultFavIconUrl}
-          width={24}
-          height={24}
-        />
+        <Fav url={tab.favIconUrl} />
       </div>
       <div
         className=" ph1 flex-auto pointer flex items-center hover-blue black"

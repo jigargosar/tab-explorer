@@ -18,7 +18,7 @@ module.exports = {
     'tab-explorer': pth('src/tab-explorer.jsx'),
   },
   resolve: {
-    extensions: ['.tsx', '.ts', 'jsx', '.js'],
+    extensions: ['.tsx', '.ts', '.jsx', '.js'],
   },
   module: {
     rules: [
@@ -42,5 +42,5 @@ module.exports = {
       { from: pth('src/tab-explorer.html') },
     ]),
   ],
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
 }
