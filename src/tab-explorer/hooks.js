@@ -17,21 +17,7 @@ import 'firebase/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import pluck from 'ramda/es/pluck'
 import { SessionStore } from './sessions'
-import {
-  closeTabs,
-  createTab,
-  useCurrentWindowTabs,
-} from './chrome-effects'
-
-import reject from 'ramda/es/reject'
-import propSatisfies from 'ramda/es/propSatisfies'
-import startsWith from 'ramda/es/startsWith'
-
-export function useOpenTabsList() {
-  const pageUrl = chrome.runtime.getURL('tab-explorer.html')
-  const windowTabs = useCurrentWindowTabs()
-  return reject(propSatisfies(startsWith(pageUrl))('url'))(windowTabs)
-}
+import { closeTabs, createTab, activateTabWithId } from './chrome-effects'
 
 const loadCachedState = () => {
   const defaultState = { sessions: {} }
@@ -94,9 +80,7 @@ function useActions(setState) {
         await closeTabs(ids)
       },
       onOpenTabsListItemClicked: tab => {
-        chrome.tabs.update(tab.id, { active: true }, updatedTab =>
-          console.log('tab updated', updatedTab),
-        )
+        activateTabWithId(tab.id)
       },
       onSessionTabsListItemClicked: tab => {
         createTab(tab)

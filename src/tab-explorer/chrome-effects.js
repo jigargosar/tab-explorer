@@ -1,5 +1,8 @@
 /* eslint-disable no-console */
 import { useState, useEffect, useCallback } from 'react'
+import reject from 'ramda/es/reject'
+import propSatisfies from 'ramda/es/propSatisfies'
+import startsWith from 'ramda/es/startsWith'
 
 const getCurrentPopulatedWindow = () => {
   return new Promise(resolve =>
@@ -25,7 +28,13 @@ const useChromeEventListener = (event, listener, deps) => {
   }, deps)
 }
 
-export const useCurrentWindowTabs = () => {
+export function activateTabWithId(id) {
+  chrome.tabs.update(id, { active: true }, updatedTab =>
+    console.log('tab updated', updatedTab),
+  )
+}
+
+const useCurrentWindowTabs = () => {
   const [tabs, setTabs] = useState([])
 
   const updateCurrentTabs = useCallback(async () => {
@@ -51,4 +60,10 @@ export const useCurrentWindowTabs = () => {
   )
 
   return tabs
+}
+
+export function useOpenTabsList() {
+  const pageUrl = chrome.runtime.getURL('tab-explorer.html')
+  const windowTabs = useCurrentWindowTabs()
+  return reject(propSatisfies(startsWith(pageUrl))('url'))(windowTabs)
 }

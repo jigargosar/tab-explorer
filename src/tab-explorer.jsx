@@ -14,7 +14,6 @@ import { format } from 'date-fns'
 import {
   useAppActions,
   useAppState,
-  useOpenTabsList,
   AppActionsProvider,
   useAuth,
 } from './tab-explorer/hooks'
@@ -22,6 +21,7 @@ import intersperse from 'ramda/es/intersperse'
 import propOr from 'ramda/es/propOr'
 import pipe from 'ramda/es/pipe'
 import addIndex from 'ramda/es/addIndex'
+import { useOpenTabsList } from './tab-explorer/chrome-effects'
 
 console.log('tab-explorer.js loaded')
 
