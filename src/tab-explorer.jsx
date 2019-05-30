@@ -10,18 +10,17 @@ import values from 'ramda/es/values'
 import sortWith from 'ramda/es/sortWith'
 import descend from 'ramda/es/descend'
 import { format } from 'date-fns'
-
 import {
   useAppActions,
   useAppState,
   AppActionsProvider,
-  useAuth,
+  useAuthState,
+  useOpenTabs,
 } from './tab-explorer/hooks'
 import intersperse from 'ramda/es/intersperse'
 import propOr from 'ramda/es/propOr'
 import pipe from 'ramda/es/pipe'
 import addIndex from 'ramda/es/addIndex'
-import { useOpenTabsList } from './tab-explorer/chrome-effects'
 
 console.log('tab-explorer.js loaded')
 
@@ -37,7 +36,7 @@ function TextA(props) {
 }
 
 function UserToolbar() {
-  const [user, initialising, error] = useAuth()
+  const [user, initialising, error] = useAuthState()
   const actions = useAppActions()
 
   return (
@@ -100,7 +99,7 @@ const App = () => {
 
 function OpenTabs() {
   const actions = useAppActions()
-  const tabs = useOpenTabsList()
+  const tabs = useOpenTabs()
 
   const btn = (label, onClick) => {
     return <TBtn onClick={onClick}>{label}</TBtn>

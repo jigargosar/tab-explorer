@@ -62,7 +62,7 @@ const useCurrentWindowTabs = () => {
   return tabs
 }
 
-export function useOpenTabsList() {
+export function useFilteredOpenTabsList() {
   const pageUrl = chrome.runtime.getURL('tab-explorer.html')
   const windowTabs = useCurrentWindowTabs()
   return reject(propSatisfies(startsWith(pageUrl))('url'))(windowTabs)
