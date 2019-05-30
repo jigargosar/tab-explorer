@@ -66,8 +66,11 @@ export function syncSessions(actions, sessionStore) {
         sessionChanges,
         // qs,
       )
-      const fireSessions = qs.docs.map(ds => ds.data())
-      actions.updateSessionsIfNewer(fireSessions)
+      // const fireAllSessions = qs.docs.map(ds => ds.data())
+      const fireChangedSessions = sessionChanges.map(snap =>
+        snap.doc.data(),
+      )
+      actions.updateSessionsIfNewer(fireChangedSessions)
     }, console.error)
     return disposer
   }, [user])
