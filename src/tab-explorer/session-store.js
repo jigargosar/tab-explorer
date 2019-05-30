@@ -9,6 +9,7 @@ import map from 'ramda/es/map'
 import F from 'ramda/es/F'
 import defaultTo from 'ramda/es/defaultTo'
 import mergeLeft from 'ramda/es/mergeLeft'
+import identity from 'ramda/es/identity'
 
 function sessionFromTabs(tabs) {
   const now = Date.now()
@@ -77,4 +78,5 @@ export const SessionStore = {
       .reduce((acc, session) => mergeModel(session)(acc), {})
     return mergeLeft(newStore)(store)
   },
+  toIdLookup: identity,
 }

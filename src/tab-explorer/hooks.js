@@ -13,7 +13,7 @@ import { pipe, mapProp } from './safe-basics'
 import pick from 'ramda/es/pick'
 
 import pluck from 'ramda/es/pluck'
-import { SessionStore } from './sessions'
+import { SessionStore } from './session-store'
 import { closeTabs, createTab, activateTabWithId } from './chrome-effects'
 import { signIn, signOut, syncSessions as useSyncSessions } from './fire'
 export { useAuth as useAuthState } from './fire'
