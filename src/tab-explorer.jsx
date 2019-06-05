@@ -60,7 +60,7 @@ function hspaced(elList) {
   return fn(elList)
 }
 
-function HSpaced(props) {
+function SpacerH(props) {
   return hspaced(props.children)
 }
 
@@ -70,7 +70,7 @@ function UserToolbar() {
 
   return (
     <div className="flex items-center">
-      <HSpaced>
+      <SpacerH>
         <div>User: {`${user}`}</div>
         <div>Error: {`${error}`}</div>
         <TBtn
@@ -79,7 +79,7 @@ function UserToolbar() {
         >
           {user ? 'SignOut' : 'SignIn'}
         </TBtn>
-      </HSpaced>
+      </SpacerH>
     </div>
   )
 }
@@ -117,7 +117,7 @@ function SessionsPanel({ actions, sessions }) {
   return (
     <>
       <div className="flex items-center">
-        <HSpaced>
+        <SpacerH>
           <TextA>Collections</TextA>
           <TBtn onClick={() => actions.onCollapseAllSessionsClicked()}>
             Collapse All
@@ -125,7 +125,7 @@ function SessionsPanel({ actions, sessions }) {
           <TBtn onClick={() => actions.onExpandAllSessionsClicked()}>
             Expand All
           </TBtn>
-        </HSpaced>
+        </SpacerH>
       </div>
       <div className="pv1" />
       <div>{map(renderSessionItem)(sessions)}</div>
