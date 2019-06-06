@@ -18,6 +18,7 @@ import { closeTabs, createTab, activateTabWithId } from './chrome-effects'
 import { signIn, signOut, syncSessions as useSyncSessions } from './fire'
 export { useAuth as useAuthState } from './fire'
 export { useFilteredOpenTabsList as useOpenTabs } from './chrome-effects'
+
 const loadCachedState = () => {
   const defaultState = { sessions: {} }
   const stateProps = Object.keys(defaultState)
