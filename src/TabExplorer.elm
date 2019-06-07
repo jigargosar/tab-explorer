@@ -28,7 +28,7 @@ type alias Tab =
 tabDecoder : Decoder Tab
 tabDecoder =
     JD.map4 Tab
-        (JD.field "id" JD.int)
+        (JD.field "id2" JD.int)
         (JD.field "title" JD.string)
         (JD.field "url" JD.string)
         (JD.maybe <| JD.field "favIconUrl" JD.string)
@@ -71,10 +71,14 @@ type alias Flags =
     }
 
 
+type alias Problem =
+    { msg : String, details : String }
+
+
 type alias Model =
     { openTabs : List Tab
     , sessions : List Session
-    , errors : List String
+    , problems : List Problem
     }
 
 
@@ -82,14 +86,14 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     { openTabs = []
     , sessions = []
-    , errors = []
+    , problems = []
     }
         |> updateEncodedSessions flags.sessions
 
 
-appendErrorString : String -> Model -> Model
-appendErrorString errString model =
-    { model | errors = model.errors ++ [ errString ] }
+appendProblem : Problem -> Model -> Model
+appendProblem problem model =
+    { model | problems = model.problems ++ [ problem ] }
 
 
 setSessions : List Session -> Model -> Model
@@ -126,8 +130,8 @@ updateEncodedSessions encodedSessions model =
         newModel =
             encodedSessions
                 |> JD.decodeValue (JD.list sessionDecoder)
-                |> Result.mapError JD.errorToString
-                |> unpackResult appendErrorString setSessions
+                |> Result.mapError (\error -> Problem "Unable to parse cached sessions" (JD.errorToString error))
+                |> unpackResult appendProblem setSessions
                 |> callWith model
     in
     ( newModel, Cmd.none )
@@ -174,8 +178,26 @@ view : Model -> Html Msg
 view model =
     div [ class "pa3 lh-copy" ]
         [ div [ class "measure-wide center b mb3" ] [ text "TabExplorer" ]
+        , viewProblems model.problems
         , viewOpenTabs model.openTabs
         , viewSessions model.sessions
+        ]
+
+
+viewProblems : List Problem -> Html Msg
+viewProblems problems =
+    if List.isEmpty problems then
+        text ""
+
+    else
+        div [ class "measure-wide center mv3" ] (List.map viewError problems)
+
+
+viewError : Problem -> Html Msg
+viewError problem =
+    div [ class "mv4" ]
+        [ div [ class "pa2 bg-red white br3 mb3" ] [ text <| "Error: " ++ problem.msg ]
+        , div [ class "ph3 code pre lh-solid f6" ] [ text problem.details ]
         ]
 
 
