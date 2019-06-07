@@ -38,7 +38,10 @@ function sendCurrentWindowTabs(app) {
 
 function boot(app) {
   sendCurrentWindowTabs(app)
-  app.ports.createTab.subscribe(({ url, active }) => {
-    chrome.tabs.create({ url, active })
+  // app.ports.createTab.subscribe(({ url, active }) => {
+  //   chrome.tabs.create({ url, active })
+  // })
+  app.ports.updateTab.subscribe(([id, { active }]) => {
+    chrome.tabs.update(id, { active })
   })
 }

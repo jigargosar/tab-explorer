@@ -11,7 +11,8 @@ import Json.Encode as JE exposing (Value)
 port onCurrentWindowTabsChanged : (JE.Value -> msg) -> Sub msg
 
 
-port createTab : { url : String, active : Bool } -> Cmd msg
+
+-- port createTab : { url : String, active : Bool } -> Cmd msg
 
 
 port updateTab : ( Int, { active : Bool } ) -> Cmd msg
