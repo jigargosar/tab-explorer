@@ -36,7 +36,7 @@ type alias Tab =
 tabDecoder : Decoder Tab
 tabDecoder =
     JD.map4 Tab
-        (JD.field "id2" JD.int)
+        (JD.field "id" JD.int)
         (JD.field "title" JD.string)
         (JD.field "url" JD.string)
         (JD.maybe <| JD.field "favIconUrl" JD.string)
