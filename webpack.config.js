@@ -11,6 +11,7 @@ const cleanManifest = R.pipe(
   R.partialRight(JSON.stringify, [null, 2]),
 )
 
+const srcPath = pth('src')
 module.exports = {
   context: pth(__dirname),
   entry: {
@@ -18,7 +19,7 @@ module.exports = {
     'tab-explorer': pth('src/tab-explorer.jsx'),
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.jsx', '.js'],
+    extensions: ['.jsx', '.js'],
   },
   module: {
     rules: [
@@ -27,9 +28,23 @@ module.exports = {
         use: ['style-loader', 'css-loader'],
       },
       {
-        test: /\.(jsx?|tsx?)$/,
-        include: pth('src'),
-        use: ['babel-loader', 'ts-loader'],
+        test: /\.elm$/,
+        include: [srcPath],
+        use: [
+          // { loader: 'elm-hot-webpack-loader' },
+          {
+            loader: 'elm-webpack-loader',
+            options: {
+              // cwd: path.join(__dirname, '../'),
+              debug: true,
+            },
+          },
+        ],
+      },
+      {
+        test: /\.(jsx?)$/,
+        include: srcPath,
+        use: ['babel-loader'],
       },
     ],
   },
@@ -42,5 +57,5 @@ module.exports = {
       { from: pth('src/tab-explorer.html') },
     ]),
   ],
-  devtool: 'inline-source-map',
+  devtool: 'source-map',
 }
