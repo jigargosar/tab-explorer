@@ -38,6 +38,7 @@ tabDecoder =
 type alias Session =
     { id : String
     , title : String
+    , createdAt : Int
     , modifiedAt : Int
     , deleted : Bool
     , tabs : List Tab
@@ -46,9 +47,10 @@ type alias Session =
 
 sessionDecoder : Decoder Session
 sessionDecoder =
-    JD.map5 Session
+    JD.map6 Session
         (JD.field "id" JD.string)
         (JD.field "title" JD.string)
+        (JD.field "createdAt" JD.int)
         (JD.field "modifiedAt" JD.int)
         (JD.field "deleted" JD.bool)
         (JD.field "tabs" <| JD.list tabDecoder)

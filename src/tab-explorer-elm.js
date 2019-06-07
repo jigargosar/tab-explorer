@@ -2,9 +2,18 @@
 import 'tachyons'
 import './main.css'
 import { Elm } from './TabExplorer.elm'
+import { loadCachedState } from './tab-explorer/hooks'
+import values from 'ramda/es/values'
+
+const oldCachedSessions = values(loadCachedState().sessions)
+
+console.log('oldCachedSessions :', oldCachedSessions)
 
 const app = Elm.TabExplorer.init({
   node: document.getElementById('root'),
+  flags: {
+    sessions: oldCachedSessions,
+  },
 })
 
 boot(app)

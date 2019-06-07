@@ -27,7 +27,7 @@ const defaultState = { sessions: {} }
 const stateProps = Object.keys(defaultState)
 
 const appStateKey = 'te-app-state'
-const loadCachedState = () => {
+export const loadCachedState = () => {
   const fn = pipe(
     getCache,
     defaultTo('{}'),
