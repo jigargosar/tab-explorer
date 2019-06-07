@@ -112,7 +112,6 @@ export function useAppState() {
   const [state, setState] = useState(loadCachedState)
   useCacheStateEffect(state)
   const actions = useActions(setState)
-  // useCachePouchDBEffect(state, actions)
   useEffect(() => console.log('state changed', state), [state])
 
   useSyncSessions(actions, state.sessions)
