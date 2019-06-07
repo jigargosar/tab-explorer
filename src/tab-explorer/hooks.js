@@ -15,7 +15,7 @@ import pick from 'ramda/es/pick'
 import pluck from 'ramda/es/pluck'
 import { SessionStore } from './session-store'
 import { closeTabs, createTab, activateTabWithId } from './chrome-effects'
-import { signIn, signOut, syncSessions as useSyncSessions } from './fire'
+import { signIn, signOut, useSyncSessions } from './fire'
 export { useAuth as useAuthState } from './fire'
 export { useFilteredOpenTabsList as useOpenTabs } from './chrome-effects'
 

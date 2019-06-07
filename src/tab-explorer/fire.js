@@ -52,7 +52,7 @@ function usePrevious(value) {
   // Return previous value (happens before update in useEffect above)
   return ref.current
 }
-export function syncSessions(actions, sessionStore) {
+export function useSyncSessions(actions, sessionStore) {
   const [user] = useAuth()
 
   useEffect(() => {
