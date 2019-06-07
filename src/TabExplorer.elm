@@ -152,7 +152,7 @@ update msg model =
             model |> withCmd (activateTabCmd tab)
 
         OnSessionTabItemClicked tab ->
-             model |>  withCmd (createAndActivateTabWithUrl tab.url )
+            model |> withCmd (createAndActivateTabWithUrl tab.url)
 
 
 activateTabCmd : Tab -> Cmd msg
