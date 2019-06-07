@@ -11,8 +11,7 @@ import Json.Encode as JE exposing (Value)
 port onCurrentWindowTabsChanged : (JE.Value -> msg) -> Sub msg
 
 
-
--- port createTab : { url : String, active : Bool } -> Cmd msg
+port createTab : { url : String, active : Bool } -> Cmd msg
 
 
 port updateTab : ( Int, { active : Bool } ) -> Cmd msg
@@ -84,7 +83,7 @@ init flags =
         sessions =
             flags.sessions
                 |> JD.decodeValue (JD.list sessionDecoder)
-                |> Debug.log "encoded sessions"
+                -- |> Debug.log "encoded sessions"
                 |> Result.withDefault []
     in
     ( { openTabs = [], sessions = sessions }, Cmd.none )
@@ -93,7 +92,8 @@ init flags =
 type Msg
     = NoOp
     | OnCurrentWindowTabsChanged JE.Value
-    | OnOpenTabListItemClicked Tab
+    | OnOpenTabItemClicked Tab
+    | OnSessionTabItemClicked Tab
 
 
 subscriptions : Model -> Sub Msg
@@ -112,15 +112,18 @@ update msg model =
                 newModel =
                     encodedTabs
                         |> JD.decodeValue (JD.list tabDecoder)
-                        -- |> Debug.log "encodedTabs"
+                        |> Debug.log "encodedTabs"
                         |> Result.map
                             (\tabs -> { model | openTabs = tabs })
                         |> Result.withDefault model
             in
             ( newModel, Cmd.none )
 
-        OnOpenTabListItemClicked tab ->
+        OnOpenTabItemClicked tab ->
             ( model, updateTab ( tab.id, { active = True } ) )
+
+        OnSessionTabItemClicked tab ->
+            ( model, createTab { url = tab.url, active = True } )
 
 
 view : Model -> Html Msg
@@ -142,7 +145,7 @@ viewOpenTabs tabs =
 
 viewOpenTabItem : Tab -> Html Msg
 viewOpenTabItem tab =
-    div [ class "pointer", onClick <| OnOpenTabListItemClicked tab ]
+    div [ class "pointer", onClick <| OnOpenTabItemClicked tab ]
         [ div [ class "pv1 ph2" ] [ text tab.title ]
         ]
 
@@ -159,13 +162,13 @@ viewSessionItem : Session -> Html Msg
 viewSessionItem session =
     div [ class "mb3 ba br3" ]
         [ div [ class "pa2 bb" ] [ session.createdAt |> String.fromInt |> text ]
-        , div [ class "pv2" ] (List.map viewOpenTabItem session.tabs)
+        , div [ class "pv2" ] (List.map viewSessionTabItem session.tabs)
         ]
 
 
 viewSessionTabItem : Tab -> Html Msg
 viewSessionTabItem tab =
-    div [ class "pointer", onClick <| OnOpenTabListItemClicked tab ]
+    div [ class "pointer", onClick <| OnSessionTabItemClicked tab ]
         [ div [ class "pv1 ph2" ] [ text tab.title ]
         ]
 
