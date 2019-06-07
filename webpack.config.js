@@ -16,7 +16,8 @@ module.exports = {
   context: pth(__dirname),
   entry: {
     background: pth('src/background.js'),
-    'tab-explorer': pth('src/tab-explorer.jsx'),
+    // 'tab-explorer': pth('src/tab-explorer.jsx'),
+    'tab-explorer': pth('src/tab-explorer-elm.js'),
   },
   resolve: {
     extensions: ['.jsx', '.js'],
