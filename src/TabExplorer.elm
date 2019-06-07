@@ -2,6 +2,7 @@ port module TabExplorer exposing (main)
 
 import Browser
 import Html exposing (..)
+import Html.Attributes exposing (class)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 
@@ -70,7 +71,25 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div [] [ text "foo" ]
+    div [ class "pa3 lh-copy" ]
+        [ div [ class "measure-wide center b mb3" ] [ text "TabExplorer" ]
+        , viewOpenTabs model.openTabs
+        ]
+
+
+viewOpenTabs : List Tab -> Html Msg
+viewOpenTabs tabs =
+    div [ class "measure-wide center ba br3" ]
+        [ div [ class "pa2 bb" ] [ text "Open Tabs" ]
+        , div [ class "pv2" ] (List.map viewOpenTabItem tabs)
+        ]
+
+
+viewOpenTabItem : Tab -> Html Msg
+viewOpenTabItem tab =
+    div []
+        [ div [ class "ph2" ] [ text tab.title ]
+        ]
 
 
 main : Program Flags Model Msg
