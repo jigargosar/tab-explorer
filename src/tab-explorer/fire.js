@@ -83,49 +83,53 @@ function useSendSessionChangesToFirebaseEffect(user, sessionStore) {
 
     if (isEmpty(changedSessions)) return
 
-    const sessionsById = changedSessions.reduce(
-      (byId, session) => mergeModel(session)(byId),
-      {},
-    )
-    const sessionIds = keys(sessionsById)
-    const sessionsCRef = getSessionsCRef(user)
-    firebase
-      .firestore()
-      .runTransaction(async t => {
-        const fetchDocWithSessionId = sid => t.get(sessionsCRef.doc(sid))
-        const fetchSessionsFromIds = pipe(
-          map(fetchDocWithSessionId),
-          // tap(console.log),
-          Promise.all.bind(Promise),
-        )
-        const docSnaps = await fetchSessionsFromIds(sessionIds)
-        docSnaps.forEach(snap => {
-          const session = sessionsById[snap.id]
-          if (snap.exists) {
-            if (equals(snap.data())(session)) {
-              console.log(
-                'fire transaction: ignoring update since firesession is uptodate',
-                snap.id,
-              )
-              // t.update(snap.ref, session)
-              t.update(snap.ref, {})
-            } else {
-              t.update(snap.ref, session)
-            }
-          } else {
-            t.set(snap.ref, session)
-          }
-        })
-      })
-      .then(() =>
-        console.log(
-          'fire transaction: sessions updated',
-          sessionIds.length,
-          sessionIds,
-        ),
-      )
-      .catch(console.error)
+    updateSessionsCollection(user, changedSessions)
   }, [user, sessionStore, prevSessionStore])
+}
+
+function updateSessionsCollection(user, changedSessions) {
+  const sessionsById = changedSessions.reduce(
+    (byId, session) => mergeModel(session)(byId),
+    {},
+  )
+  const sessionIds = keys(sessionsById)
+  const sessionsCRef = getSessionsCRef(user)
+  firebase
+    .firestore()
+    .runTransaction(async t => {
+      const fetchDocWithSessionId = sid => t.get(sessionsCRef.doc(sid))
+      const fetchSessionsFromIds = pipe(
+        map(fetchDocWithSessionId),
+        // tap(console.log),
+        Promise.all.bind(Promise),
+      )
+      const docSnaps = await fetchSessionsFromIds(sessionIds)
+      docSnaps.forEach(snap => {
+        const session = sessionsById[snap.id]
+        if (snap.exists) {
+          if (equals(snap.data())(session)) {
+            console.log(
+              'fire transaction: ignoring update since firesession is uptodate',
+              snap.id,
+            )
+            // t.update(snap.ref, session)
+            t.update(snap.ref, {})
+          } else {
+            t.update(snap.ref, session)
+          }
+        } else {
+          t.set(snap.ref, session)
+        }
+      })
+    })
+    .then(() =>
+      console.log(
+        'fire transaction: sessions updated',
+        sessionIds.length,
+        sessionIds,
+      ),
+    )
+    .catch(console.error)
 }
 
 function getSessionsCRef(user) {
