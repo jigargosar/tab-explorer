@@ -10,6 +10,7 @@ import F from 'ramda/es/F'
 import defaultTo from 'ramda/es/defaultTo'
 import mergeLeft from 'ramda/es/mergeLeft'
 import identity from 'ramda/es/identity'
+import values from 'ramda/es/values'
 
 function sessionFromTabs(tabs) {
   const now = Date.now()
@@ -44,6 +45,19 @@ function decodeSessionFromCache(session) {
   return fn(session)
 }
 
+const decodeSessionStore = map(decodeSessionFromCache)
+
+const replaceNewerSessions = sessionList => store => {
+  const newStore = sessionList
+    .filter(session => {
+      const existingSession = store[session.id]
+      return (
+        !existingSession || existingSession.modifiedAt < session.modifiedAt
+      )
+    })
+    .reduce((acc, session) => mergeModel(session)(acc), {})
+  return mergeLeft(newStore)(store)
+}
 export const SessionStore = {
   addNewFromTabs: tabs => {
     const session = sessionFromTabs(tabs)
@@ -65,18 +79,9 @@ export const SessionStore = {
   },
   collapseAll: map(collapse),
   expandAll: map(expand),
-  decode: map(decodeSessionFromCache),
-  replaceNewerSessions: sessionList => store => {
-    const newStore = sessionList
-      .filter(session => {
-        const existingSession = store[session.id]
-        return (
-          !existingSession ||
-          existingSession.modifiedAt < session.modifiedAt
-        )
-      })
-      .reduce((acc, session) => mergeModel(session)(acc), {})
-    return mergeLeft(newStore)(store)
-  },
+  decode: decodeSessionStore,
+  updateChangesFromAnotherTab: otherTabStore =>
+    replaceNewerSessions(values(otherTabStore)),
+  replaceNewerSessions,
   toIdLookup: identity,
 }

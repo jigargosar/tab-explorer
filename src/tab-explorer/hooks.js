@@ -43,11 +43,22 @@ function encodeState(state) {
   return fn(state)
 }
 
-const useCacheStateEffect = state => {
-  return useEffect(() => {
+const useSyncStateCacheEffect = (actions, state) => {
+  useEffect(() => {
     const encoded = encodeState(state)
     setCache(appStateKey)(encoded)
   }, [state])
+
+  useEffect(() => {
+    window.addEventListener('storage', e => {
+      if (e.key !== appStateKey) return
+      // When local storage changes, dump the list to
+      // the console.
+      console.log('app state changed in another tab storage event e :', e)
+      // actions.replaceNewerSessions(loadCachedState().sessions)
+      // console.log(JSON.parse(localStorage.getItem(appStateKey)))
+    })
+  }, [])
 }
 
 function useActions(setState) {
@@ -110,8 +121,8 @@ function useActions(setState) {
 
 export function useAppState() {
   const [state, setState] = useState(loadCachedState)
-  useCacheStateEffect(state)
   const actions = useActions(setState)
+  useSyncStateCacheEffect(actions, state)
   useEffect(() => console.log('state changed', state), [state])
 
   useFireSyncSessions(actions, state.sessions)
