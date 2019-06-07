@@ -87,8 +87,8 @@ viewOpenTabs tabs =
 
 viewOpenTabItem : Tab -> Html Msg
 viewOpenTabItem tab =
-    div []
-        [ div [ class "ph2" ] [ text tab.title ]
+    div [ class "pointer" ]
+        [ div [ class "pv1 ph2" ] [ text tab.title ]
         ]
 
 
