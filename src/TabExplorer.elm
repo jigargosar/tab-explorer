@@ -146,13 +146,13 @@ update msg model =
             model |> withNoCmd
 
         OnCurrentWindowTabsChanged encodedOpenTabs ->
-            updateEncodedOpenTabs encodedOpenTabs model
+            model |> updateEncodedOpenTabs encodedOpenTabs
 
         OnOpenTabItemClicked tab ->
-            ( model, activateTabCmd tab )
+            model |> withCmd (activateTabCmd tab)
 
         OnSessionTabItemClicked tab ->
-            ( model, createAndActivateTabWithUrl tab.url )
+             model |>  withCmd (createAndActivateTabWithUrl tab.url )
 
 
 activateTabCmd : Tab -> Cmd msg
@@ -298,6 +298,11 @@ unpackResult fromErr fromOk result =
 withNoCmd : model -> ( model, Cmd msg )
 withNoCmd model =
     ( model, Cmd.none )
+
+
+withCmd : Cmd msg -> model -> ( model, Cmd msg )
+withCmd cmd model =
+    ( model, cmd )
 
 
 optionalField : String -> Decoder a -> a -> Decoder a
