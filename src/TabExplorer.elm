@@ -1,6 +1,7 @@
 port module TabExplorer exposing (main)
 
 import Browser
+import Compare
 import Html exposing (..)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
@@ -189,13 +190,22 @@ createAndActivateTabWithUrl url =
 -- VIEW
 
 
+getDisplaySessions : List Session -> List Session
+getDisplaySessions sessions =
+    let
+        comparator =
+            Compare.concat [ Compare.by .pinned, Compare.by .createdAt |> Compare.reverse ]
+    in
+    List.sortWith (Compare.by .createdAt |> Compare.reverse) sessions
+
+
 view : Model -> Html Msg
 view model =
     div [ class "pa3 lh-copy" ]
         [ div [ class "measure-wide center b mb3" ] [ text "TabExplorer" ]
         , viewProblems model.problems
         , viewOpenTabs model.openTabs
-        , viewSessions model.sessions
+        , viewSessions <| getDisplaySessions model.sessions
         ]
 
 
