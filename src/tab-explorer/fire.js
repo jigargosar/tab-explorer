@@ -75,31 +75,31 @@ export function useFireSyncSessions(actions, sessionStore) {
     return disposer
   }, [user])
 
+  useSendSessionChangesToFirebaseEffect(user, sessionStore)
+}
+
+function useSendSessionChangesToFirebaseEffect(user, sessionStore) {
   const sLookup = SessionStore.toIdLookup(sessionStore)
   const prevSLookup = usePrevious(sLookup)
+
   useEffect(() => {
-    if (!user || !sLookup) return
+    if (!user || !sLookup || sLookup === prevSLookup) return
     const changedSessions = difference(values(sLookup))(
       values(prevSLookup),
     )
     const sessionIds = pluck('id')(changedSessions)
-
     if (isEmpty(sessionIds)) return
-
     const sessionsCRef = getSessionsCRef(user)
     firebase
       .firestore()
       .runTransaction(async t => {
         const fetchDocWithSessionId = sid => t.get(sessionsCRef.doc(sid))
-
         const fetchSessionsFromIds = pipe(
           map(fetchDocWithSessionId),
           // tap(console.log),
           Promise.all.bind(Promise),
         )
-
         const docSnaps = await fetchSessionsFromIds(sessionIds)
-
         docSnaps.forEach(snap => {
           const session = sLookup[snap.id]
           snap.exists
@@ -115,7 +115,7 @@ export function useFireSyncSessions(actions, sessionStore) {
         ),
       )
       .catch(console.error)
-  }, [user, sLookup])
+  }, [user, sLookup, prevSLookup])
 }
 
 function getSessionsCRef(user) {
