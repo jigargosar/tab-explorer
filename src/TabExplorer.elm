@@ -8,6 +8,10 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 
 
+
+-- PORTS
+
+
 port onCurrentWindowTabsChanged : (JE.Value -> msg) -> Sub msg
 
 
@@ -15,6 +19,10 @@ port createTab : { url : String, active : Bool } -> Cmd msg
 
 
 port updateTab : ( Int, { active : Bool } ) -> Cmd msg
+
+
+
+-- TAB MODEL
 
 
 type alias Tab =
@@ -34,6 +42,10 @@ tabDecoder =
         (JD.maybe <| JD.field "favIconUrl" JD.string)
 
 
+
+-- SESSION MODEL
+
+
 type alias Session =
     { id : String
     , title : String
@@ -44,13 +56,6 @@ type alias Session =
     , pinned : Bool
     , collapsed : Bool
     }
-
-
-optionalField : String -> Decoder a -> a -> Decoder a
-optionalField fname fdecoder defVal =
-    JD.field fname fdecoder
-        |> JD.maybe
-        |> JD.map (Maybe.withDefault defVal)
 
 
 sessionDecoder : Decoder Session
@@ -64,6 +69,10 @@ sessionDecoder =
         (JD.field "tabs" <| JD.list tabDecoder)
         (optionalField "pinned" JD.bool False)
         (optionalField "collapsed" JD.bool False)
+
+
+
+-- MODEL
 
 
 type alias Flags =
@@ -101,40 +110,13 @@ setSessions sessions model =
     { model | sessions = sessions }
 
 
-callWith : a -> (a -> b) -> b
-callWith a fn =
-    fn a
+setOpenTabs : List Tab -> Model -> Model
+setOpenTabs tabs model =
+    { model | openTabs = tabs }
 
 
-mergeResult : Result a a -> a
-mergeResult result =
-    case result of
-        Err a ->
-            a
 
-        Ok a ->
-            a
-
-
-unpackResult : (err -> b) -> (a -> b) -> Result err a -> b
-unpackResult fromErr fromOk result =
-    result
-        |> Result.mapError fromErr
-        |> Result.map fromOk
-        |> mergeResult
-
-
-updateEncodedSessions : Value -> Model -> ( Model, Cmd Msg )
-updateEncodedSessions encodedSessions model =
-    let
-        newModel =
-            encodedSessions
-                |> JD.decodeValue (JD.list sessionDecoder)
-                |> Result.mapError (\error -> Problem "Unable to parse cached sessions" (JD.errorToString error))
-                |> unpackResult appendProblem setSessions
-                |> callWith model
-    in
-    ( newModel, Cmd.none )
+-- MESSAGES
 
 
 type Msg
@@ -144,34 +126,67 @@ type Msg
     | OnSessionTabItemClicked Tab
 
 
+
+-- SUBSCRIPTIONS
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch [ onCurrentWindowTabsChanged OnCurrentWindowTabsChanged ]
+
+
+
+-- UPDATE
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
-            ( model, Cmd.none )
+            model |> withNoCmd
 
-        OnCurrentWindowTabsChanged encodedTabs ->
-            let
-                newModel =
-                    encodedTabs
-                        |> JD.decodeValue (JD.list tabDecoder)
-                        -- |> Debug.log "encodedTabs"
-                        |> Result.map
-                            (\tabs -> { model | openTabs = tabs })
-                        |> Result.withDefault model
-            in
-            ( newModel, Cmd.none )
+        OnCurrentWindowTabsChanged encodedOpenTabs ->
+            updateEncodedOpenTabs encodedOpenTabs model
 
         OnOpenTabItemClicked tab ->
-            ( model, updateTab ( tab.id, { active = True } ) )
+            ( model, activateTabCmd tab )
 
         OnSessionTabItemClicked tab ->
-            ( model, createTab { url = tab.url, active = True } )
+            ( model, createAndActivateTabWithUrl tab.url )
+
+
+activateTabCmd : Tab -> Cmd msg
+activateTabCmd tab =
+    updateTab ( tab.id, { active = True } )
+
+
+updateEncodedSessions : Value -> Model -> ( Model, Cmd Msg )
+updateEncodedSessions encodedSessions model =
+    encodedSessions
+        |> JD.decodeValue (JD.list sessionDecoder)
+        |> Result.mapError (\error -> Problem "Unable to parse cached sessions" (JD.errorToString error))
+        |> unpackResult appendProblem setSessions
+        |> callWith model
+        |> withNoCmd
+
+
+updateEncodedOpenTabs : Value -> Model -> ( Model, Cmd Msg )
+updateEncodedOpenTabs encodedOpenTabs model =
+    encodedOpenTabs
+        |> JD.decodeValue (JD.list tabDecoder)
+        |> Result.mapError (\error -> Problem "Unable to parse open tabs" (JD.errorToString error))
+        |> unpackResult appendProblem setOpenTabs
+        |> callWith model
+        |> withNoCmd
+
+
+createAndActivateTabWithUrl : String -> Cmd Msg
+createAndActivateTabWithUrl url =
+    createTab { url = url, active = True }
+
+
+
+-- VIEW
 
 
 view : Model -> Html Msg
@@ -239,6 +254,10 @@ viewSessionTabItem tab =
         ]
 
 
+
+-- MAIN
+
+
 main : Program Flags Model Msg
 main =
     Browser.element
@@ -247,3 +266,42 @@ main =
         , update = update
         , subscriptions = subscriptions
         }
+
+
+
+-- COMMON HELPERS
+
+
+callWith : a -> (a -> b) -> b
+callWith a fn =
+    fn a
+
+
+mergeResult : Result a a -> a
+mergeResult result =
+    case result of
+        Err a ->
+            a
+
+        Ok a ->
+            a
+
+
+unpackResult : (err -> b) -> (a -> b) -> Result err a -> b
+unpackResult fromErr fromOk result =
+    result
+        |> Result.mapError fromErr
+        |> Result.map fromOk
+        |> mergeResult
+
+
+withNoCmd : model -> ( model, Cmd msg )
+withNoCmd model =
+    ( model, Cmd.none )
+
+
+optionalField : String -> Decoder a -> a -> Decoder a
+optionalField fname fdecoder defVal =
+    JD.field fname fdecoder
+        |> JD.maybe
+        |> JD.map (Maybe.withDefault defVal)
