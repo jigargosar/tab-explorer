@@ -35,6 +35,25 @@ tabDecoder =
         (JD.maybe <| JD.field "favIconUrl" JD.string)
 
 
+type alias Session =
+    { id : String
+    , title : String
+    , modifiedAt : Int
+    , deleted : Bool
+    , tabs : List Tab
+    }
+
+
+sessionDecoder : Decoder Session
+sessionDecoder =
+    JD.map5 Session
+        (JD.field "id" JD.string)
+        (JD.field "title" JD.string)
+        (JD.field "modifiedAt" JD.int)
+        (JD.field "deleted" JD.bool)
+        (JD.field "tabs" <| JD.list tabDecoder)
+
+
 type alias Flags =
     {}
 
