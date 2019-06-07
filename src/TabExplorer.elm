@@ -55,11 +55,13 @@ sessionDecoder =
 
 
 type alias Flags =
-    {}
+    { sessions : Value
+    }
 
 
 type alias Model =
-    { openTabs : List Tab }
+    { openTabs : List Tab
+    }
 
 
 init : Flags -> ( Model, Cmd Msg )
