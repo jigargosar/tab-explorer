@@ -57,6 +57,8 @@ const useSyncStateCacheEffect = (actions, state) => {
       console.log('app state changed in another tab storage event e :', e)
       // actions.replaceNewerSessions(loadCachedState().sessions)
       // console.log(JSON.parse(localStorage.getItem(appStateKey)))
+      const sessionStore = loadCachedState().sessions
+      actions.updateSessionStoreChangesFromAnotherTab(sessionStore)
     })
   }, [])
 }
@@ -79,6 +81,11 @@ function useActions(setState) {
       },
       updateSessionsIfNewer: sessionList => {
         setSessions(SessionStore.replaceNewerSessions(sessionList))
+      },
+      updateSessionStoreChangesFromAnotherTab: otherTabSessionStore => {
+        setSessions(
+          SessionStore.updateChangesFromAnotherTab(otherTabSessionStore),
+        )
       },
       saveSession: otherTabs => {
         createAndAddSessionFromTabs(otherTabs)
