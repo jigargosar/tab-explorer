@@ -82,11 +82,14 @@ function useUpdateSessionStoreOnFirebaseChangesEffect(user, actions) {
 }
 
 function useSendSessionChangesToFirebaseEffect(user, sessionStore) {
-  const sLookup = SessionStore.toIdLookup(sessionStore)
-  const prevSLookup = usePrevious(sLookup)
+  const prevSessionStore = usePrevious(sessionStore)
 
   useEffect(() => {
-    if (!user || !sLookup || sLookup === prevSLookup) return
+    if (!user) return
+    if (!prevSessionStore || prevSessionStore === sessionStore) return
+    const sLookup = SessionStore.toIdLookup(sessionStore)
+    const prevSLookup = SessionStore.toIdLookup(prevSessionStore)
+
     const changedSessions = difference(values(sLookup))(
       values(prevSLookup),
     )
@@ -118,7 +121,7 @@ function useSendSessionChangesToFirebaseEffect(user, sessionStore) {
         ),
       )
       .catch(console.error)
-  }, [user, sLookup, prevSLookup])
+  }, [user, sessionStore, prevSessionStore])
 }
 
 function getSessionsCRef(user) {
