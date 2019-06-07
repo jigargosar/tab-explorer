@@ -81,12 +81,13 @@ type alias Model =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
-        _ =
+        sessions =
             flags.sessions
                 |> JD.decodeValue (JD.list sessionDecoder)
                 |> Debug.log "encoded sessions"
+                |> Result.withDefault []
     in
-    ( { openTabs = [], sessions = [] }, Cmd.none )
+    ( { openTabs = [], sessions = sessions }, Cmd.none )
 
 
 type Msg
@@ -111,7 +112,7 @@ update msg model =
                 newModel =
                     encodedTabs
                         |> JD.decodeValue (JD.list tabDecoder)
-                        |> Debug.log "encodedTabs"
+                        -- |> Debug.log "encodedTabs"
                         |> Result.map
                             (\tabs -> { model | openTabs = tabs })
                         |> Result.withDefault model

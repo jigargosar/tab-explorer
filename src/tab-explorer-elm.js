@@ -5,14 +5,14 @@ import { Elm } from './TabExplorer.elm'
 import { loadCachedState } from './tab-explorer/hooks'
 import values from 'ramda/es/values'
 
-const oldCachedSessions = values(loadCachedState().sessions)
+const oldCachedSessionList = values(loadCachedState().sessions)
 
-console.log('oldCachedSessions :', oldCachedSessions)
+// console.log('oldCachedSessionList :', oldCachedSessionList)
 
 const app = Elm.TabExplorer.init({
   node: document.getElementById('root'),
   flags: {
-    sessions: oldCachedSessions,
+    sessions: oldCachedSessionList,
   },
 })
 
@@ -37,8 +37,8 @@ function sendCurrentWindowTabs(app) {
   async function listener() {
     const win = await getCurrentPopulatedWindow()
     const tabs = win.tabs
-    console.log('tabs', tabs)
-    console.table(tabs[0])
+    // console.log('tabs', tabs)
+    // console.table(tabs[0])
     app.ports.onCurrentWindowTabsChanged.send(tabs)
   }
 
