@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import 'tachyons'
 import './main.css'
 import { Elm } from './TabExplorer.elm'
@@ -25,7 +26,10 @@ function sendCurrentWindowTabs(app) {
 
   async function listener() {
     const win = await getCurrentPopulatedWindow()
-    app.ports.onCurrentWindowTabsChanged.send(win.tabs)
+    const tabs = win.tabs
+    console.log('tabs', tabs)
+    console.table(tabs[0])
+    app.ports.onCurrentWindowTabsChanged.send(tabs)
   }
 
   tabEvents.forEach(event => event.addListener(listener))
