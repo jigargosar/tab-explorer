@@ -42,18 +42,22 @@ type alias Session =
     , modifiedAt : Int
     , deleted : Bool
     , tabs : List Tab
+    , pinned : Bool
+    , collapsed : Bool
     }
 
 
 sessionDecoder : Decoder Session
 sessionDecoder =
-    JD.map6 Session
+    JD.map8 Session
         (JD.field "id" JD.string)
         (JD.field "title" JD.string)
         (JD.field "createdAt" JD.int)
         (JD.field "modifiedAt" JD.int)
         (JD.field "deleted" JD.bool)
         (JD.field "tabs" <| JD.list tabDecoder)
+        (JD.field "pinned" JD.bool)
+        (JD.field "collapsed" JD.bool)
 
 
 type alias Flags =
