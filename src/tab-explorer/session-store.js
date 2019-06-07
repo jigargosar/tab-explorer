@@ -11,6 +11,7 @@ import defaultTo from 'ramda/es/defaultTo'
 import mergeLeft from 'ramda/es/mergeLeft'
 import identity from 'ramda/es/identity'
 import values from 'ramda/es/values'
+import difference from 'ramda/es/difference'
 
 function sessionFromTabs(tabs) {
   const now = Date.now()
@@ -84,4 +85,6 @@ export const SessionStore = {
     replaceNewerSessions(values(otherTabStore)),
   replaceNewerSessions,
   toIdLookup: identity,
+  getUpdatedSessionList: oldStore => store =>
+    difference(values(store))(values(oldStore)),
 }

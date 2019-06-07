@@ -13,6 +13,8 @@ import difference from 'ramda/es/difference'
 import pluck from 'ramda/es/pluck'
 import equals from 'ramda/es/equals'
 import { usePrevious } from './use-prev-hook'
+import { mergeModel } from './basics'
+import keys from 'ramda/es/keys'
 
 export const signIn = () => {
   const auth = firebase.auth()
@@ -78,14 +80,17 @@ function useSendSessionChangesToFirebaseEffect(user, sessionStore) {
     if (!prevSessionStore) return
     if (equals(prevSessionStore)(sessionStore)) return
 
-    const sLookup = SessionStore.toIdLookup(sessionStore)
-    const prevSLookup = SessionStore.toIdLookup(prevSessionStore)
+    const changedSessions = SessionStore.getUpdatedSessionList(
+      prevSessionStore,
+    )(sessionStore)
 
-    const changedSessions = difference(values(sLookup))(
-      values(prevSLookup),
+    if (isEmpty(changedSessions)) return
+
+    const sessionsById = changedSessions.reduce(
+      (byId, session) => mergeModel(session)(byId),
+      {},
     )
-    const sessionIds = pluck('id')(changedSessions)
-    if (isEmpty(sessionIds)) return
+    const sessionIds = keys(sessionsById)
     const sessionsCRef = getSessionsCRef(user)
     firebase
       .firestore()
@@ -98,7 +103,7 @@ function useSendSessionChangesToFirebaseEffect(user, sessionStore) {
         )
         const docSnaps = await fetchSessionsFromIds(sessionIds)
         docSnaps.forEach(snap => {
-          const session = sLookup[snap.id]
+          const session = sessionsById[snap.id]
           if (snap.exists) {
             if (equals(snap.data())(session)) {
               console.log(
