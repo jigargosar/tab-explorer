@@ -1,7 +1,11 @@
-module TabExplorer exposing (main)
+port module TabExplorer exposing (main)
 
 import Browser
 import Html exposing (..)
+import Json.Encode as JE
+
+
+port onCurrentWindowTabsChanged : (JE.Value -> msg) -> Sub msg
 
 
 main : Program Flags Model Msg
@@ -16,7 +20,7 @@ main =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Sub.batch [ onCurrentWindowTabsChanged OnCurrentWindowTabs ]
 
 
 type alias Flags =
@@ -34,12 +38,21 @@ init flags =
 
 type Msg
     = NoOp
+    | OnCurrentWindowTabs JE.Value
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
+            ( model, Cmd.none )
+
+        OnCurrentWindowTabs encodedTabs ->
+            let
+                _ =
+                    encodedTabs
+                        |> Debug.log "encodedTabs"
+            in
             ( model, Cmd.none )
 
 
