@@ -14,6 +14,9 @@ port onCurrentWindowTabsChanged : (JE.Value -> msg) -> Sub msg
 port createTab : { url : String, active : Bool } -> Cmd msg
 
 
+port updateTab : ( Int, { active : Bool } ) -> Cmd msg
+
+
 type alias Tab =
     { id : Int
     , title : String
@@ -74,7 +77,7 @@ update msg model =
             ( newModel, Cmd.none )
 
         OnOpenTabListItemClicked tab ->
-            ( model, createTab { url = tab.url, active = False } )
+            ( model, updateTab ( tab.id, { active = True } ) )
 
 
 view : Model -> Html Msg
