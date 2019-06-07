@@ -5,7 +5,6 @@ import {
   useEffect,
   useMemo,
   createContext,
-  useRef,
 } from 'react'
 import mergeDeepRight from 'ramda/es/mergeDeepRight'
 import defaultTo from 'ramda/es/defaultTo'
