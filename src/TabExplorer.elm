@@ -80,17 +80,10 @@ type alias Model =
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    let
-        emptyModel =
-            { openTabs = [], sessions = sessions, errors = [] }
-
-        sessions =
-            flags.sessions
-                |> JD.decodeValue (JD.list sessionDecoder)
-                -- |> Debug.log "encoded sessions"
-                |> Result.withDefault []
-    in
-    emptyModel
+    { openTabs = []
+    , sessions = []
+    , errors = []
+    }
         |> updateEncodedSessions flags.sessions
 
 
