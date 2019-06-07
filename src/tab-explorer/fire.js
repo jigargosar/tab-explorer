@@ -111,6 +111,11 @@ function useSendSessionChangesToFirebaseEffect(user, sessionStore) {
           const session = sLookup[snap.id]
           if (snap.exists) {
             if (equals(snap.data())(session)) {
+              console.log(
+                'fire transaction: ignoring update since firesession is uptodate',
+                snap.id,
+              )
+              // t.update(snap.ref, session)
               t.update(snap.ref, {})
             } else {
               t.update(snap.ref, session)
