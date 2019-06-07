@@ -128,7 +128,7 @@ view model =
     div [ class "pa3 lh-copy" ]
         [ div [ class "measure-wide center b mb3" ] [ text "TabExplorer" ]
         , viewOpenTabs model.openTabs
-        , viewSessions
+        , viewSessions model.sessions
         ]
 
 
@@ -147,12 +147,26 @@ viewOpenTabItem tab =
         ]
 
 
-viewSessions : Html Msg
-viewSessions =
-    div [ class "" ]
-        [ div [ class "measure-wide center b mv3 " ] [ text "Saved Sessions" ]
+viewSessions : List Session -> Html Msg
+viewSessions sessions =
+    div [ class "measure-wide center" ]
+        [ div [ class "b mv3 " ] [ text "Saved Sessions" ]
+        , div [ class "pv2" ] (List.map viewSessionItem sessions)
+        ]
 
-        -- , List.map viewSession sessions
+
+viewSessionItem : Session -> Html Msg
+viewSessionItem session =
+    div [ class "mb3 ba br3" ]
+        [ div [ class "pa2 bb" ] [ session.createdAt |> String.fromInt |> text ]
+        , div [ class "pv2" ] (List.map viewOpenTabItem session.tabs)
+        ]
+
+
+viewSessionTabItem : Tab -> Html Msg
+viewSessionTabItem tab =
+    div [ class "pointer", onClick <| OnOpenTabListItemClicked tab ]
+        [ div [ class "pv1 ph2" ] [ text tab.title ]
         ]
 
 
