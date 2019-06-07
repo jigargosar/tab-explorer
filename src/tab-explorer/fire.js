@@ -12,6 +12,7 @@ import values from 'ramda/es/values'
 import difference from 'ramda/es/difference'
 import pluck from 'ramda/es/pluck'
 import equals from 'ramda/es/equals'
+import { usePrevious } from './use-prev-hook'
 
 export const signIn = () => {
   const auth = firebase.auth()
@@ -40,19 +41,6 @@ export function useAuth() {
   return useAuthState(firebase.auth())
 }
 
-function usePrevious(value) {
-  // The ref object is a generic container whose current property is mutable ...
-  // ... and can hold any value, similar to an instance property on a class
-  const ref = useRef()
-
-  // Store current value in ref
-  useEffect(() => {
-    ref.current = value
-  }, [value]) // Only re-run if value changes
-
-  // Return previous value (happens before update in useEffect above)
-  return ref.current
-}
 export function useFireSyncSessions(actions, sessionStore) {
   const [user] = useAuth()
 
