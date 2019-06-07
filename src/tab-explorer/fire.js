@@ -55,6 +55,12 @@ function usePrevious(value) {
 export function useFireSyncSessions(actions, sessionStore) {
   const [user] = useAuth()
 
+  useUpdateSessionStoreOnFirebaseChangesEffect(user, actions)
+
+  useSendSessionChangesToFirebaseEffect(user, sessionStore)
+}
+
+function useUpdateSessionStoreOnFirebaseChangesEffect(user, actions) {
   useEffect(() => {
     if (!user) return
     const sessionsCRef = getSessionsCRef(user)
@@ -64,7 +70,6 @@ export function useFireSyncSessions(actions, sessionStore) {
         'fire query: Session Changes',
         sessionChanges.length,
         sessionChanges,
-        // qs,
       )
       // const fireAllSessions = qs.docs.map(ds => ds.data())
       const fireChangedSessions = sessionChanges.map(snap =>
@@ -74,8 +79,6 @@ export function useFireSyncSessions(actions, sessionStore) {
     }, console.error)
     return disposer
   }, [user])
-
-  useSendSessionChangesToFirebaseEffect(user, sessionStore)
 }
 
 function useSendSessionChangesToFirebaseEffect(user, sessionStore) {
