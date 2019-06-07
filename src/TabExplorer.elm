@@ -37,13 +37,13 @@ tabDecoder =
 
 type alias Session =
     { id : String
-    , title : String
+    , title : Maybe String
     , createdAt : Int
     , modifiedAt : Int
-    , deleted : Bool
+    , deleted : Maybe Bool
     , tabs : List Tab
-    , pinned : Bool
-    , collapsed : Bool
+    , pinned : Maybe Bool
+    , collapsed : Maybe Bool
     }
 
 
@@ -51,13 +51,13 @@ sessionDecoder : Decoder Session
 sessionDecoder =
     JD.map8 Session
         (JD.field "id" JD.string)
-        (JD.field "title" JD.string)
+        (JD.maybe <| JD.field "title" JD.string)
         (JD.field "createdAt" JD.int)
         (JD.field "modifiedAt" JD.int)
-        (JD.field "deleted" JD.bool)
+        (JD.maybe <| JD.field "deleted" JD.bool)
         (JD.field "tabs" <| JD.list tabDecoder)
-        (JD.field "pinned" JD.bool)
-        (JD.field "collapsed" JD.bool)
+        (JD.maybe <| JD.field "pinned" JD.bool)
+        (JD.maybe <| JD.field "collapsed" JD.bool)
 
 
 type alias Flags =
@@ -67,12 +67,19 @@ type alias Flags =
 
 type alias Model =
     { openTabs : List Tab
+    , sessions : List Session
     }
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    ( { openTabs = [] }, Cmd.none )
+    let
+        _ =
+            flags.sessions
+                |> JD.decodeValue (JD.list sessionDecoder)
+                |> Debug.log "encoded sessions"
+    in
+    ( { openTabs = [], sessions = [] }, Cmd.none )
 
 
 type Msg
