@@ -75,7 +75,6 @@ function useSendSessionChangesToFirebaseEffect(user, sessionStore) {
   useEffect(() => {
     if (!user) return
     if (!prevSessionStore) return
-    if (equals(prevSessionStore)(sessionStore)) return
 
     const changedSessions = SessionStore.getUpdatedSessionList(
       prevSessionStore,
