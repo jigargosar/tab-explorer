@@ -11,6 +11,7 @@ import isEmpty from 'ramda/es/isEmpty'
 import values from 'ramda/es/values'
 import difference from 'ramda/es/difference'
 import pluck from 'ramda/es/pluck'
+import equals from 'ramda/es/equals'
 
 export const signIn = () => {
   const auth = firebase.auth()
@@ -108,9 +109,15 @@ function useSendSessionChangesToFirebaseEffect(user, sessionStore) {
         const docSnaps = await fetchSessionsFromIds(sessionIds)
         docSnaps.forEach(snap => {
           const session = sLookup[snap.id]
-          snap.exists
-            ? t.update(snap.ref, session)
-            : t.set(snap.ref, session)
+          if (snap.exists) {
+            if (equals(snap.data())(session)) {
+              t.update(snap.ref, {})
+            } else {
+              t.update(snap.ref, session)
+            }
+          } else {
+            t.set(snap.ref, session)
+          }
         })
       })
       .then(() =>
