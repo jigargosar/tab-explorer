@@ -37,27 +37,34 @@ tabDecoder =
 
 type alias Session =
     { id : String
-    , title : Maybe String
+    , title : String
     , createdAt : Int
     , modifiedAt : Int
-    , deleted : Maybe Bool
+    , deleted : Bool
     , tabs : List Tab
-    , pinned : Maybe Bool
-    , collapsed : Maybe Bool
+    , pinned : Bool
+    , collapsed : Bool
     }
+
+
+optionalField : String -> Decoder a -> a -> Decoder a
+optionalField fname fdecoder defVal =
+    JD.field fname fdecoder
+        |> JD.maybe
+        |> JD.map (Maybe.withDefault defVal)
 
 
 sessionDecoder : Decoder Session
 sessionDecoder =
     JD.map8 Session
         (JD.field "id" JD.string)
-        (JD.maybe <| JD.field "title" JD.string)
+        (optionalField "title" JD.string "")
         (JD.field "createdAt" JD.int)
         (JD.field "modifiedAt" JD.int)
-        (JD.maybe <| JD.field "deleted" JD.bool)
+        (optionalField "deleted" JD.bool False)
         (JD.field "tabs" <| JD.list tabDecoder)
-        (JD.maybe <| JD.field "pinned" JD.bool)
-        (JD.maybe <| JD.field "collapsed" JD.bool)
+        (optionalField "pinned" JD.bool False)
+        (optionalField "collapsed" JD.bool False)
 
 
 type alias Flags =
