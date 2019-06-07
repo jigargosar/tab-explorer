@@ -3,11 +3,15 @@ port module TabExplorer exposing (main)
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (class)
+import Html.Events exposing (onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 
 
 port onCurrentWindowTabsChanged : (JE.Value -> msg) -> Sub msg
+
+
+port openNewTabWithUrl : String -> Cmd msg
 
 
 type alias Tab =
@@ -42,12 +46,13 @@ init flags =
 
 type Msg
     = NoOp
-    | OnCurrentWindowTabs JE.Value
+    | OnCurrentWindowTabsChanged JE.Value
+    | OnOpenTabListItemClicked Tab
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch [ onCurrentWindowTabsChanged OnCurrentWindowTabs ]
+    Sub.batch [ onCurrentWindowTabsChanged OnCurrentWindowTabsChanged ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -56,7 +61,7 @@ update msg model =
         NoOp ->
             ( model, Cmd.none )
 
-        OnCurrentWindowTabs encodedTabs ->
+        OnCurrentWindowTabsChanged encodedTabs ->
             let
                 newModel =
                     encodedTabs
@@ -67,6 +72,9 @@ update msg model =
                         |> Result.withDefault model
             in
             ( newModel, Cmd.none )
+
+        OnOpenTabListItemClicked tab ->
+            ( model, openNewTabWithUrl tab.url )
 
 
 view : Model -> Html Msg
@@ -87,7 +95,7 @@ viewOpenTabs tabs =
 
 viewOpenTabItem : Tab -> Html Msg
 viewOpenTabItem tab =
-    div [ class "pointer" ]
+    div [ class "pointer", onClick <| OnOpenTabListItemClicked tab ]
         [ div [ class "pv1 ph2" ] [ text tab.title ]
         ]
 
