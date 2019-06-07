@@ -112,7 +112,7 @@ update msg model =
                 newModel =
                     encodedTabs
                         |> JD.decodeValue (JD.list tabDecoder)
-                        |> Debug.log "encodedTabs"
+                        -- |> Debug.log "encodedTabs"
                         |> Result.map
                             (\tabs -> { model | openTabs = tabs })
                         |> Result.withDefault model
