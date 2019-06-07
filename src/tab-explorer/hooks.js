@@ -5,6 +5,7 @@ import {
   useEffect,
   useMemo,
   createContext,
+  useRef,
 } from 'react'
 import mergeDeepRight from 'ramda/es/mergeDeepRight'
 import defaultTo from 'ramda/es/defaultTo'
@@ -16,6 +17,9 @@ import pluck from 'ramda/es/pluck'
 import { SessionStore } from './session-store'
 import { closeTabs, createTab, activateTabWithId } from './chrome-effects'
 import { signIn, signOut, useFireSyncSessions } from './fire'
+import equals from 'ramda/es/equals'
+import isNil from 'ramda/es/isNil'
+import mergeLeft from 'ramda/es/mergeLeft'
 export { useAuth as useAuthState } from './fire'
 export { useFilteredOpenTabsList as useOpenTabs } from './chrome-effects'
 
@@ -44,11 +48,31 @@ function encodeState(state) {
   return fn(state)
 }
 
-const useSyncStateCacheEffect = (actions, state) => {
+function usePrevious(value) {
+  // The ref object is a generic container whose current property is mutable ...
+  // ... and can hold any value, similar to an instance property on a class
+  const ref = useRef()
+
+  // Store current value in ref
   useEffect(() => {
+    ref.current = value
+  }, [value]) // Only re-run if value changes
+
+  // Return previous value (happens before update in useEffect above)
+  return ref.current
+}
+
+const useSyncStateCacheEffect = (actions, state) => {
+  const prevState = usePrevious(state)
+
+  useEffect(() => {
+    if (isNil(prevState)) return
+    if (equals(state, prevState)) return
+
+    console.log('Caching state on change', state)
     const encoded = encodeState(state)
     setCache(appStateKey)(encoded)
-  }, [state])
+  }, [state, prevState])
 
   useLoadStateCacheChangesFromOtherTabsEffect(actions)
 }
@@ -135,9 +159,11 @@ export function useAppState() {
   const [state, setState] = useState(loadCachedState)
   const actions = useActions(setState)
   useSyncStateCacheEffect(actions, state)
-  useEffect(() => console.log('state object changed', state), [state])
+  // useEffect(() => console.log('state object changed', state), [state])
 
   useFireSyncSessions(actions, state.sessions)
+
+  useFakeStateUpdateEffect(setState)
 
   return [state, actions]
 }
@@ -145,6 +171,13 @@ export function useAppState() {
 const ActionsContext = createContext()
 
 export const AppActionsProvider = ActionsContext.Provider
+
+function useFakeStateUpdateEffect(setState) {
+  useEffect(() => {
+    const intervalId = setInterval(() => setState(mergeLeft({})), 1000)
+    return () => clearInterval(intervalId)
+  }, [setState])
+}
 
 export function useAppActions() {
   return useContext(ActionsContext)
