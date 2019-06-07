@@ -20,6 +20,7 @@ import { signIn, signOut, useFireSyncSessions } from './fire'
 import equals from 'ramda/es/equals'
 import isNil from 'ramda/es/isNil'
 import mergeLeft from 'ramda/es/mergeLeft'
+import { usePrevious } from './use-prev-hook'
 export { useAuth as useAuthState } from './fire'
 export { useFilteredOpenTabsList as useOpenTabs } from './chrome-effects'
 
@@ -46,20 +47,6 @@ function encodeState(state) {
     state => JSON.stringify(state, null, 2),
   )
   return fn(state)
-}
-
-function usePrevious(value) {
-  // The ref object is a generic container whose current property is mutable ...
-  // ... and can hold any value, similar to an instance property on a class
-  const ref = useRef()
-
-  // Store current value in ref
-  useEffect(() => {
-    ref.current = value
-  }, [value]) // Only re-run if value changes
-
-  // Return previous value (happens before update in useEffect above)
-  return ref.current
 }
 
 const useSyncStateCacheEffect = (actions, state) => {
