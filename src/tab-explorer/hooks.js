@@ -19,10 +19,11 @@ import { signIn, signOut, useFireSyncSessions } from './fire'
 export { useAuth as useAuthState } from './fire'
 export { useFilteredOpenTabsList as useOpenTabs } from './chrome-effects'
 
+const defaultState = { sessions: {} }
+const stateProps = Object.keys(defaultState)
+
 const appStateKey = 'te-app-state'
 const loadCachedState = () => {
-  const defaultState = { sessions: {} }
-  const stateProps = Object.keys(defaultState)
   const fn = pipe(
     getCache,
     defaultTo('{}'),
@@ -37,7 +38,7 @@ const loadCachedState = () => {
 
 function encodeState(state) {
   const fn = pipe(
-    //
+    pick(stateProps),
     state => JSON.stringify(state, null, 2),
   )
   return fn(state)
@@ -49,6 +50,10 @@ const useSyncStateCacheEffect = (actions, state) => {
     setCache(appStateKey)(encoded)
   }, [state])
 
+  useLoadStateCacheChangesFromOtherTabsEffect(actions)
+}
+
+function useLoadStateCacheChangesFromOtherTabsEffect(actions) {
   useEffect(() => {
     window.addEventListener('storage', e => {
       if (e.key !== appStateKey) return
@@ -60,7 +65,7 @@ const useSyncStateCacheEffect = (actions, state) => {
       const sessionStore = loadCachedState().sessions
       actions.updateSessionStoreChangesFromAnotherTab(sessionStore)
     })
-  }, [])
+  }, [actions])
 }
 
 function useActions(setState) {
