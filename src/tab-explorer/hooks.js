@@ -135,7 +135,7 @@ export function useAppState() {
   const [state, setState] = useState(loadCachedState)
   const actions = useActions(setState)
   useSyncStateCacheEffect(actions, state)
-  useEffect(() => console.log('state changed', state), [state])
+  useEffect(() => console.log('state object changed', state), [state])
 
   useFireSyncSessions(actions, state.sessions)
 
