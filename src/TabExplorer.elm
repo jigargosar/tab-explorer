@@ -11,7 +11,7 @@ import Json.Encode as JE exposing (Value)
 port onCurrentWindowTabsChanged : (JE.Value -> msg) -> Sub msg
 
 
-port openNewTabWithUrl : String -> Cmd msg
+port createTab : { url : String, active : Bool } -> Cmd msg
 
 
 type alias Tab =
@@ -74,7 +74,7 @@ update msg model =
             ( newModel, Cmd.none )
 
         OnOpenTabListItemClicked tab ->
-            ( model, openNewTabWithUrl tab.url )
+            ( model, createTab { url = tab.url, active = False } )
 
 
 view : Model -> Html Msg

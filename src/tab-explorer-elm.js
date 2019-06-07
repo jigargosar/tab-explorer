@@ -6,6 +6,7 @@ import { Elm } from './TabExplorer.elm'
 const app = Elm.TabExplorer.init({
   node: document.getElementById('root'),
 })
+
 boot(app)
 
 const getCurrentPopulatedWindow = () => {
@@ -37,4 +38,7 @@ function sendCurrentWindowTabs(app) {
 
 function boot(app) {
   sendCurrentWindowTabs(app)
+  app.ports.createTab.subscribe(({ url, active }) => {
+    chrome.tabs.create({ url, active })
+  })
 }
