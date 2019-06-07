@@ -74,19 +74,70 @@ type alias Flags =
 type alias Model =
     { openTabs : List Tab
     , sessions : List Session
+    , errors : List String
     }
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     let
+        emptyModel =
+            { openTabs = [], sessions = sessions, errors = [] }
+
         sessions =
             flags.sessions
                 |> JD.decodeValue (JD.list sessionDecoder)
                 -- |> Debug.log "encoded sessions"
                 |> Result.withDefault []
     in
-    ( { openTabs = [], sessions = sessions }, Cmd.none )
+    emptyModel
+        |> updateEncodedSessions flags.sessions
+
+
+appendErrorString : String -> Model -> Model
+appendErrorString errString model =
+    { model | errors = model.errors ++ [ errString ] }
+
+
+setSessions : List Session -> Model -> Model
+setSessions sessions model =
+    { model | sessions = sessions }
+
+
+callWith : a -> (a -> b) -> b
+callWith a fn =
+    fn a
+
+
+mergeResult : Result a a -> a
+mergeResult result =
+    case result of
+        Err a ->
+            a
+
+        Ok a ->
+            a
+
+
+unpackResult : (err -> b) -> (a -> b) -> Result err a -> b
+unpackResult fromErr fromOk result =
+    result
+        |> Result.mapError fromErr
+        |> Result.map fromOk
+        |> mergeResult
+
+
+updateEncodedSessions : Value -> Model -> ( Model, Cmd Msg )
+updateEncodedSessions encodedSessions model =
+    let
+        newModel =
+            encodedSessions
+                |> JD.decodeValue (JD.list sessionDecoder)
+                |> Result.mapError JD.errorToString
+                |> unpackResult appendErrorString setSessions
+                |> callWith model
+    in
+    ( newModel, Cmd.none )
 
 
 type Msg
