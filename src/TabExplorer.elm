@@ -22,6 +22,9 @@ port createTab : { url : String, active : Bool } -> Cmd msg
 port updateTab : ( Int, { active : Bool } ) -> Cmd msg
 
 
+port onPouchSessionsChanged : (JE.Value -> msg) -> Sub msg
+
+
 
 -- TAB MODEL
 
@@ -125,6 +128,7 @@ type Msg
     | OnCurrentWindowTabsChanged JE.Value
     | OnOpenTabItemClicked Tab
     | OnSessionTabItemClicked Tab
+    | OnPouchSessionsChanged Value
 
 
 
@@ -154,6 +158,15 @@ update msg model =
 
         OnSessionTabItemClicked tab ->
             model |> withCmd (createAndActivateTabWithUrl tab.url)
+
+        OnPouchSessionsChanged encodedChanges ->
+            let
+                _ =
+                    encodedChanges
+                        |> JE.encode 2
+                        |> Debug.log "encodedChanges"
+            in
+            model |> withNoCmd
 
 
 activateTabCmd : Tab -> Cmd msg
