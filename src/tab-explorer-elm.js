@@ -5,6 +5,7 @@ import { Elm } from './TabExplorer.elm'
 import { loadCachedState } from './tab-explorer/hooks'
 import values from 'ramda/es/values'
 import PouchDB from 'pouchdb-browser'
+import isNil from 'ramda/es/isNil'
 
 const oldCachedSessionList = values(loadCachedState().sessions)
 
@@ -49,13 +50,21 @@ function sendCurrentWindowTabs(app) {
 function boot(app) {
   const db = new PouchDB('sessions')
   sendCurrentWindowTabs(app)
+  const sub = name => fn => {
+    const port = app.ports[name]
+    if (isNil(port)) {
+      console.error(`subscription port not found ${name}`)
+      return
+    }
+    port.subscribe(fn)
+  }
   app.ports.createTab.subscribe(({ url, active }) => {
     chrome.tabs.create({ url, active })
   })
   app.ports.updateTab.subscribe(([id, { active }]) => {
     chrome.tabs.update(id, { active })
   })
-  app.ports.persistSessionList.subscribe(async sessionList => {
+  sub('persistSessionList')(async sessionList => {
     const res = await db.bulkDocs(sessionList)
     console.log('res', res)
   })

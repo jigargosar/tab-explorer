@@ -210,12 +210,6 @@ update msg model =
             model |> withCmd (createAndActivateTabWithUrl tab.url)
 
         OnPouchSessionsChanged encodedChanges ->
-            let
-                _ =
-                    encodedChanges
-                        |> JE.encode 2
-                        |> Debug.log "encodedChanges"
-            in
             updateEncodedSessions encodedChanges model
 
 
