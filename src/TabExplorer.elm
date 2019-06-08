@@ -37,6 +37,20 @@ type alias Tab =
     }
 
 
+tabEncoder : Tab -> Value
+tabEncoder tab =
+    JE.object
+        [ ( "id", JE.int tab.id )
+        , ( "title", JE.string tab.title )
+        , ( "url", JE.string tab.url )
+        , ( "favIconUrl"
+          , tab.favIconUrl
+                |> Maybe.map JE.string
+                |> Maybe.withDefault JE.null
+          )
+        ]
+
+
 tabDecoder : Decoder Tab
 tabDecoder =
     JD.map4 Tab
@@ -73,6 +87,18 @@ sessionDecoder =
         (JD.field "tabs" <| JD.list tabDecoder)
         (optionalField "pinned" JD.bool False)
         (optionalField "collapsed" JD.bool False)
+
+
+sessionEncoder : Session -> Value
+sessionEncoder session =
+    JE.object
+        [ ( "_id", JE.string session.id )
+        , ( "title", JE.string session.title )
+        , ( "createdAt", JE.int session.createdAt )
+        , ( "modifiedAt", JE.int session.modifiedAt )
+        , ( "deleted", JE.bool session.deleted )
+        , ( "tabs", JE.list tabEncoder session.tabs )
+        ]
 
 
 
