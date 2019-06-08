@@ -6,7 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Json.Decode as JD exposing (Decoder)
-import Json.Decode.Pipeline exposing (optional, required)
+import Json.Decode.Pipeline exposing (custom, optional, required)
 import Json.Encode as JE exposing (Value)
 
 
@@ -80,8 +80,15 @@ type alias Session =
 
 sessionDecoder : Decoder Session
 sessionDecoder =
+    let
+        sessionIdDecoder =
+            JD.oneOf
+                [ JD.field "_id" JD.string
+                , JD.field "id" JD.string
+                ]
+    in
     JD.succeed Session
-        |> required "_id" JD.string
+        |> custom sessionIdDecoder
         |> optional "_rev" JD.string ""
         |> optional "title" JD.string ""
         |> required "createdAt" JD.int
