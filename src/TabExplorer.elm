@@ -215,11 +215,11 @@ viewProblems problems =
         text ""
 
     else
-        div [ class "measure-wide center mv3" ] (List.map viewError problems)
+        div [ class "measure-wide center mv3" ] (List.map viewpProblemItem problems)
 
 
-viewError : Problem -> Html Msg
-viewError problem =
+viewpProblemItem : Problem -> Html Msg
+viewpProblemItem problem =
     div [ class "mv4" ]
         [ div [ class "pa2 bg-red white br3 mb3" ] [ text <| "Error: " ++ problem.msg ]
         , div [ class "ph3 code pre lh-solid f6" ] [ text problem.details ]
