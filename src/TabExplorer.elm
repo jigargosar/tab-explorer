@@ -176,6 +176,7 @@ type Msg
     | OnOpenTabItemClicked Tab
     | OnSessionTabItemClicked Tab
     | OnPouchSessionsChanged Value
+    | OnSaveSessionClicked
 
 
 
@@ -211,6 +212,9 @@ update msg model =
 
         OnPouchSessionsChanged encodedChanges ->
             updateEncodedSessions encodedChanges model
+
+        OnSaveSessionClicked ->
+            model |> withNoCmd
 
 
 updatePersistSessions : Model -> Return Msg Model
@@ -294,13 +298,24 @@ viewpProblemItem problem =
         ]
 
 
+sph : List (Html Msg) -> List (Html Msg)
+sph =
+    List.intersperse (div [ class "ph1" ] [])
+
+
 viewOpenTabs : List Tab -> Html Msg
 viewOpenTabs tabs =
     div [ class "measure-wide center ba br3" ]
-        [ div [ class "pa2 bb" ]
-            [ div [] [ text "Open Tabs" ]
-            , button [ class "pv0 ph2 ma0 ttu lh-title f7" ] [ text "save session" ]
-            ]
+        [ div [ class "pa2 bb flex" ]
+            (sph
+                [ div [] [ text "Open Tabs" ]
+                , button
+                    [ class "pv0 ph2 ma0 ttu lh-title f7"
+                    , onClick OnSaveSessionClicked
+                    ]
+                    [ text "save session" ]
+                ]
+            )
         , div [ class "pv2" ] (List.map viewOpenTabItem tabs)
         ]
 
