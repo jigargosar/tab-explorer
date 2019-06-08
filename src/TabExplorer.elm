@@ -297,7 +297,10 @@ viewpProblemItem problem =
 viewOpenTabs : List Tab -> Html Msg
 viewOpenTabs tabs =
     div [ class "measure-wide center ba br3" ]
-        [ div [ class "pa2 bb" ] [ text "Open Tabs" ]
+        [ div [ class "pa2 bb" ]
+            [ div [] [ text "Open Tabs" ]
+            , button [ class "pv0 ph2 ma0 ttu lh-title f7" ] [ text "save session" ]
+            ]
         , div [ class "pv2" ] (List.map viewOpenTabItem tabs)
         ]
 
