@@ -4,6 +4,7 @@ import './main.css'
 import { Elm } from './TabExplorer.elm'
 import { loadCachedState } from './tab-explorer/hooks'
 import values from 'ramda/es/values'
+import PouchDB from 'pouchdb-browser'
 
 const oldCachedSessionList = values(loadCachedState().sessions)
 
@@ -46,11 +47,16 @@ function sendCurrentWindowTabs(app) {
 }
 
 function boot(app) {
+  const db = new PouchDB('sessions')
   sendCurrentWindowTabs(app)
   app.ports.createTab.subscribe(({ url, active }) => {
     chrome.tabs.create({ url, active })
   })
   app.ports.updateTab.subscribe(([id, { active }]) => {
     chrome.tabs.update(id, { active })
+  })
+  app.ports.persistSessionList.subscribe(async sessionList => {
+    const res = await db.bulkDocs(sessionList)
+    console.log('res', res)
   })
 }
