@@ -89,13 +89,7 @@ sessionDecoder =
         |> optional "deleted" JD.bool False
         |> required "tabs" (JD.list tabDecoder)
         |> optional "pinned" JD.bool False
-        -- |> JD.andThen (JD.map >> callWith (optionalField "collapsed" JD.bool False))
         |> optional "collapsed" JD.bool False
-
-
-andMapDecoder : Decoder a -> Decoder (a -> b) -> Decoder b
-andMapDecoder decoder_ =
-    JD.andThen (\fn -> JD.map fn decoder_)
 
 
 sessionEncoder : Session -> Value
