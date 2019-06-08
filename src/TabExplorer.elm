@@ -67,7 +67,7 @@ tabDecoder =
 
 type alias Session =
     { id : String
-    , rev : Maybe String
+    , rev : String
     , title : String
     , createdAt : Int
     , modifiedAt : Int
@@ -80,17 +80,17 @@ type alias Session =
 
 sessionDecoder : Decoder Session
 sessionDecoder =
-    JD.map6 Session
-        (JD.field "_id" JD.string)
-        (JD.maybe <| JD.field "_rev" JD.string)
-        (optionalField "title" JD.string "")
-        (JD.field "createdAt" JD.int)
-        (JD.field "modifiedAt" JD.int)
-        (optionalField "deleted" JD.bool False)
-        |> (required "tabs" <| JD.list tabDecoder)
-        |> andMapDecoder (optionalField "pinned" JD.bool False)
+    JD.succeed Session
+        |> required "_id" JD.string
+        |> optional "_rev" JD.string ""
+        |> optional "title" JD.string ""
+        |> required "createdAt" JD.int
+        |> required "modifiedAt" JD.int
+        |> optional "deleted" JD.bool False
+        |> required "tabs" (JD.list tabDecoder)
+        |> optional "pinned" JD.bool False
         -- |> JD.andThen (JD.map >> callWith (optionalField "collapsed" JD.bool False))
-        |> andMapDecoder (optionalField "collapsed" JD.bool False)
+        |> optional "collapsed" JD.bool False
 
 
 andMapDecoder : Decoder a -> Decoder (a -> b) -> Decoder b
