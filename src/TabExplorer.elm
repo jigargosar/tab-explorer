@@ -6,6 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Json.Decode as JD exposing (Decoder)
+import Json.Decode.Pipeline exposing (optional, required)
 import Json.Encode as JE exposing (Value)
 
 
@@ -86,7 +87,7 @@ sessionDecoder =
         (JD.field "createdAt" JD.int)
         (JD.field "modifiedAt" JD.int)
         (optionalField "deleted" JD.bool False)
-        |> andMapDecoder (JD.field "tabs" <| JD.list tabDecoder)
+        |> (required "tabs" <| JD.list tabDecoder)
         |> andMapDecoder (optionalField "pinned" JD.bool False)
         -- |> JD.andThen (JD.map >> callWith (optionalField "collapsed" JD.bool False))
         |> andMapDecoder (optionalField "collapsed" JD.bool False)
