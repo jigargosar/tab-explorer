@@ -26,6 +26,9 @@ port updateTab : ( Int, { active : Bool } ) -> Cmd msg
 port onPouchSessionsChanged : (JE.Value -> msg) -> Sub msg
 
 
+port persistSessionList : Value -> Cmd msg
+
+
 
 -- TAB MODEL
 
@@ -141,6 +144,7 @@ init flags =
     , problems = []
     }
         |> updateEncodedSessions flags.sessions
+        |> andThen updatePersistSessions
 
 
 appendProblem : Problem -> Model -> Model
@@ -206,6 +210,17 @@ update msg model =
                         |> Debug.log "encodedChanges"
             in
             model |> withNoCmd
+
+
+updatePersistSessions : Model -> Return Msg Model
+updatePersistSessions model =
+    let
+        cmd =
+            model.sessions
+                |> JE.list sessionEncoder
+                |> persistSessionList
+    in
+    model |> withCmd cmd
 
 
 activateTabCmd : Tab -> Cmd msg
@@ -357,6 +372,10 @@ unpackResult fromErr fromOk result =
         |> mergeResult
 
 
+type alias Return msg model =
+    ( model, Cmd msg )
+
+
 withNoCmd : model -> ( model, Cmd msg )
 withNoCmd model =
     ( model, Cmd.none )
@@ -367,8 +386,10 @@ withCmd cmd model =
     ( model, cmd )
 
 
-optionalField : String -> Decoder a -> a -> Decoder a
-optionalField fname fdecoder defVal =
-    JD.field fname fdecoder
-        |> JD.maybe
-        |> JD.map (Maybe.withDefault defVal)
+andThen : (model -> Return msg model) -> Return msg model -> Return msg model
+andThen fn ( m1, c1 ) =
+    let
+        ( m2, c2 ) =
+            fn m1
+    in
+    ( m2, Cmd.batch [ c1, c2 ] )
