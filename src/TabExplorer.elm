@@ -79,21 +79,21 @@ type alias Session =
 
 sessionDecoder : Decoder Session
 sessionDecoder =
-    JD.map8 Session
+    JD.map6 Session
         (JD.field "_id" JD.string)
         (JD.maybe <| JD.field "_rev" JD.string)
         (optionalField "title" JD.string "")
         (JD.field "createdAt" JD.int)
         (JD.field "modifiedAt" JD.int)
         (optionalField "deleted" JD.bool False)
-        (JD.field "tabs" <| JD.list tabDecoder)
-        (optionalField "pinned" JD.bool False)
+        |> andMapDecoder (JD.field "tabs" <| JD.list tabDecoder)
+        |> andMapDecoder (optionalField "pinned" JD.bool False)
         -- |> JD.andThen (JD.map >> callWith (optionalField "collapsed" JD.bool False))
-        |> andMapDecode (optionalField "collapsed" JD.bool False)
+        |> andMapDecoder (optionalField "collapsed" JD.bool False)
 
 
-andMapDecode : Decoder a -> Decoder (a -> b) -> Decoder b
-andMapDecode decoder_ =
+andMapDecoder : Decoder a -> Decoder (a -> b) -> Decoder b
+andMapDecoder decoder_ =
     JD.andThen (\fn -> JD.map fn decoder_)
 
 
