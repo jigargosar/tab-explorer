@@ -96,6 +96,7 @@ sessionEncoder : Session -> Value
 sessionEncoder session =
     JE.object
         [ ( "_id", JE.string session.id )
+        , ( "_rev", JE.string session.rev )
         , ( "title", JE.string session.title )
         , ( "createdAt", JE.int session.createdAt )
         , ( "modifiedAt", JE.int session.modifiedAt )
