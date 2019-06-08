@@ -81,6 +81,20 @@ type alias Session =
     }
 
 
+createNewSession : List Tab -> Session
+createNewSession tabs =
+    { id = ""
+    , rev = ""
+    , title = ""
+    , createdAt = 0
+    , modifiedAt = 0
+    , deleted = False
+    , tabs = tabs
+    , pinned = False
+    , collapsed = false
+    }
+
+
 sessionDecoder : Decoder Session
 sessionDecoder =
     let
