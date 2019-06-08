@@ -143,10 +143,11 @@ init flags =
     , sessions = []
     , problems = []
     }
-        |> updateEncodedSessions flags.sessions
+        |> withNoCmd
 
 
 
+-- |> updateEncodedSessions flags.sessions
 -- |> andThen updatePersistSessions
 
 
@@ -215,7 +216,7 @@ update msg model =
                         |> JE.encode 2
                         |> Debug.log "encodedChanges"
             in
-            model |> withNoCmd
+            updateEncodedSessions encodedChanges model
 
 
 updatePersistSessions : Model -> Return Msg Model

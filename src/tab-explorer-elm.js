@@ -55,10 +55,10 @@ function boot(app) {
   app.ports.updateTab.subscribe(([id, { active }]) => {
     chrome.tabs.update(id, { active })
   })
-  // app.ports.persistSessionList.subscribe(async sessionList => {
-  //   const res = await db.bulkDocs(sessionList)
-  //   console.log('res', res)
-  // })
+  app.ports.persistSessionList.subscribe(async sessionList => {
+    const res = await db.bulkDocs(sessionList)
+    console.log('res', res)
+  })
   db.allDocs({ include_docs: true, update_seq: true }).then(res => {
     console.log('allDocs res', res)
     const docs = res.rows.map(row => row.doc)
