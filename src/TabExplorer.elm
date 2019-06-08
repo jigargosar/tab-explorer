@@ -214,7 +214,7 @@ update msg model =
             updateEncodedSessions encodedChanges model
 
         OnSaveSessionClicked ->
-            model |> withNoCmd
+            saveSession model
 
 
 updatePersistSessions : Model -> Return Msg Model
@@ -226,6 +226,15 @@ updatePersistSessions model =
                 |> persistSessionList
     in
     model |> withCmd cmd
+
+
+saveSession : Model -> Return Msg Model
+saveSession model =
+    let
+        cmd =
+            model.sessions
+    in
+    model |> withNoCmd
 
 
 activateTabCmd : Tab -> Cmd msg
