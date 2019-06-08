@@ -144,7 +144,10 @@ init flags =
     , problems = []
     }
         |> updateEncodedSessions flags.sessions
-        |> andThen updatePersistSessions
+
+
+
+-- |> andThen updatePersistSessions
 
 
 appendProblem : Problem -> Model -> Model
@@ -180,7 +183,10 @@ type Msg
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch [ onCurrentWindowTabsChanged OnCurrentWindowTabsChanged ]
+    Sub.batch
+        [ onCurrentWindowTabsChanged OnCurrentWindowTabsChanged
+        , onPouchSessionsChanged OnPouchSessionsChanged
+        ]
 
 
 
