@@ -9,8 +9,9 @@ import Html.Events exposing (onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline exposing (custom, optional, required)
 import Json.Encode as JE exposing (Value)
-import Random exposing (Generator)
+import Random exposing (Generator, Seed)
 import Random.Char
+import Task
 import Time exposing (Posix)
 
 
@@ -83,6 +84,12 @@ type alias Session =
     , pinned : Bool
     , collapsed : Bool
     }
+
+
+sessionGenerator : List Tab -> Posix -> Generator Session
+sessionGenerator tabs now =
+    Random.map (\id -> createNewSession tabs id now)
+        idGenerator
 
 
 createNewSession : List Tab -> String -> Posix -> Session
@@ -180,6 +187,7 @@ sessionEncoder session =
 
 type alias Flags =
     { sessions : Value
+    , now : Int
     }
 
 
@@ -191,6 +199,7 @@ type alias Model =
     { openTabs : List Tab
     , sessions : List Session
     , problems : List Problem
+    , seed : Seed
     }
 
 
@@ -199,6 +208,7 @@ init flags =
     { openTabs = []
     , sessions = []
     , problems = []
+    , seed = Random.initialSeed flags.now
     }
         |> withNoCmd
 
@@ -234,6 +244,7 @@ type Msg
     | OnSessionTabItemClicked Tab
     | OnPouchSessionsChanged Value
     | OnSaveSessionClicked
+    | SaveSessionWithNow Posix
 
 
 
@@ -271,7 +282,10 @@ update msg model =
             updateEncodedSessions encodedChanges model
 
         OnSaveSessionClicked ->
-            saveSession model
+            model |> withCmd (Time.now |> Task.perform SaveSessionWithNow)
+
+        SaveSessionWithNow now ->
+            createAndSaveSession now model
 
 
 updatePersistSessions : Model -> Return Msg Model
@@ -285,14 +299,22 @@ updatePersistSessions model =
     model |> withCmd cmd
 
 
-saveSession : Model -> Return Msg Model
-saveSession model =
-    let
-        cmd =
-            model.openTabs
-                |> createNewSession
-    in
-    model |> withNoCmd
+generateWithModelSeed : Generator a -> Model -> ( a, Model )
+generateWithModelSeed gen model =
+    Random.step gen model.seed
+        |> Tuple.mapSecond (\seed -> { model | seed = seed })
+
+
+createAndSaveSession : Posix -> Model -> Return Msg Model
+createAndSaveSession now model =
+    model
+        |> generateWithModelSeed (sessionGenerator model.openTabs now)
+        |> (\( newSession, newModel ) -> saveNewSession newSession newModel)
+
+
+saveNewSession : Session -> Model -> Return Msg Model
+saveNewSession session model =
+    model |> withCmd ([ session ] |> JE.list sessionEncoder |> persistSessionList)
 
 
 activateTabCmd : Tab -> Cmd msg
