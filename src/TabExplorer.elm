@@ -446,8 +446,13 @@ getDisplaySessions sessions =
     let
         comparator =
             Compare.concat [ Compare.by .pinned, Compare.by .createdAt |> Compare.reverse ]
+
+        notDeleted =
+            .deleted >> not
     in
-    List.sortWith (Compare.by .createdAt |> Compare.reverse) sessions
+    sessions
+        |> List.filter notDeleted
+        |> List.sortWith (Compare.by .createdAt |> Compare.reverse)
 
 
 view : Model -> Html Msg
