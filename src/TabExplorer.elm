@@ -3,6 +3,7 @@ port module TabExplorer exposing (main)
 import Array
 import Browser
 import Compare
+import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
@@ -228,6 +229,38 @@ setSessions sessions model =
     { model | sessions = sessions }
 
 
+idDictFromList : List { a | id : comparable } -> Dict comparable { a | id : comparable }
+idDictFromList list =
+    list
+        |> List.map (\record -> ( record.id, record ))
+        |> Dict.fromList
+
+
+updateSessions : List Session -> Model -> Model
+updateSessions sessions model =
+    let
+        sessionsById =
+            idDictFromList model.sessions
+
+        isNewer s =
+            sessionsById
+                |> Dict.get s.id
+                |> Maybe.map (\existing -> s.modifiedAt > existing.modifiedAt)
+                |> Maybe.withDefault True
+
+        newerSessionsById =
+            sessions
+                |> List.filter isNewer
+                |> idDictFromList
+
+        newSessions =
+            sessionsById
+                |> Dict.union newerSessionsById
+                |> Dict.values
+    in
+    setSessions newSessions model
+
+
 setOpenTabs : List Tab -> Model -> Model
 setOpenTabs tabs model =
     { model | openTabs = tabs }
@@ -279,7 +312,7 @@ update msg model =
             model |> withCmd (createAndActivateTabWithUrl tab.url)
 
         OnPouchSessionsChanged encodedChanges ->
-            decodeAndReplaceSessions encodedChanges model
+            decodeAndUpdateSessions encodedChanges model
 
         OnSaveSessionClicked ->
             model |> withCmd (Time.now |> Task.perform SaveSessionWithNow)
@@ -322,11 +355,11 @@ activateTabCmd tab =
     updateTab ( tab.id, { active = True } )
 
 
-decodeAndReplaceSessions : Value -> Model -> ( Model, Cmd Msg )
-decodeAndReplaceSessions encodedSessions model =
+decodeAndUpdateSessions : Value -> Model -> ( Model, Cmd Msg )
+decodeAndUpdateSessions encodedSessions model =
     encodedSessions
         |> JD.decodeValue (JD.list sessionDecoder)
-        |> Result.mapError (\error -> Problem "Unable to parse cached sessions" (JD.errorToString error))
+        |> Result.mapError (\error -> Problem "Unable to decode session list" (JD.errorToString error))
         |> unpackResult appendProblem setSessions
         |> callWith model
         |> withNoCmd
