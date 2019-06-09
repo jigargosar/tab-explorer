@@ -11,6 +11,7 @@ import Json.Encode as JE exposing (Value)
 
 
 
+-- import Random exposing (Generator)
 -- PORTS
 
 
@@ -81,18 +82,27 @@ type alias Session =
     }
 
 
-createNewSession : List Tab -> Session
-createNewSession tabs =
-    { id = ""
+createNewSession : List Tab -> String -> Posix -> Session
+createNewSession tabs id posix =
+    let
+        ts =
+            Time.posixToMillis posix
+    in
+    { id = id
     , rev = ""
     , title = ""
-    , createdAt = 0
-    , modifiedAt = 0
+    , createdAt = ts
+    , modifiedAt = ts
     , deleted = False
     , tabs = tabs
     , pinned = False
     , collapsed = false
     }
+
+
+idGenerator : Generator String
+idGenerator =
+    Random.int
 
 
 sessionDecoder : Decoder Session
@@ -246,7 +256,8 @@ saveSession : Model -> Return Msg Model
 saveSession model =
     let
         cmd =
-            model.sessions
+            model.openTabs
+                |> createNewSession
     in
     model |> withNoCmd
 
