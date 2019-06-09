@@ -345,7 +345,7 @@ update msg model =
             createAndSaveSession now model
 
         DeleteSessionWithNow sessionId now ->
-            createAndSaveSession now model
+            deleteSessionWithNow sessionId now model
 
         OnPersistSessionListResponse encodedResponse ->
             let
@@ -379,6 +379,27 @@ createAndSaveSession now model =
     model
         |> generateWithModelSeed (sessionGenerator model.openTabs now)
         |> (\( newSession, newModel ) -> saveNewSession newSession newModel)
+
+
+deleteSessionWithNow : String -> Posix -> Model -> Return Msg Model
+deleteSessionWithNow sessionId now model =
+    let
+        sessionsById =
+            idDictFromList model.sessions
+
+        maybeCmd =
+            sessionsById
+                |> Dict.get sessionId
+                |> Maybe.map
+                    (\s ->
+                        [ { s | deleted = True } ]
+                            |> JE.list sessionEncoder
+                            |> persistSessionList
+                    )
+    in
+    maybeCmd
+        |> Maybe.map (\cmd -> model |> withCmd cmd)
+        |> Maybe.withDefault ({ model | state = NoRequestInFlight } |> withNoCmd)
 
 
 saveNewSession : Session -> Model -> Return Msg Model
@@ -504,6 +525,15 @@ viewSessionItem session =
                     , onClick (OnDeleteSessionClicked session.id)
                     ]
                     [ text "delete session" ]
+                , div []
+                    [ (if session.deleted then
+                        "deleted"
+
+                       else
+                        "not-deleted"
+                      )
+                        |> text
+                    ]
                 ]
             )
         , div [ class "pv2" ] (List.map viewSessionTabItem session.tabs)
