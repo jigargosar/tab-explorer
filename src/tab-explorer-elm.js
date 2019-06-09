@@ -10,6 +10,7 @@ import isNil from 'ramda/es/isNil'
 const oldCachedSessionList = values(loadCachedState().sessions)
 
 // console.log('oldCachedSessionList :', oldCachedSessionList)
+// console.log('oldCachedSessionList :', oldCachedSessionList)
 
 const app = Elm.TabExplorer.init({
   node: document.getElementById('root'),
