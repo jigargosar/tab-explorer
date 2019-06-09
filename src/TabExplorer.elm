@@ -5,7 +5,7 @@ import Browser
 import Compare
 import Dict exposing (Dict)
 import Html exposing (..)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, disabled)
 import Html.Events exposing (onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline exposing (custom, optional, required)
@@ -322,7 +322,13 @@ update msg model =
             decodeAndUpdateSessions encodedChanges model
 
         OnSaveSessionClicked ->
-            model |> withCmd (Time.now |> Task.perform SaveSessionWithNow)
+            case model.state of
+                Normal ->
+                    { model | state = WaitingForPersistResponse }
+                        |> withCmd (Time.now |> Task.perform SaveSessionWithNow)
+
+                WaitingForPersistResponse ->
+                    model |> withNoCmd
 
         SaveSessionWithNow now ->
             createAndSaveSession now model
@@ -363,7 +369,7 @@ createAndSaveSession now model =
 
 saveNewSession : Session -> Model -> Return Msg Model
 saveNewSession session model =
-    { model | state = WaitingForPersistResponse } |> withCmd ([ session ] |> JE.list sessionEncoder |> persistSessionList)
+    model |> withCmd ([ session ] |> JE.list sessionEncoder |> persistSessionList)
 
 
 activateTabCmd : Tab -> Cmd msg
