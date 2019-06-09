@@ -396,7 +396,7 @@ getDisplaySessions sessions =
 view : Model -> Html Msg
 view model =
     div [ class "pa3 lh-copy" ]
-        [ div [ class "measure-wide center b mb3" ] [ text "TabExplorer" ]
+        [ div [ class "measure-wide center b mb3" ] [ text "TabExplorer c3" ]
         , viewProblems model.problems
         , viewOpenTabs model.openTabs
         , viewSessions <| getDisplaySessions model.sessions
