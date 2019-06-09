@@ -284,6 +284,8 @@ type Msg
     | OnSaveSessionClicked
     | SaveSessionWithNow Posix
     | OnPersistSessionListResponse Value
+    | OnDeleteSessionClicked String
+    | DeleteSessionWithNow String Posix
 
 
 
@@ -330,7 +332,19 @@ update msg model =
                 RequestInFlight ->
                     model |> withNoCmd
 
+        OnDeleteSessionClicked sessionId ->
+            case model.state of
+                NoRequestInFlight ->
+                    { model | state = RequestInFlight }
+                        |> withCmd (Time.now |> Task.perform (DeleteSessionWithNow sessionId))
+
+                RequestInFlight ->
+                    model |> withNoCmd
+
         SaveSessionWithNow now ->
+            createAndSaveSession now model
+
+        DeleteSessionWithNow sessionId now ->
             createAndSaveSession now model
 
         OnPersistSessionListResponse encodedResponse ->
@@ -482,7 +496,16 @@ viewSessions sessions =
 viewSessionItem : Session -> Html Msg
 viewSessionItem session =
     div [ class "mb3 ba br3" ]
-        [ div [ class "pa2 bb" ] [ session.createdAt |> String.fromInt |> text ]
+        [ div [ class "pa2 bb flex" ]
+            (sph
+                [ div [] [ session.createdAt |> String.fromInt |> text ]
+                , button
+                    [ class "pv0 ph2 ma0 ttu lh-title f7"
+                    , onClick (OnDeleteSessionClicked session.id)
+                    ]
+                    [ text "delete session" ]
+                ]
+            )
         , div [ class "pv2" ] (List.map viewSessionTabItem session.tabs)
         ]
 
