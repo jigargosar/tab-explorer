@@ -214,7 +214,7 @@ init flags =
 
 
 
--- |> updateEncodedSessions flags.sessions
+-- |> decodeAndReplaceSessions flags.sessions
 -- |> andThen updatePersistSessions
 
 
@@ -270,7 +270,7 @@ update msg model =
             model |> withNoCmd
 
         OnCurrentWindowTabsChanged encodedOpenTabs ->
-            model |> updateEncodedOpenTabs encodedOpenTabs
+            model |> decodeAndReplaceOpenTabs encodedOpenTabs
 
         OnOpenTabItemClicked tab ->
             model |> withCmd (activateTabCmd tab)
@@ -279,7 +279,7 @@ update msg model =
             model |> withCmd (createAndActivateTabWithUrl tab.url)
 
         OnPouchSessionsChanged encodedChanges ->
-            updateEncodedSessions encodedChanges model
+            decodeAndReplaceSessions encodedChanges model
 
         OnSaveSessionClicked ->
             model |> withCmd (Time.now |> Task.perform SaveSessionWithNow)
@@ -322,8 +322,8 @@ activateTabCmd tab =
     updateTab ( tab.id, { active = True } )
 
 
-updateEncodedSessions : Value -> Model -> ( Model, Cmd Msg )
-updateEncodedSessions encodedSessions model =
+decodeAndReplaceSessions : Value -> Model -> ( Model, Cmd Msg )
+decodeAndReplaceSessions encodedSessions model =
     encodedSessions
         |> JD.decodeValue (JD.list sessionDecoder)
         |> Result.mapError (\error -> Problem "Unable to parse cached sessions" (JD.errorToString error))
@@ -332,8 +332,8 @@ updateEncodedSessions encodedSessions model =
         |> withNoCmd
 
 
-updateEncodedOpenTabs : Value -> Model -> ( Model, Cmd Msg )
-updateEncodedOpenTabs encodedOpenTabs model =
+decodeAndReplaceOpenTabs : Value -> Model -> ( Model, Cmd Msg )
+decodeAndReplaceOpenTabs encodedOpenTabs model =
     encodedOpenTabs
         |> JD.decodeValue (JD.list tabDecoder)
         |> Result.mapError (\error -> Problem "Unable to parse open tabs" (JD.errorToString error))
