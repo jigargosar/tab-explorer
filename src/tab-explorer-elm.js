@@ -69,6 +69,7 @@ function boot(app) {
   sub('persistSessionList')(async sessionList => {
     const res = await db.bulkDocs(sessionList)
     console.log('res', res)
+    app.ports.onPersistSessionListResponse.send(res)
   })
   db.allDocs({ include_docs: true, update_seq: true }).then(res => {
     console.log('allDocs res', res)

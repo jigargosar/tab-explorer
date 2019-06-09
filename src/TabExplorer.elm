@@ -35,6 +35,9 @@ port onPouchSessionsChanged : (JE.Value -> msg) -> Sub msg
 port persistSessionList : Value -> Cmd msg
 
 
+port onPersistSessionListResponse : (Value -> msg) -> Sub msg
+
+
 
 -- TAB MODEL
 
@@ -196,10 +199,16 @@ type alias Problem =
     { msg : String, details : String }
 
 
+type State
+    = Normal
+    | WaitingForPersistResponse
+
+
 type alias Model =
     { openTabs : List Tab
     , sessions : List Session
     , problems : List Problem
+    , state : State
     , seed : Seed
     }
 
@@ -209,14 +218,10 @@ init flags =
     { openTabs = []
     , sessions = []
     , problems = []
+    , state = Normal
     , seed = Random.initialSeed flags.now
     }
         |> withNoCmd
-
-
-
--- |> decodeAndReplaceSessions flags.sessions
--- |> andThen updatePersistSessions
 
 
 appendProblem : Problem -> Model -> Model
@@ -278,6 +283,7 @@ type Msg
     | OnPouchSessionsChanged Value
     | OnSaveSessionClicked
     | SaveSessionWithNow Posix
+    | OnPersistSessionListResponse Value
 
 
 
@@ -289,6 +295,7 @@ subscriptions model =
     Sub.batch
         [ onCurrentWindowTabsChanged OnCurrentWindowTabsChanged
         , onPouchSessionsChanged OnPouchSessionsChanged
+        , onPersistSessionListResponse OnPersistSessionListResponse
         ]
 
 
@@ -320,6 +327,15 @@ update msg model =
         SaveSessionWithNow now ->
             createAndSaveSession now model
 
+        OnPersistSessionListResponse encodedResponse ->
+            let
+                _ =
+                    encodedResponse
+                        |> JE.encode 2
+                        |> Debug.log "OnPersistSessionListResponse"
+            in
+            model |> withNoCmd
+
 
 updatePersistSessions : Model -> Return Msg Model
 updatePersistSessions model =
@@ -347,7 +363,7 @@ createAndSaveSession now model =
 
 saveNewSession : Session -> Model -> Return Msg Model
 saveNewSession session model =
-    model |> withCmd ([ session ] |> JE.list sessionEncoder |> persistSessionList)
+    { model | state = WaitingForPersistResponse } |> withCmd ([ session ] |> JE.list sessionEncoder |> persistSessionList)
 
 
 activateTabCmd : Tab -> Cmd msg
