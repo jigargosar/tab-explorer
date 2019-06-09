@@ -1,5 +1,6 @@
 port module TabExplorer exposing (main)
 
+import Array
 import Browser
 import Compare
 import Html exposing (..)
@@ -8,10 +9,12 @@ import Html.Events exposing (onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline exposing (custom, optional, required)
 import Json.Encode as JE exposing (Value)
+import Random exposing (Generator)
+import Random.Char
+import Time exposing (Posix)
 
 
 
--- import Random exposing (Generator)
 -- PORTS
 
 
@@ -96,13 +99,43 @@ createNewSession tabs id posix =
     , deleted = False
     , tabs = tabs
     , pinned = False
-    , collapsed = false
+    , collapsed = False
     }
 
 
 idGenerator : Generator String
 idGenerator =
-    Random.int
+    let
+        digits =
+            "0123456789"
+
+        upperCaseLetters =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+        lowerCaseLetters =
+            upperCaseLetters |> String.toLower
+
+        idChars =
+            digits
+                ++ upperCaseLetters
+                ++ lowerCaseLetters
+                |> String.toList
+                |> Array.fromList
+
+        maxIdx =
+            Array.length idChars - 1
+
+        idCharGenerator : Generator Char
+        idCharGenerator =
+            Random.int 0 maxIdx
+                |> Random.map
+                    (\idx ->
+                        Array.get idx idChars
+                            |> Maybe.withDefault '0'
+                    )
+    in
+    Random.list 16 idCharGenerator
+        |> Random.map String.fromList
 
 
 sessionDecoder : Decoder Session
