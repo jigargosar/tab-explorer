@@ -200,8 +200,8 @@ type alias Problem =
 
 
 type State
-    = Normal
-    | WaitingForPersistResponse
+    = NoRequestInFlight
+    | RequestInFlight
 
 
 type alias Model =
@@ -218,7 +218,7 @@ init flags =
     { openTabs = []
     , sessions = []
     , problems = []
-    , state = Normal
+    , state = NoRequestInFlight
     , seed = Random.initialSeed flags.now
     }
         |> withNoCmd
@@ -323,11 +323,11 @@ update msg model =
 
         OnSaveSessionClicked ->
             case model.state of
-                Normal ->
-                    { model | state = WaitingForPersistResponse }
+                NoRequestInFlight ->
+                    { model | state = RequestInFlight }
                         |> withCmd (Time.now |> Task.perform SaveSessionWithNow)
 
-                WaitingForPersistResponse ->
+                RequestInFlight ->
                     model |> withNoCmd
 
         SaveSessionWithNow now ->
