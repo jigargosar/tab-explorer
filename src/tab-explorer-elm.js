@@ -15,6 +15,7 @@ const app = Elm.TabExplorer.init({
   node: document.getElementById('root'),
   flags: {
     sessions: oldCachedSessionList,
+    now: Date.now(),
   },
 })
 
