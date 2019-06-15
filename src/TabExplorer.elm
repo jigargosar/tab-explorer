@@ -190,8 +190,7 @@ sessionEncoder session =
 
 
 type alias Flags =
-    { sessions : Value
-    , now : Int
+    { now : Int
     }
 
 
