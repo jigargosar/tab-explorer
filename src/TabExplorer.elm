@@ -354,7 +354,7 @@ update msg model =
                         |> JE.encode 2
                         |> Debug.log "OnPersistSessionListResponse"
             in
-            model |> withNoCmd
+            { model | state = NoRequestInFlight } |> withNoCmd
 
 
 updatePersistSessions : Model -> Return Msg Model
@@ -383,50 +383,48 @@ createAndSaveSession now model =
 
 deleteSessionWithNow : String -> Posix -> Model -> Return Msg Model
 deleteSessionWithNow sessionId now model =
-    let
-        sessionsById =
-            idDictFromList model.sessions
-
-        maybeCmd =
-            sessionsById
-                |> Dict.get sessionId
-                |> Maybe.map
-                    (\s ->
-                        [ { s | deleted = True } ]
-                            |> JE.list sessionEncoder
-                            |> persistSessionList
-                    )
-    in
-    maybeCmd
-        |> Maybe.map (\cmd -> model |> withCmd cmd)
-        |> Maybe.withDefault ({ model | state = NoRequestInFlight } |> withNoCmd)
+    modifySession sessionId (\s -> { s | deleted = s.deleted |> not }) now model
 
 
+modifySession : String -> (Session -> Session) -> Posix -> Model -> Return Msg Model
 modifySession sessionId fn now model =
     let
         sessionsById =
             idDictFromList model.sessions
 
-        maybeCmd =
+        maybeModifiedSession =
             sessionsById
                 |> Dict.get sessionId
-                |> Maybe.map
-                    (\s ->
+                |> Maybe.andThen
+                    (\session ->
                         let
                             updatedSession =
-                                fn s
+                                fn session
                         in
-                        if updatedSession /= s then
-                            [ { updatedSession | modifiedAt = now } ]
-                                |> JE.list sessionEncoder
-                                |> persistSessionList
+                        if updatedSession /= session then
+                            [ { updatedSession
+                                | modifiedAt =
+                                    now
+                                        |> Time.posixToMillis
+                              }
+                            ]
+                                |> Just
 
                         else
-                            Cmd.none
+                            Nothing
+                    )
+
+        maybeCmd =
+            maybeModifiedSession
+                |> Maybe.map
+                    (\s ->
+                        s
+                            |> JE.list sessionEncoder
+                            |> persistSessionList
                     )
     in
     maybeCmd
-        |> Maybe.map (\cmd -> model |> withCmd cmd)
+        |> Maybe.map (\cmd -> { model | state = RequestInFlight } |> withCmd cmd)
         |> Maybe.withDefault ({ model | state = NoRequestInFlight } |> withNoCmd)
 
 
