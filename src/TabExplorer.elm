@@ -402,6 +402,34 @@ deleteSessionWithNow sessionId now model =
         |> Maybe.withDefault ({ model | state = NoRequestInFlight } |> withNoCmd)
 
 
+modifySession sessionId fn now model =
+    let
+        sessionsById =
+            idDictFromList model.sessions
+
+        maybeCmd =
+            sessionsById
+                |> Dict.get sessionId
+                |> Maybe.map
+                    (\s ->
+                        let
+                            updatedSession =
+                                fn s
+                        in
+                        if updatedSession /= s then
+                            [ { updatedSession | modifiedAt = now } ]
+                                |> JE.list sessionEncoder
+                                |> persistSessionList
+
+                        else
+                            Cmd.none
+                    )
+    in
+    maybeCmd
+        |> Maybe.map (\cmd -> model |> withCmd cmd)
+        |> Maybe.withDefault ({ model | state = NoRequestInFlight } |> withNoCmd)
+
+
 saveNewSession : Session -> Model -> Return Msg Model
 saveNewSession session model =
     model |> withCmd ([ session ] |> JE.list sessionEncoder |> persistSessionList)
