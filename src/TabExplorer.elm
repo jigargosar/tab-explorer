@@ -202,6 +202,7 @@ type alias Problem =
 type alias Model =
     { openTabs : List Tab
     , sessions : List Session
+    , showDeleted : Bool
     , problems : List Problem
     , seed : Seed
     }
@@ -211,6 +212,7 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     { openTabs = []
     , sessions = []
+    , showDeleted = True
     , problems = []
     , seed = Random.initialSeed flags.now
     }
@@ -450,17 +452,21 @@ createAndActivateTabWithUrl url =
 -- VIEW
 
 
-getDisplaySessions : List Session -> List Session
-getDisplaySessions sessions =
+getDisplaySessions : Bool -> List Session -> List Session
+getDisplaySessions shouldShowDeleted sessions =
     let
         comparator =
             Compare.concat [ Compare.by .pinned, Compare.by .createdAt |> Compare.reverse ]
 
-        notDeleted =
-            .deleted >> not
+        deletedPred =
+            if shouldShowDeleted then
+                \_ -> True
+
+            else
+                .deleted >> not
     in
     sessions
-        -- |> List.filter notDeleted
+        |> List.filter deletedPred
         |> List.sortWith (Compare.by .createdAt |> Compare.reverse)
 
 
@@ -470,7 +476,7 @@ view model =
         [ div [ class "measure-wide center b mb3" ] [ text "TabExplorer c3" ]
         , viewProblems model.problems
         , viewOpenTabs model.openTabs
-        , viewSessions <| getDisplaySessions model.sessions
+        , viewSessions <| getDisplaySessions model.showDeleted model.sessions
         ]
 
 
