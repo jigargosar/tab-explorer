@@ -211,7 +211,7 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     { openTabs = []
     , sessions = []
-    , showDeleted = True
+    , showDeleted = False
     , problems = []
     , seed = Random.initialSeed flags.now
     }
