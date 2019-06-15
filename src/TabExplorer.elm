@@ -451,7 +451,7 @@ getDisplaySessions sessions =
             .deleted >> not
     in
     sessions
-        |> List.filter notDeleted
+        -- |> List.filter notDeleted
         |> List.sortWith (Compare.by .createdAt |> Compare.reverse)
 
 
