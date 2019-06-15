@@ -537,7 +537,7 @@ viewSessions shouldShowDeleted sessions =
                 [ div [ class "b " ] [ text "Saved Sessions" ]
                 , label [ class "" ]
                     [ input [ type_ "checkbox", checked shouldShowDeleted, onCheck OnShouldShowDeletedChecked ] []
-                    , text "Show Deleted"
+                    , text "Include Deleted"
                     ]
                 ]
             )
