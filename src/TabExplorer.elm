@@ -199,16 +199,10 @@ type alias Problem =
     { msg : String, details : String }
 
 
-type State
-    = NoRequestInFlight
-    | RequestInFlight
-
-
 type alias Model =
     { openTabs : List Tab
     , sessions : List Session
     , problems : List Problem
-    , state : State
     , seed : Seed
     }
 
@@ -218,7 +212,6 @@ init flags =
     { openTabs = []
     , sessions = []
     , problems = []
-    , state = NoRequestInFlight
     , seed = Random.initialSeed flags.now
     }
         |> withNoCmd
@@ -324,22 +317,12 @@ update msg model =
             decodeAndUpdateSessions encodedChanges model
 
         OnSaveSessionClicked ->
-            case model.state of
-                NoRequestInFlight ->
-                    { model | state = RequestInFlight }
-                        |> withCmd (Time.now |> Task.perform SaveSessionWithNow)
-
-                RequestInFlight ->
-                    model |> withNoCmd
+            model
+                |> withCmd (Time.now |> Task.perform SaveSessionWithNow)
 
         OnDeleteSessionClicked sessionId ->
-            case model.state of
-                NoRequestInFlight ->
-                    { model | state = RequestInFlight }
-                        |> withCmd (Time.now |> Task.perform (DeleteSessionWithNow sessionId))
-
-                RequestInFlight ->
-                    model |> withNoCmd
+            model
+                |> withCmd (Time.now |> Task.perform (DeleteSessionWithNow sessionId))
 
         SaveSessionWithNow now ->
             createAndSaveSession now model
@@ -354,7 +337,7 @@ update msg model =
                         |> JE.encode 2
                         |> Debug.log "OnPersistSessionListResponse"
             in
-            { model | state = NoRequestInFlight } |> withNoCmd
+            model |> withNoCmd
 
 
 updatePersistSessions : Model -> Return Msg Model
@@ -424,8 +407,8 @@ modifySession sessionId fn now model =
                     )
     in
     maybeCmd
-        |> Maybe.map (\cmd -> { model | state = RequestInFlight } |> withCmd cmd)
-        |> Maybe.withDefault ({ model | state = NoRequestInFlight } |> withNoCmd)
+        |> Maybe.map (\cmd -> model |> withCmd cmd)
+        |> Maybe.withDefault (model |> withNoCmd)
 
 
 saveNewSession : Session -> Model -> Return Msg Model
@@ -443,7 +426,7 @@ decodeAndUpdateSessions encodedSessions model =
     encodedSessions
         |> JD.decodeValue (JD.list sessionDecoder)
         |> Result.mapError (\error -> Problem "Unable to decode session list" (JD.errorToString error))
-        |> unpackResult appendProblem setSessions
+        |> unpackResult appendProblem updateSessions
         |> callWith model
         |> withNoCmd
 

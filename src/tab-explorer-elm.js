@@ -75,5 +75,17 @@ function boot(app) {
     console.log('allDocs res', res)
     const docs = res.rows.map(row => row.doc)
     app.ports.onPouchSessionsChanged.send(docs)
+    db.changes({
+      include_docs: true,
+      since: res.update_seq,
+      live: true,
+    })
+      .on('change', change => {
+        console.log('change', change)
+        app.ports.onPouchSessionsChanged.send([change.doc])
+      })
+      .on('error', error => {
+        console.error(error)
+      })
   })
 }
