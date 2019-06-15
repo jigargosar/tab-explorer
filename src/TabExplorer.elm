@@ -5,8 +5,8 @@ import Browser
 import Compare
 import Dict exposing (Dict)
 import Html exposing (..)
-import Html.Attributes exposing (class, disabled)
-import Html.Events exposing (onClick)
+import Html.Attributes exposing (checked, class, disabled, type_)
+import Html.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline exposing (custom, optional, required)
 import Json.Encode as JE exposing (Value)
@@ -281,6 +281,7 @@ type Msg
     | OnPersistSessionListResponse Value
     | OnDeleteSessionClicked String
     | DeleteSessionWithNow String Posix
+    | OnShouldShowDeletedChecked Bool
 
 
 
@@ -305,6 +306,9 @@ update msg model =
     case msg of
         NoOp ->
             model |> withNoCmd
+
+        OnShouldShowDeletedChecked isChecked ->
+            { model | showDeleted = isChecked } |> withNoCmd
 
         OnCurrentWindowTabsChanged encodedOpenTabs ->
             model |> decodeAndReplaceOpenTabs encodedOpenTabs
@@ -476,7 +480,7 @@ view model =
         [ div [ class "measure-wide center b mb3" ] [ text "TabExplorer c3" ]
         , viewProblems model.problems
         , viewOpenTabs model.openTabs
-        , viewSessions <| getDisplaySessions model.showDeleted model.sessions
+        , viewSessions model.showDeleted <| getDisplaySessions model.showDeleted model.sessions
         ]
 
 
@@ -526,10 +530,18 @@ viewOpenTabItem tab =
         ]
 
 
-viewSessions : List Session -> Html Msg
-viewSessions sessions =
+viewSessions : Bool -> List Session -> Html Msg
+viewSessions shouldShowDeleted sessions =
     div [ class "measure-wide center" ]
-        [ div [ class "b mv3 " ] [ text "Saved Sessions" ]
+        [ div [ class "mv3 flex" ]
+            (sph
+                [ div [ class "b " ] [ text "Saved Sessions" ]
+                , label [ class "" ]
+                    [ input [ type_ "checkbox", checked shouldShowDeleted, onCheck OnShouldShowDeletedChecked ] []
+                    , text "Show Deleted"
+                    ]
+                ]
+            )
         , div [ class "pv2" ] (List.map viewSessionItem sessions)
         ]
 
