@@ -223,11 +223,6 @@ appendProblem problem model =
     { model | problems = model.problems ++ [ problem ] }
 
 
-setSessions : List Session -> Model -> Model
-setSessions sessions model =
-    { model | sessions = sessions }
-
-
 idDictFromList : List { a | id : comparable } -> Dict comparable { a | id : comparable }
 idDictFromList list =
     list
@@ -235,8 +230,8 @@ idDictFromList list =
         |> Dict.fromList
 
 
-updateSessions : List Session -> Model -> Model
-updateSessions sessions model =
+upsertNewerSessions : List Session -> Model -> Model
+upsertNewerSessions sessions model =
     let
         sessionsById =
             idDictFromList model.sessions
@@ -257,7 +252,7 @@ updateSessions sessions model =
                 |> Dict.union newerSessionsById
                 |> Dict.values
     in
-    setSessions newSessions model
+    { model | sessions = sessions }
 
 
 setOpenTabs : List Tab -> Model -> Model
@@ -330,7 +325,7 @@ update msg model =
                 |> withCmd (Time.now |> Task.perform (DeleteSessionWithNow sessionId))
 
         SaveSessionWithNow now ->
-            createAndSaveSession now model
+            createAndPersistSession now model
 
         DeleteSessionWithNow sessionId now ->
             deleteSessionWithNow sessionId now model
@@ -345,25 +340,14 @@ update msg model =
             model |> withNoCmd
 
 
-updatePersistSessions : Model -> Return Msg Model
-updatePersistSessions model =
-    let
-        cmd =
-            model.sessions
-                |> JE.list sessionEncoder
-                |> persistSessionList
-    in
-    model |> withCmd cmd
-
-
 generateWithModelSeed : Generator a -> Model -> ( a, Model )
 generateWithModelSeed gen model =
     Random.step gen model.seed
         |> Tuple.mapSecond (\seed -> { model | seed = seed })
 
 
-createAndSaveSession : Posix -> Model -> Return Msg Model
-createAndSaveSession now model =
+createAndPersistSession : Posix -> Model -> Return Msg Model
+createAndPersistSession now model =
     model
         |> generateWithModelSeed (sessionGenerator model.openTabs now)
         |> (\( newSession, newModel ) -> saveNewSession newSession newModel)
@@ -371,7 +355,10 @@ createAndSaveSession now model =
 
 deleteSessionWithNow : String -> Posix -> Model -> Return Msg Model
 deleteSessionWithNow sessionId now model =
-    modifySession sessionId (\s -> { s | deleted = s.deleted |> not }) now model
+    updateAndPersistSessionIfChanged sessionId
+        (\s -> { s | deleted = s.deleted |> not })
+        now
+        model
 
 
 persistSessionCmd : Session -> Cmd msg
@@ -381,8 +368,13 @@ persistSessionCmd session =
         |> persistSessionList
 
 
-modifySession : String -> (Session -> Session) -> Posix -> Model -> Return Msg Model
-modifySession sessionId fn now model =
+updateAndPersistSessionIfChanged :
+    String
+    -> (Session -> Session)
+    -> Posix
+    -> Model
+    -> Return Msg Model
+updateAndPersistSessionIfChanged sessionId fn now model =
     let
         sessionsById =
             idDictFromList model.sessions
@@ -429,7 +421,7 @@ decodeAndUpdateSessions encodedSessions model =
     encodedSessions
         |> JD.decodeValue (JD.list sessionDecoder)
         |> Result.mapError (\error -> Problem "Unable to decode session list" (JD.errorToString error))
-        |> unpackResult appendProblem updateSessions
+        |> unpackResult appendProblem upsertNewerSessions
         |> callWith model
         |> withNoCmd
 
