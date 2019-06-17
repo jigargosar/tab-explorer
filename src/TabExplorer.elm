@@ -374,6 +374,13 @@ deleteSessionWithNow sessionId now model =
     modifySession sessionId (\s -> { s | deleted = s.deleted |> not }) now model
 
 
+persistSessionCmd : Session -> Cmd msg
+persistSessionCmd session =
+    [ session ]
+        |> JE.list sessionEncoder
+        |> persistSessionList
+
+
 modifySession : String -> (Session -> Session) -> Posix -> Model -> Return Msg Model
 modifySession sessionId fn now model =
     let
@@ -390,28 +397,19 @@ modifySession sessionId fn now model =
                                 fn session
                         in
                         if updatedSession /= session then
-                            [ { updatedSession
+                            { updatedSession
                                 | modifiedAt =
                                     now
                                         |> Time.posixToMillis
-                              }
-                            ]
+                            }
                                 |> Just
 
                         else
                             Nothing
                     )
-
-        maybeCmd =
-            maybeModifiedSession
-                |> Maybe.map
-                    (\s ->
-                        s
-                            |> JE.list sessionEncoder
-                            |> persistSessionList
-                    )
     in
-    maybeCmd
+    maybeModifiedSession
+        |> Maybe.map persistSessionCmd
         |> Maybe.map (\cmd -> model |> withCmd cmd)
         |> Maybe.withDefault (model |> withNoCmd)
 
