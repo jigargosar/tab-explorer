@@ -340,9 +340,27 @@ update message model =
 
         ModifySessionWithNow sessionId msg now ->
             let
+                fn =
+                    case msg of
+                        DeleteTabAt tabIdx ->
+                            \s ->
+                                { s
+                                    | tabs =
+                                        s.tabs
+                                            |> List.indexedMap
+                                                (\idx ->
+                                                    if idx == tabIdx then
+                                                        always Nothing
+
+                                                    else
+                                                        Just
+                                                )
+                                            |> List.filterMap identity
+                                }
+
                 _ =
                     updateAndPersistSessionIfChanged sessionId
-                        (\s -> { s | deleted = s.deleted |> not })
+                        fn
                         now
                         model
             in
