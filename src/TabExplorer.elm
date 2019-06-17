@@ -252,7 +252,7 @@ upsertNewerSessions sessions model =
                 |> Dict.union newerSessionsById
                 |> Dict.values
     in
-    { model | sessions = sessions }
+    { model | sessions = newSessions }
 
 
 setOpenTabs : List Tab -> Model -> Model
@@ -358,13 +358,14 @@ update message model =
                                             |> List.filterMap identity
                                 }
 
-                _ =
+                ret =
                     updateAndPersistSessionIfChanged sessionId
                         fn
                         now
                         model
             in
-            model |> withNoCmd
+            -- model |> withNoCmd
+            ret
 
         SaveSessionWithNow now ->
             createAndPersistSession now model
