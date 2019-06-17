@@ -264,6 +264,10 @@ setOpenTabs tabs model =
 -- MESSAGES
 
 
+type ModifySessionMsg
+    = DeleteTabAt Int
+
+
 type Msg
     = NoOp
     | OnCurrentWindowTabsChanged JE.Value
@@ -275,6 +279,7 @@ type Msg
     | OnPersistSessionListResponse Value
     | OnDeleteSessionClicked String
     | OnDeleteSessionTabClicked String Int
+    | ModifySessionWithNow String ModifySessionMsg Posix
     | DeleteSessionWithNow String Posix
     | OnShouldShowDeletedChecked Bool
 
@@ -297,8 +302,8 @@ subscriptions model =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
+update message model =
+    case message of
         NoOp ->
             model |> withNoCmd
 
@@ -327,7 +332,14 @@ update msg model =
 
         OnDeleteSessionTabClicked sessionId tabIdx ->
             model
-                |> withNoCmd
+                |> withCmd
+                    (Time.now
+                        |> Task.perform
+                            (ModifySessionWithNow sessionId (DeleteTabAt tabIdx))
+                    )
+
+        ModifySessionWithNow sessionId msg now ->
+            model |> withNoCmd
 
         SaveSessionWithNow now ->
             createAndPersistSession now model
