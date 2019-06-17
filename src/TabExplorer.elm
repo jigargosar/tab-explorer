@@ -350,7 +350,12 @@ createAndPersistSession : Posix -> Model -> Return Msg Model
 createAndPersistSession now model =
     model
         |> generateWithModelSeed (sessionGenerator model.openTabs now)
-        |> (\( newSession, newModel ) -> saveNewSession newSession newModel)
+        |> persistGeneratedSession
+
+
+persistGeneratedSession : ( Session, Model ) -> Return Msg Model
+persistGeneratedSession ( session, model ) =
+    model |> withCmd (persistSessionCmd session)
 
 
 deleteSessionWithNow : String -> Posix -> Model -> Return Msg Model
@@ -404,11 +409,6 @@ updateAndPersistSessionIfChanged sessionId fn now model =
         |> Maybe.map persistSessionCmd
         |> Maybe.map (\cmd -> model |> withCmd cmd)
         |> Maybe.withDefault (model |> withNoCmd)
-
-
-saveNewSession : Session -> Model -> Return Msg Model
-saveNewSession session model =
-    model |> withCmd ([ session ] |> JE.list sessionEncoder |> persistSessionList)
 
 
 activateTabCmd : Tab -> Cmd msg
