@@ -339,6 +339,13 @@ update message model =
                     )
 
         ModifySessionWithNow sessionId msg now ->
+            let
+                _ =
+                    updateAndPersistSessionIfChanged sessionId
+                        (\s -> { s | deleted = s.deleted |> not })
+                        now
+                        model
+            in
             model |> withNoCmd
 
         SaveSessionWithNow now ->
