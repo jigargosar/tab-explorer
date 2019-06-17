@@ -466,7 +466,7 @@ getDisplaySessions shouldShowDeleted sessions =
 view : Model -> Html Msg
 view model =
     div [ class "pa3 lh-copy" ]
-        [ div [ class "measure-wide center b mb3" ] [ text "TabExplorer c3" ]
+        [ div [ class "measure-wide center b mb3" ] [ text "TabExplorer c4" ]
         , viewProblems model.problems
         , viewOpenTabs model.openTabs
         , viewSessions model.showDeleted <| getDisplaySessions model.showDeleted model.sessions
@@ -563,9 +563,13 @@ viewSessionItem session =
 
 viewSessionTabItem : Tab -> Html Msg
 viewSessionTabItem tab =
-    div [ class "pointer", onClick <| OnSessionTabItemClicked tab ]
-        [ div [ class "pv1 ph2" ] [ text tab.title ]
-        ]
+    div [ class "flex" ]
+        (sph
+            [ div [ class "pointer", onClick <| OnSessionTabItemClicked tab ]
+                [ div [ class "pv1 ph2" ] [ text tab.title ]
+                ]
+            ]
+        )
 
 
 
