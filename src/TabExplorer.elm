@@ -274,6 +274,7 @@ type Msg
     | SaveSessionWithNow Posix
     | OnPersistSessionListResponse Value
     | OnDeleteSessionClicked String
+    | OnDeleteSessionTabClicked String Int
     | DeleteSessionWithNow String Posix
     | OnShouldShowDeletedChecked Bool
 
@@ -323,6 +324,10 @@ update msg model =
         OnDeleteSessionClicked sessionId ->
             model
                 |> withCmd (Time.now |> Task.perform (DeleteSessionWithNow sessionId))
+
+        OnDeleteSessionTabClicked sessionId tabIdx ->
+            model
+                |> withNoCmd
 
         SaveSessionWithNow now ->
             createAndPersistSession now model
@@ -557,16 +562,24 @@ viewSessionItem session =
                     ]
                 ]
             )
-        , div [ class "pv2" ] (List.map viewSessionTabItem session.tabs)
+        , div [ class "pv2" ]
+            (List.indexedMap (viewSessionTabItem session.id)
+                session.tabs
+            )
         ]
 
 
-viewSessionTabItem : Tab -> Html Msg
-viewSessionTabItem tab =
-    div [ class "flex" ]
+viewSessionTabItem : String -> Int -> Tab -> Html Msg
+viewSessionTabItem sessionId idx tab =
+    div [ class "ph2 flex" ]
         (sph
-            [ div [ class "pointer", onClick <| OnSessionTabItemClicked tab ]
-                [ div [ class "pv1 ph2" ] [ text tab.title ]
+            [ button
+                [ class "pv0 ph2 ma0 ttu lh-title f7"
+                , onClick (OnDeleteSessionTabClicked sessionId idx)
+                ]
+                [ text "X" ]
+            , div [ class "pointer", onClick <| OnSessionTabItemClicked tab ]
+                [ div [ class "" ] [ text tab.title ]
                 ]
             ]
         )
