@@ -640,7 +640,7 @@ viewSessionItem zone session =
 
 viewSessionTabItem : String -> Int -> Tab -> Html Msg
 viewSessionTabItem sessionId idx tab =
-    div [ class "ph2 flex items-center" ]
+    div [ class "ph2 pv1 flex items-center" ]
         (sph
             [ button
                 [ class "pv0 ph1 ma0 ttu lh-title f7"
