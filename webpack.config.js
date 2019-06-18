@@ -32,7 +32,7 @@ module.exports = {
         test: /\.elm$/,
         include: [srcPath],
         use: [
-          // { loader: 'elm-hot-webpack-loader' },
+          { loader: 'elm-hot-webpack-loader' },
           {
             loader: 'elm-webpack-loader',
             options: {
@@ -66,5 +66,9 @@ module.exports = {
     stats: 'errors-only',
     sockPort: 8080,
     disableHostCheck: true,
+    overlay: {
+      warnings: true,
+      errors: true,
+    },
   },
 }

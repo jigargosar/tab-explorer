@@ -550,7 +550,7 @@ sph =
 viewOpenTabs : List Tab -> Html Msg
 viewOpenTabs tabs =
     div [ class "measure-wide center ba br3" ]
-        [ div [ class "pa2 bb flex" ]
+        [ div [ class "pa2 bb flex items-center" ]
             (sph
                 [ div [] [ text "Open Tabs" ]
                 , button
@@ -616,7 +616,7 @@ formatDT zone millis =
 viewSessionItem : Time.Zone -> Session -> Html Msg
 viewSessionItem zone session =
     div [ class "mb3 ba br3" ]
-        [ div [ class "pa2 bb flex items-center" ]
+        [ div [ class "pa2 bb flex flex-wrap items-center" ]
             (sph
                 [ div [] [ session.createdAt |> formatDT zone |> text ]
                 , button
@@ -640,10 +640,10 @@ viewSessionItem zone session =
 
 viewSessionTabItem : String -> Int -> Tab -> Html Msg
 viewSessionTabItem sessionId idx tab =
-    div [ class "ph2 flex" ]
+    div [ class "ph2 flex items-center" ]
         (sph
             [ button
-                [ class "pv0 ph2 ma0 ttu lh-title f7"
+                [ class "pv0 ph1 ma0 ttu lh-title f7"
                 , onClick (OnDeleteSessionTabClicked sessionId idx)
                 ]
                 [ text "X" ]
