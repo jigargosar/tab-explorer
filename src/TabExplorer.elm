@@ -340,23 +340,23 @@ update message model =
 
         ModifySessionWithNow sessionId msg now ->
             let
-                fn =
+                fn : Session -> Session
+                fn s =
                     case msg of
                         DeleteTabAt tabIdx ->
-                            \s ->
-                                { s
-                                    | tabs =
-                                        s.tabs
-                                            |> List.indexedMap
-                                                (\idx ->
-                                                    if idx == tabIdx then
-                                                        always Nothing
+                            { s
+                                | tabs =
+                                    s.tabs
+                                        |> List.indexedMap
+                                            (\idx ->
+                                                if idx == tabIdx then
+                                                    always Nothing
 
-                                                    else
-                                                        Just
-                                                )
-                                            |> List.filterMap identity
-                                }
+                                                else
+                                                    Just
+                                            )
+                                        |> List.filterMap identity
+                            }
 
                 ret =
                     updateAndPersistSessionIfChanged sessionId
@@ -578,10 +578,18 @@ viewSessions shouldShowDeleted sessions =
         ]
 
 
+stringFromBool bool =
+    if bool then
+        "True"
+
+    else
+        "False"
+
+
 viewSessionItem : Session -> Html Msg
 viewSessionItem session =
     div [ class "mb3 ba br3" ]
-        [ div [ class "pa2 bb flex" ]
+        [ div [ class "pa2 bb flex items-center" ]
             (sph
                 [ div [] [ session.createdAt |> String.fromInt |> text ]
                 , button
@@ -589,15 +597,11 @@ viewSessionItem session =
                     , onClick (OnDeleteSessionClicked session.id)
                     ]
                     [ text "delete session" ]
-                , div []
-                    [ (if session.deleted then
-                        "deleted"
-
-                       else
-                        "not-deleted"
-                      )
-                        |> text
+                , div [ class "code f7" ]
+                    [ text "deleted:"
+                    , text (stringFromBool session.deleted)
                     ]
+                , div [ class "code f7" ] [ text "id:", text session.id ]
                 ]
             )
         , div [ class "pv2" ]
