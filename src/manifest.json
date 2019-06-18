@@ -4,13 +4,7 @@
   "version": "1",
   "name": "Tab Explorer",
   "description": "Tab Explorer",
-  "permissions": [
-    "management",
-    "tabs",
-    "gcm",
-    "http://localhost:8080/",
-    "ws://localhost:8080"
-  ],
+  "permissions": ["management", "tabs", "gcm", "http://localhost:8080/"],
   "background": {
     "scripts": ["background.js"]
   },
