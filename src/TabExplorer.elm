@@ -3,6 +3,7 @@ port module TabExplorer exposing (main)
 import Array
 import Browser
 import Compare
+import DateFormat as DF
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (checked, class, disabled, type_)
@@ -203,6 +204,7 @@ type alias Model =
     , sessions : List Session
     , showDeleted : Bool
     , problems : List Problem
+    , zone : Time.Zone
     , seed : Seed
     }
 
@@ -213,6 +215,7 @@ init flags =
     , sessions = []
     , showDeleted = False
     , problems = []
+    , zone = Time.utc
     , seed = Random.initialSeed flags.now
     }
         |> withNoCmd
@@ -512,7 +515,7 @@ view model =
         [ div [ class "measure-wide center b mb3" ] [ text "TabExplorer c4" ]
         , viewProblems model.problems
         , viewOpenTabs model.openTabs
-        , viewSessions model.showDeleted <| getDisplaySessions model.showDeleted model.sessions
+        , viewSessions model.zone model.showDeleted <| getDisplaySessions model.showDeleted model.sessions
         ]
 
 
@@ -562,8 +565,8 @@ viewOpenTabItem tab =
         ]
 
 
-viewSessions : Bool -> List Session -> Html Msg
-viewSessions shouldShowDeleted sessions =
+viewSessions : Time.Zone -> Bool -> List Session -> Html Msg
+viewSessions zone shouldShowDeleted sessions =
     div [ class "measure-wide center" ]
         [ div [ class "mv3 flex" ]
             (sph
@@ -574,7 +577,8 @@ viewSessions shouldShowDeleted sessions =
                     ]
                 ]
             )
-        , div [ class "pv2" ] (List.map viewSessionItem sessions)
+        , div [ class "pv2" ]
+            (List.map (viewSessionItem zone) sessions)
         ]
 
 
@@ -586,12 +590,29 @@ stringFromBool bool =
         "False"
 
 
-viewSessionItem : Session -> Html Msg
-viewSessionItem session =
+formatDT zone millis =
+    DF.format
+        [ DF.dayOfWeekNameAbbreviated
+        , DF.text ", "
+        , DF.monthNameAbbreviated
+        , DF.text " "
+        , DF.dayOfMonthNumber
+        , DF.text " at "
+        , DF.hourFixed
+        , DF.text ":"
+        , DF.minuteFixed
+        , DF.amPmLowercase
+        ]
+        zone
+        (Time.millisToPosix millis)
+
+
+viewSessionItem : Time.Zone -> Session -> Html Msg
+viewSessionItem zone session =
     div [ class "mb3 ba br3" ]
         [ div [ class "pa2 bb flex items-center" ]
             (sph
-                [ div [] [ session.createdAt |> String.fromInt |> text ]
+                [ div [] [ session.createdAt |> formatDT zone |> text ]
                 , button
                     [ class "pv0 ph2 ma0 ttu lh-title f7"
                     , onClick (OnDeleteSessionClicked session.id)
