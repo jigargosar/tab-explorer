@@ -273,6 +273,7 @@ type ModifySessionMsg
 
 type Msg
     = NoOp
+    | SetZone Time.Zone
     | OnCurrentWindowTabsChanged JE.Value
     | OnOpenTabItemClicked Tab
     | OnSessionTabItemClicked Tab
@@ -309,6 +310,9 @@ update message model =
     case message of
         NoOp ->
             model |> withNoCmd
+
+        SetZone zone ->
+            { model | zone = zone } |> withNoCmd
 
         OnShouldShowDeletedChecked isChecked ->
             { model | showDeleted = isChecked } |> withNoCmd
