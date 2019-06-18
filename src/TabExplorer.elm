@@ -218,7 +218,7 @@ init flags =
     , zone = Time.utc
     , seed = Random.initialSeed flags.now
     }
-        |> withNoCmd
+        |> withCmd (Time.here |> Task.perform SetZone)
 
 
 appendProblem : Problem -> Model -> Model
