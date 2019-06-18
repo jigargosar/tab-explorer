@@ -9,5 +9,5 @@
     "scripts": ["background.js"]
   },
   "browser_action": {},
-  "content_security_policy": "script-src 'self' https://apis.google.com; object-src 'self'; "
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://apis.google.com; object-src 'self'; "
 }

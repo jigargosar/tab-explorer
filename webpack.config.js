@@ -59,4 +59,7 @@ module.exports = {
     ]),
   ],
   devtool: 'cheap-module-source-map',
+  devServer: {
+    writeToDisk: true,
+  },
 }

@@ -4,14 +4,25 @@
   "main": "index.js",
   "author": "Jigar Gosar <jigar.gosar@gmail.com>",
   "license": "MIT",
+  "description": "Chrome Extension For Tab Management",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jigargosar/tab-explorer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jigargosar/tab-explorer/issues"
+  },
+  "homepage": "https://github.com/jigargosar/tab-explorer#readme",
   "scripts": {
-    "start": "nodemon -w yarn.lock -w webpack.config.js -x webpack -- --mode=development --watch"
+    "start": "nodemon -w yarn.lock -w package-lock.json -w webpack.config.js -x webpack-dev-server -- --mode=development --watch --hot",
+    "start_": "nodemon -w yarn.lock -w package-lock.json -w webpack.config.js -x webpack -- --mode=development --watch --hot"
   },
   "babel": {
     "presets": [
       "@babel/react"
     ]
   },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/preset-react": "^7.0.0",
@@ -40,7 +51,8 @@
     "styles-loader": "^1.0.0",
     "tachyons": "^4.11.1",
     "webpack": "^4.32.0",
-    "webpack-cli": "^3.3.2"
+    "webpack-cli": "^3.3.2",
+    "webpack-dev-server": "^3.7.2"
   },
   "prettier": {
     "tabWidth": 2,
