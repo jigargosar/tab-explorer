@@ -61,5 +61,8 @@ module.exports = {
   devtool: 'cheap-module-source-map',
   devServer: {
     writeToDisk: true,
+    stats: 'errors-only',
+    sockPort: 8080,
+    disableHostCheck: true,
   },
 }
