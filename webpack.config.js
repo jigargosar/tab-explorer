@@ -6,7 +6,6 @@ const CopyPlugin = require('copy-webpack-plugin')
 const pth = path.resolve
 const R = require('ramda')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const NpmInstallPlugin = require('npm-install-webpack-plugin')
 
 const cleanManifest = R.pipe(
   R.curryN(1, JSON.parse),
@@ -54,16 +53,6 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new NpmInstallPlugin({
-      // Use --save or --save-dev
-      dev: true,
-      // Install missing peerDependencies
-      peerDependencies: true,
-      // Reduce amount of console logging
-      quiet: false,
-      // npm command used inside company, yarn is not supported yet
-      npm: 'npm',
-    }),
     new CopyPlugin([
       {
         from: pth('src/manifest.json'),
