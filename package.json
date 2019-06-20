@@ -14,8 +14,8 @@
   },
   "homepage": "https://github.com/jigargosar/tab-explorer#readme",
   "scripts": {
-    "start": "nodemon -w yarn.lock -w package-lock.json -w webpack.config.js -x webpack-dev-server -- --mode=development --watch --hot",
-    "start_": "nodemon -w yarn.lock -w package-lock.json -w webpack.config.js -x webpack -- --mode=development --watch --hot"
+    "start": "nodemon -w package-lock.json -w webpack.config.js -x webpack-dev-server -- --mode=development --watch --hot",
+    "start_": "nodemon -w package-lock.json -w webpack.config.js -x webpack -- --mode=development --watch --hot"
   },
   "babel": {
     "presets": [
