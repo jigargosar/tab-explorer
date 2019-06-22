@@ -6,7 +6,7 @@ import { loadCachedState } from './tab-explorer/hooks'
 import values from 'ramda/es/values'
 import PouchDB from 'pouchdb-browser'
 import isNil from 'ramda/es/isNil'
-import { onAuthStateChanged } from './tab-explorer/fire'
+import { onAuthStateChanged, signIn } from './tab-explorer/fire'
 
 const oldCachedSessionList = values(loadCachedState().sessions)
 
@@ -103,3 +103,5 @@ function boot(app) {
       })
   })
 }
+
+window.si = signIn

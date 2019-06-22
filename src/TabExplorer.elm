@@ -190,13 +190,13 @@ sessionEncoder session =
 
 
 
--- AuthUserState
+-- Auth
 
 
 type alias User =
     { uid : String
     , email : String
-    , userName : String
+    , displayName : String
     }
 
 
@@ -205,16 +205,16 @@ userDecoder =
     JD.succeed User
         |> required "uid" JD.string
         |> required "email" JD.string
-        |> required "userName" JD.string
+        |> required "displayName" JD.string
 
 
-type AuthUserState
+type Auth
     = Unknown
     | SignedIn User
     | SignedOut
 
 
-authDecoder : Decoder AuthUserState
+authDecoder : Decoder Auth
 authDecoder =
     JD.oneOf [ JD.null SignedOut, userDecoder |> JD.map SignedIn ]
 
@@ -236,7 +236,7 @@ type alias Model =
     { openTabs : List Tab
     , sessions : List Session
     , showDeleted : Bool
-    , auth : AuthUserState
+    , auth : Auth
     , problems : List Problem
     , zone : Time.Zone
     , seed : Seed
@@ -298,6 +298,11 @@ setOpenTabs tabs model =
     { model | openTabs = tabs }
 
 
+setAuth : Auth -> Model -> Model
+setAuth auth model =
+    { model | auth = auth }
+
+
 
 -- MESSAGES
 
@@ -321,7 +326,7 @@ type Msg
     | ModifySessionWithNow String ModifySessionMsg Posix
     | DeleteSessionWithNow String Posix
     | OnShouldShowDeletedChecked Bool
-    | OnFireAuthStateChanged Value
+    | OnAuthChanged Value
 
 
 
@@ -334,7 +339,7 @@ subscriptions model =
         [ onCurrentWindowTabsChanged OnCurrentWindowTabsChanged
         , onPouchSessionsChanged OnPouchSessionsChanged
         , onPersistSessionListResponse OnPersistSessionListResponse
-        , onFireAuthStateChanged OnFireAuthStateChanged
+        , onFireAuthStateChanged OnAuthChanged
         ]
 
 
@@ -351,8 +356,8 @@ update message model =
         SetZone zone ->
             { model | zone = zone } |> withNoCmd
 
-        OnFireAuthStateChanged encodedUser ->
-            model |> withNoCmd
+        OnAuthChanged encodedAuth ->
+            decodeAndUpdateAuth encodedAuth model
 
         OnShouldShowDeletedChecked isChecked ->
             { model | showDeleted = isChecked } |> withNoCmd
@@ -504,6 +509,19 @@ updateAndPersistSessionIfChanged sessionId fn now model =
 activateTabCmd : Tab -> Cmd msg
 activateTabCmd tab =
     updateTab ( tab.id, { active = True } )
+
+
+decodeAndUpdateAuth : Value -> Model -> ( Model, Cmd Msg )
+decodeAndUpdateAuth encodedAuth model =
+    encodedAuth
+        |> JD.decodeValue authDecoder
+        |> Result.mapError
+            (\error ->
+                Problem "Unable to decode auth" (JD.errorToString error)
+            )
+        |> unpackResult appendProblem setAuth
+        |> callWith model
+        |> withNoCmd
 
 
 decodeAndUpdateSessions : Value -> Model -> ( Model, Cmd Msg )
