@@ -654,10 +654,10 @@ viewSessionItem zone session =
 
 viewSessionTabItem : String -> Int -> Tab -> Html Msg
 viewSessionTabItem sessionId idx tab =
-    div [ class "ph2 pv1 flex items-center" ]
+    div [ class "ph2 pv1 flex items-center hide-child" ]
         (sph
             [ button
-                [ class "pv0 ph1 ma0 ttu lh-title f7"
+                [ class "pv0 ph1 ma0 ttu lh-title f7 child"
                 , onClick (OnDeleteSessionTabClicked sessionId idx)
                 ]
                 [ text "X" ]
