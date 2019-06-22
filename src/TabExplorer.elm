@@ -470,7 +470,10 @@ decodeAndUpdateSessions : Value -> Model -> ( Model, Cmd Msg )
 decodeAndUpdateSessions encodedSessions model =
     encodedSessions
         |> JD.decodeValue (JD.list sessionDecoder)
-        |> Result.mapError (\error -> Problem "Unable to decode session list" (JD.errorToString error))
+        |> Result.mapError
+            (\error ->
+                Problem "Unable to decode session list" (JD.errorToString error)
+            )
         |> unpackResult appendProblem upsertNewerSessions
         |> callWith model
         |> withNoCmd
@@ -480,7 +483,10 @@ decodeAndReplaceOpenTabs : Value -> Model -> ( Model, Cmd Msg )
 decodeAndReplaceOpenTabs encodedOpenTabs model =
     encodedOpenTabs
         |> JD.decodeValue (JD.list tabDecoder)
-        |> Result.mapError (\error -> Problem "Unable to parse open tabs" (JD.errorToString error))
+        |> Result.mapError
+            (\error ->
+                Problem "Unable to parse open tabs" (JD.errorToString error)
+            )
         |> unpackResult appendProblem setOpenTabs
         |> callWith model
         |> withNoCmd
@@ -499,7 +505,10 @@ getDisplaySessions : Bool -> List Session -> List Session
 getDisplaySessions shouldShowDeleted sessions =
     let
         comparator =
-            Compare.concat [ Compare.by .pinned, Compare.by .createdAt |> Compare.reverse ]
+            Compare.concat
+                [ Compare.by .pinned
+                , Compare.by .createdAt |> Compare.reverse
+                ]
 
         deletedPred =
             if shouldShowDeleted then
@@ -647,8 +656,8 @@ viewSessionTabItem sessionId idx tab =
                 , onClick (OnDeleteSessionTabClicked sessionId idx)
                 ]
                 [ text "X" ]
-            , div [ class "pointer", onClick <| OnSessionTabItemClicked tab ]
-                [ div [ class "" ] [ text tab.title ]
+            , div [ class "pointer flex-grow-1 truncate", onClick <| OnSessionTabItemClicked tab ]
+                [ div [ class "truncate" ] [ text tab.title ]
                 ]
             ]
         )

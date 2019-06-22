@@ -12,3 +12,7 @@ html {
 #root1 {
   min-height: 100%;
 }
+
+.elip {
+  text-overflow: ellipsis;
+}
