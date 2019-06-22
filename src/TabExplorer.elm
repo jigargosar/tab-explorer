@@ -200,10 +200,23 @@ type alias User =
     }
 
 
+userDecoder : Decoder User
+userDecoder =
+    JD.succeed User
+        |> required "uid" JD.string
+        |> required "email" JD.string
+        |> required "userName" JD.string
+
+
 type AuthUserState
     = Unknown
     | SignedIn User
     | SignedOut
+
+
+authDecoder : Decoder AuthUserState
+authDecoder =
+    JD.oneOf [ JD.null SignedOut, userDecoder |> JD.map SignedIn ]
 
 
 
