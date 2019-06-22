@@ -587,7 +587,12 @@ viewSessions zone shouldShowDeleted sessions =
             (sph
                 [ div [ class "b " ] [ text "Saved Sessions" ]
                 , label [ class "" ]
-                    [ input [ type_ "checkbox", checked shouldShowDeleted, onCheck OnShouldShowDeletedChecked ] []
+                    [ input
+                        [ type_ "checkbox"
+                        , checked shouldShowDeleted
+                        , onCheck OnShouldShowDeletedChecked
+                        ]
+                        []
                     , text "Include Deleted"
                     ]
                 ]
