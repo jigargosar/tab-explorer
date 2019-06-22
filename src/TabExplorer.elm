@@ -42,6 +42,9 @@ port onPersistSessionListResponse : (Value -> msg) -> Sub msg
 port onFireAuthStateChanged : (Value -> msg) -> Sub msg
 
 
+port signOut : () -> Cmd msg
+
+
 
 -- TAB MODEL
 
@@ -327,6 +330,7 @@ type Msg
     | DeleteSessionWithNow String Posix
     | OnShouldShowDeletedChecked Bool
     | OnAuthChanged Value
+    | OnSignOutClicked
 
 
 
@@ -358,6 +362,9 @@ update message model =
 
         OnAuthChanged encodedAuth ->
             decodeAndUpdateAuth encodedAuth model
+
+        OnSignOutClicked ->
+            model |> withCmd (signOut ())
 
         OnShouldShowDeletedChecked isChecked ->
             { model | showDeleted = isChecked } |> withNoCmd
@@ -583,13 +590,42 @@ getDisplaySessions shouldShowDeleted sessions =
 view : Model -> Html Msg
 view model =
     div [ class "pa3 lh-copy" ]
-        [ div [ class "measure-wide center b mb3" ] [ text "TabExplorer c19" ]
+        [ viewHeader model.auth
         , viewProblems model.problems
         , viewOpenTabs model.openTabs
         , viewSessionList model.zone
             model.showDeleted
             (getDisplaySessions model.showDeleted model.sessions)
         ]
+
+
+viewHeader auth =
+    div [ class "measure-wide center  mb3 flex items-center" ]
+        (sph
+            [ div [ class "b" ] [ text "TabExplorer c20" ]
+            , div [ class "" ]
+                [ case auth of
+                    Unknown ->
+                        text "loading"
+
+                    SignedIn user ->
+                        div [ class "flex items-center" ]
+                            (sph
+                                [ text "signed in: "
+                                , text user.displayName
+                                , button
+                                    [ class "pv0 ph2 ma0 ttu lh-title f7"
+                                    , onClick OnSignOutClicked
+                                    ]
+                                    [ text "sign out" ]
+                                ]
+                            )
+
+                    SignedOut ->
+                        text "signed out"
+                ]
+            ]
+        )
 
 
 viewProblems : List Problem -> Html Msg
