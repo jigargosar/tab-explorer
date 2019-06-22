@@ -528,7 +528,7 @@ view model =
         [ div [ class "measure-wide center b mb3" ] [ text "TabExplorer c19" ]
         , viewProblems model.problems
         , viewOpenTabs model.openTabs
-        , viewSessions model.zone
+        , viewSessionList model.zone
             model.showDeleted
             (getDisplaySessions model.showDeleted model.sessions)
         ]
@@ -580,8 +580,8 @@ viewOpenTabItem tab =
         ]
 
 
-viewSessions : Time.Zone -> Bool -> List Session -> Html Msg
-viewSessions zone shouldShowDeleted sessions =
+viewSessionList : Time.Zone -> Bool -> List Session -> Html Msg
+viewSessionList zone shouldShowDeleted sessions =
     div [ class "measure-wide center" ]
         [ div [ class "mv3 flex" ]
             (sph
