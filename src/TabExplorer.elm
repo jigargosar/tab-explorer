@@ -223,6 +223,7 @@ type alias Model =
     { openTabs : List Tab
     , sessions : List Session
     , showDeleted : Bool
+    , auth : AuthUserState
     , problems : List Problem
     , zone : Time.Zone
     , seed : Seed
@@ -234,6 +235,7 @@ init flags =
     { openTabs = []
     , sessions = []
     , showDeleted = False
+    , auth = Unknown
     , problems = []
     , zone = Time.utc
     , seed = Random.initialSeed flags.now
