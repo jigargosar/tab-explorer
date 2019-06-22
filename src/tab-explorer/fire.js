@@ -36,6 +36,10 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig)
 
+export function onAuthStateChanged(cb) {
+  return firebase.auth().onAuthStateChanged(cb)
+}
+
 export function useAuth() {
   return useAuthState(firebase.auth())
 }

@@ -6,6 +6,7 @@ import { loadCachedState } from './tab-explorer/hooks'
 import values from 'ramda/es/values'
 import PouchDB from 'pouchdb-browser'
 import isNil from 'ramda/es/isNil'
+import { onAuthStateChanged } from './tab-explorer/fire'
 
 const oldCachedSessionList = values(loadCachedState().sessions)
 
@@ -71,6 +72,11 @@ function boot(app) {
     console.log('res', res)
     app.ports.onPersistSessionListResponse.send(res)
   })
+
+  onAuthStateChanged(user => {
+    app.ports.onFireAuthStateChanged(user)
+  })
+
   db.allDocs({ include_docs: true, update_seq: true }).then(res => {
     console.log('allDocs res', res)
     const docs = res.rows.map(row => row.doc)
