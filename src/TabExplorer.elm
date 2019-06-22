@@ -45,6 +45,9 @@ port onFireAuthStateChanged : (Value -> msg) -> Sub msg
 port signOut : () -> Cmd msg
 
 
+port signIn : () -> Cmd msg
+
+
 
 -- TAB MODEL
 
@@ -331,6 +334,7 @@ type Msg
     | OnShouldShowDeletedChecked Bool
     | OnAuthChanged Value
     | OnSignOutClicked
+    | OnSignInClicked
 
 
 
@@ -362,6 +366,9 @@ update message model =
 
         OnAuthChanged encodedAuth ->
             decodeAndUpdateAuth encodedAuth model
+
+        OnSignInClicked ->
+            model |> withCmd (signIn ())
 
         OnSignOutClicked ->
             model |> withCmd (signOut ())
@@ -611,8 +618,7 @@ viewHeader auth =
                     SignedIn user ->
                         div [ class "flex items-center" ]
                             (sph
-                                [ text "signed in: "
-                                , text user.displayName
+                                [ text user.displayName
                                 , button
                                     [ class "pv0 ph2 ma0 ttu lh-title f7"
                                     , onClick OnSignOutClicked
@@ -622,7 +628,11 @@ viewHeader auth =
                             )
 
                     SignedOut ->
-                        text "signed out"
+                        button
+                            [ class "pv0 ph2 ma0 ttu lh-title f7"
+                            , onClick OnSignInClicked
+                            ]
+                            [ text "sign in" ]
                 ]
             ]
         )

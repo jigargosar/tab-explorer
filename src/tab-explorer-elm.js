@@ -82,6 +82,7 @@ function boot(app) {
   })
 
   sub('signOut')(signOut)
+  sub('signIn')(signIn)
 
   onAuthStateChanged(user => {
     send('onFireAuthStateChanged')(user)
