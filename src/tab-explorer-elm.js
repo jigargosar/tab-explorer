@@ -61,6 +61,14 @@ function boot(app) {
     }
     port.subscribe(fn)
   }
+  const send = name => payload => {
+    const port = app.ports[name]
+    if (isNil(port)) {
+      console.error(`cmd port not found ${name}`)
+      return
+    }
+    port.send(payload)
+  }
   app.ports.createTab.subscribe(({ url, active }) => {
     chrome.tabs.create({ url, active })
   })
@@ -74,7 +82,7 @@ function boot(app) {
   })
 
   onAuthStateChanged(user => {
-    app.ports.onFireAuthStateChanged(user)
+    send('onFireAuthStateChanged')(user)
   })
 
   db.allDocs({ include_docs: true, update_seq: true }).then(res => {
