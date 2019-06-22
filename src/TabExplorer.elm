@@ -306,6 +306,7 @@ type Msg
     | ModifySessionWithNow String ModifySessionMsg Posix
     | DeleteSessionWithNow String Posix
     | OnShouldShowDeletedChecked Bool
+    | OnFireAuthStateChanged Value
 
 
 
@@ -318,6 +319,7 @@ subscriptions model =
         [ onCurrentWindowTabsChanged OnCurrentWindowTabsChanged
         , onPouchSessionsChanged OnPouchSessionsChanged
         , onPersistSessionListResponse OnPersistSessionListResponse
+        , onFireAuthStateChanged OnFireAuthStateChanged
         ]
 
 
@@ -333,6 +335,9 @@ update message model =
 
         SetZone zone ->
             { model | zone = zone } |> withNoCmd
+
+        OnFireAuthStateChanged encodedUser ->
+            model |> withNoCmd
 
         OnShouldShowDeletedChecked isChecked ->
             { model | showDeleted = isChecked } |> withNoCmd
