@@ -39,6 +39,9 @@ port persistSessionList : Value -> Cmd msg
 port onPersistSessionListResponse : (Value -> msg) -> Sub msg
 
 
+port onFireAuthStateChanged : (Value -> msg) -> Sub msg
+
+
 
 -- TAB MODEL
 
