@@ -1,0 +1,6 @@
+- pin to top
+- archive
+- remote sync, for backup and remote access.
+  - pouch fire sync.
+  - fire to pouch, since last_modified_at
+  - pouch to fire, since last_seq.

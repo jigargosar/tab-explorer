@@ -187,6 +187,23 @@ sessionEncoder session =
 
 
 
+-- AuthUserState
+
+
+type alias User =
+    { uid : String
+    , email : String
+    , userName : String
+    }
+
+
+type AuthUserState
+    = Unknown
+    | SignedIn User
+    | SignedOut
+
+
+
 -- MODEL
 
 
