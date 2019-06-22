@@ -21,6 +21,9 @@ module.exports = {
     // 'tab-explorer': pth('src/tab-explorer.jsx'),
     'tab-explorer': pth('src/tab-explorer-elm.js'),
   },
+  output: {
+    path: path.resolve(process.cwd(), 'dist'),
+  },
   resolve: {
     extensions: ['.jsx', '.js'],
   },
@@ -52,14 +55,20 @@ module.exports = {
     ],
   },
   plugins: [
-    new CleanWebpackPlugin(),
-    new CopyPlugin([
-      {
-        from: pth('src/manifest.json'),
-        transform: cleanManifest,
-      },
-      { from: pth('src/tab-explorer.html') },
-    ]),
+    new CleanWebpackPlugin({
+      // dry: true,
+      verbose: true,
+    }),
+    new CopyPlugin(
+      [
+        {
+          from: pth('src/manifest.json'),
+          transform: cleanManifest,
+        },
+        { from: pth('src/tab-explorer.html') },
+      ],
+      { copyUnmodified: true, logLevel: 'warn' },
+    ),
   ],
   devtool: 'eval-source-map',
   // devtool: 'cheap-module-eval-source-map',
@@ -75,6 +84,7 @@ module.exports = {
     stats: 'errors-only',
     sockPort: 8080,
     disableHostCheck: true,
+    hot: true,
     overlay: {
       warnings: true,
       errors: true,
