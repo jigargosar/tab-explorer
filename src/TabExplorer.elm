@@ -656,7 +656,10 @@ viewSessionTabItem sessionId idx tab =
                 , onClick (OnDeleteSessionTabClicked sessionId idx)
                 ]
                 [ text "X" ]
-            , div [ class "pointer flex-grow-1 truncate", onClick <| OnSessionTabItemClicked tab ]
+            , div
+                [ class "pointer flex-grow-1 truncate"
+                , onClick <| OnSessionTabItemClicked tab
+                ]
                 [ div [ class "truncate" ] [ text tab.title ]
                 ]
             ]
