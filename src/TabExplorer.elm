@@ -322,6 +322,7 @@ type Msg
     | SetZone Time.Zone
     | OnCurrentWindowTabsChanged JE.Value
     | OnOpenTabItemClicked Tab
+    | OnOpenTabItemCloseClicked Tab
     | OnSessionTabItemClicked Tab
     | OnPouchSessionsChanged Value
     | OnSaveSessionClicked
@@ -380,6 +381,9 @@ update message model =
             model |> decodeAndReplaceOpenTabs encodedOpenTabs
 
         OnOpenTabItemClicked tab ->
+            model |> withCmd (activateTabCmd tab)
+
+        OnOpenTabItemCloseClicked tab ->
             model |> withCmd (activateTabCmd tab)
 
         OnSessionTabItemClicked tab ->
@@ -679,11 +683,21 @@ viewOpenTabs tabs =
 
 viewOpenTabItem : Tab -> Html Msg
 viewOpenTabItem tab =
-    div [ class "flex items-center" ]
-        [ div [ class "pointer", onClick <| OnOpenTabItemClicked tab ]
-            [ div [ class "" ] [ text tab.title ]
+    div [ class "ph2 pv1 flex items-center hide-child" ]
+        (sph
+            [ button
+                [ class "pv0 ph1 ma0 ttu lh-title f7 child"
+                , onClick (OnOpenTabItemCloseClicked tab)
+                ]
+                [ text "X" ]
+            , div
+                [ class "pointer truncate"
+                , onClick <| OnOpenTabItemClicked tab
+                ]
+                [ div [ class "truncate" ] [ text tab.title ]
+                ]
             ]
-        ]
+        )
 
 
 viewSessionList : Time.Zone -> Bool -> List Session -> Html Msg
