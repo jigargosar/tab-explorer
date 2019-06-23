@@ -75,6 +75,9 @@ function boot(app) {
   app.ports.updateTab.subscribe(([id, { active }]) => {
     chrome.tabs.update(id, { active })
   })
+  sub('removeTabs')(tabIds => {
+    chrome.tabs.remove(tabIds)
+  })
   sub('persistSessionList')(async sessionList => {
     const res = await db.bulkDocs(sessionList)
     console.log('res', res)
