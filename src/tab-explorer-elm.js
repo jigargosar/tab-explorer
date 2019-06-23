@@ -109,5 +109,3 @@ function boot(app) {
       })
   })
 }
-
-window.si = signIn
