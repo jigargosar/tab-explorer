@@ -30,6 +30,9 @@ port createTab : { url : String, active : Bool } -> Cmd msg
 port updateTab : ( Int, { active : Bool } ) -> Cmd msg
 
 
+port removeTabs : List Int -> Cmd msg
+
+
 port onPouchSessionsChanged : (JE.Value -> msg) -> Sub msg
 
 
@@ -384,7 +387,7 @@ update message model =
             model |> withCmd (activateTabCmd tab)
 
         OnOpenTabItemCloseClicked tab ->
-            model |> withCmd (activateTabCmd tab)
+            model |> withCmd (removeTabCmd tab)
 
         OnSessionTabItemClicked tab ->
             model |> withCmd (createAndActivateTabWithUrl tab.url)
@@ -527,6 +530,11 @@ updateAndPersistSessionIfChanged sessionId fn now model =
 activateTabCmd : Tab -> Cmd msg
 activateTabCmd tab =
     updateTab ( tab.id, { active = True } )
+
+
+removeTabCmd : Tab -> Cmd msg
+removeTabCmd tab =
+    removeTabs [ tab.id ]
 
 
 decodeAndUpdateAuth : Value -> Model -> ( Model, Cmd Msg )
