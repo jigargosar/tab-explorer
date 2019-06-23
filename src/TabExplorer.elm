@@ -699,7 +699,7 @@ viewOpenTabItem tab =
                 ]
                 [ text "X" ]
             , div
-                [ class "pointer truncate"
+                [ class "pointer flex-grow-1 truncate"
                 , onClick <| OnOpenTabItemClicked tab
                 ]
                 [ div [ class "truncate" ] [ text tab.title ]
