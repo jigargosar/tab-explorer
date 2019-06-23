@@ -21,8 +21,6 @@ const app = Elm.TabExplorer.init({
   },
 })
 
-boot(app)
-
 const getCurrentPopulatedWindow = () => {
   return new Promise(resolve =>
     chrome.windows.getCurrent({ populate: true }, resolve),
@@ -50,6 +48,25 @@ function sendCurrentWindowTabs(app) {
   tabEvents.forEach(event => event.addListener(listener))
 }
 
+const onPouchDocsChanged = fn => db => {
+  db.allDocs({ include_docs: true, update_seq: true }).then(res => {
+    console.log('allDocs res', res)
+    const docs = res.rows.map(row => row.doc)
+    fn(docs)
+    db.changes({
+      include_docs: true,
+      since: res.update_seq,
+      live: true,
+    })
+      .on('change', change => {
+        console.log('change', change)
+        fn([change.doc])
+      })
+      .on('error', error => {
+        console.error(error)
+      })
+  })
+}
 function boot(app) {
   const db = new PouchDB('sessions')
   sendCurrentWindowTabs(app)
@@ -91,21 +108,9 @@ function boot(app) {
     send('onFireAuthStateChanged')(user)
   })
 
-  db.allDocs({ include_docs: true, update_seq: true }).then(res => {
-    console.log('allDocs res', res)
-    const docs = res.rows.map(row => row.doc)
+  onPouchDocsChanged(docs => {
     app.ports.onPouchSessionsChanged.send(docs)
-    db.changes({
-      include_docs: true,
-      since: res.update_seq,
-      live: true,
-    })
-      .on('change', change => {
-        console.log('change', change)
-        app.ports.onPouchSessionsChanged.send([change.doc])
-      })
-      .on('error', error => {
-        console.error(error)
-      })
-  })
+  })(db)
 }
+
+boot(app)
