@@ -679,8 +679,10 @@ viewOpenTabs tabs =
 
 viewOpenTabItem : Tab -> Html Msg
 viewOpenTabItem tab =
-    div [ class "pointer", onClick <| OnOpenTabItemClicked tab ]
-        [ div [ class "pv1 ph2" ] [ text tab.title ]
+    div [ class "flex items-center" ]
+        [ div [ class "pointer", onClick <| OnOpenTabItemClicked tab ]
+            [ div [ class "" ] [ text tab.title ]
+            ]
         ]
 
 
