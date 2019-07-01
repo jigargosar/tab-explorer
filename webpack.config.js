@@ -57,7 +57,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin({
       // dry: true,
-      verbose: true,
+      // verbose: true,
     }),
     new CopyPlugin(
       [
@@ -80,9 +80,10 @@ module.exports = {
     //   const isHotUpdatePath = parsedPath.name.includes('hot-update')
     //   return !isHotUpdatePath
     // },
+    port: 8070,
     writeToDisk: true,
     stats: 'errors-only',
-    sockPort: 8080,
+    sockPort: 8070,
     disableHostCheck: true,
     hot: true,
     overlay: {
