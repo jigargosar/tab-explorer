@@ -5,14 +5,13 @@ import Browser
 import Compare
 import DateFormat as DF
 import Dict exposing (Dict)
-import Html exposing (..)
-import Html.Attributes exposing (checked, class, disabled, type_)
+import Html exposing (Html, button, div, input, label, text)
+import Html.Attributes exposing (checked, class, type_)
 import Html.Events exposing (onCheck, onClick)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline exposing (custom, optional, required)
 import Json.Encode as JE exposing (Value)
 import Random exposing (Generator, Seed)
-import Random.Char
 import Task
 import Time exposing (Posix)
 
@@ -28,6 +27,7 @@ port createTab : { url : String, active : Bool } -> Cmd msg
 
 
 port updateTab : ( Int, { active : Bool } ) -> Cmd msg
+
 
 
 port removeTabs : List Int -> Cmd msg
@@ -238,7 +238,9 @@ type alias Flags =
 
 
 type alias Problem =
-    { msg : String, details : String }
+    { msg : String
+    , details : String
+    }
 
 
 type alias Model =
@@ -606,7 +608,7 @@ getDisplaySessions shouldShowDeleted sessions =
         |> List.sortWith (Compare.by .createdAt |> Compare.reverse)
 
 
-view : Model -> Html Msg
+view : Model -> Html.Html Msg
 view model =
     div [ class "pa3 lh-copy" ]
         [ viewHeader model.auth
