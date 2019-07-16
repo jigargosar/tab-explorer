@@ -156,6 +156,7 @@ function boot(app) {
               }
             } catch (e) {
               console.error('fire2pouch: db.get pouchDoc', e)
+              throw e
             }
           })
         },
