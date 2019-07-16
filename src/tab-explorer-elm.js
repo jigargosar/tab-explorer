@@ -13,6 +13,9 @@ import {
   onSessionDocsChangedSince,
 } from './tab-explorer/fire'
 import identity from 'ramda/es/identity'
+import { getCache } from './tab-explorer/basics'
+import defaultTo from 'ramda/es/defaultTo'
+import compose from 'ramda/es/compose'
 
 const oldCachedSessionList = values(loadCachedState().sessions)
 
@@ -123,7 +126,19 @@ function boot(app) {
     send('onFireAuthStateChanged')(user)
     disposeFireSessionsListener()
     if (user) {
-      fireSessionsDisposer = onSessionDocsChangedSince(user, 0, docs => {})
+      const fireSessionsSyncedTill = compose(
+        JSON.parse,
+        defaultTo('0'),
+        getCache,
+      )('fireSessionsSyncedTill')
+
+      console.log('fireSessionsSyncedTill', fireSessionsSyncedTill)
+
+      fireSessionsDisposer = onSessionDocsChangedSince(
+        user,
+        fireSessionsSyncedTill,
+        docs => {},
+      )
     }
   })
 
