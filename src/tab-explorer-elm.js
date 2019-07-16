@@ -10,7 +10,7 @@ import {
   onAuthStateChanged,
   signIn,
   signOut,
-  onSessionDocsChanged,
+  onSessionDocsChangedSince,
 } from './tab-explorer/fire'
 import identity from 'ramda/es/identity'
 
@@ -110,8 +110,8 @@ function boot(app) {
   let fireSessionsDisposer = identity
 
   function disposeFireSessionsListener() {
-    fireSessionsUnsub()
-    fireSessionsUnsub = identity
+    fireSessionsDisposer()
+    fireSessionsDisposer = identity
   }
   sub('signOut')(() => {
     disposeFireSessionsListener()
@@ -123,7 +123,7 @@ function boot(app) {
     send('onFireAuthStateChanged')(user)
     disposeFireSessionsListener()
     if (user) {
-      fireSessionsDisposer = onSessionDocsChanged(user, docs => {})
+      fireSessionsDisposer = onSessionDocsChangedSince(user, 0, docs => {})
     }
   })
 
