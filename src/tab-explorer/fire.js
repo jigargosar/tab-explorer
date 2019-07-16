@@ -73,6 +73,22 @@ function useUpdateSessionStoreOnFirebaseChangesEffect(user, actions) {
   }, [user])
 }
 
+export function onSessionDocsChanged(user, cb) {
+  const sessionsCRef = getSessionsCRef(user)
+  const disposer = sessionsCRef.onSnapshot(qs => {
+    const sessionChanges = qs.docChanges({})
+    console.log(
+      'fire query: Session Changes',
+      sessionChanges.length,
+      sessionChanges,
+    )
+    // const fireAllSessions = qs.docs.map(ds => ds.data())
+    const fireChangedSessions = sessionChanges.map(snap => snap.doc.data())
+    cb(fireChangedSessions)
+  }, console.error)
+  return disposer
+}
+
 function useSendSessionChangesToFirebaseEffect(user, sessionStore) {
   const prevSessionStore = usePrevious(sessionStore)
 

@@ -29,11 +29,13 @@ port createTab : { url : String, active : Bool } -> Cmd msg
 port updateTab : ( Int, { active : Bool } ) -> Cmd msg
 
 
-
 port removeTabs : List Int -> Cmd msg
 
 
 port onPouchSessionsChanged : (JE.Value -> msg) -> Sub msg
+
+
+port onFireSessionsChanged : (JE.Value -> msg) -> Sub msg
 
 
 port persistSessionList : Value -> Cmd msg
@@ -330,6 +332,7 @@ type Msg
     | OnOpenTabItemCloseClicked Tab
     | OnSessionTabItemClicked Tab
     | OnPouchSessionsChanged Value
+    | OnFireSessionsChanged Value
     | OnSaveSessionClicked
     | SaveSessionWithNow Posix
     | OnPersistSessionListResponse Value
@@ -352,6 +355,7 @@ subscriptions model =
     Sub.batch
         [ onCurrentWindowTabsChanged OnCurrentWindowTabsChanged
         , onPouchSessionsChanged OnPouchSessionsChanged
+        , onFireSessionsChanged OnFireSessionsChanged
         , onPersistSessionListResponse OnPersistSessionListResponse
         , onFireAuthStateChanged OnAuthChanged
         ]
@@ -395,6 +399,9 @@ update message model =
             model |> withCmd (createAndActivateTabWithUrl tab.url)
 
         OnPouchSessionsChanged encodedChanges ->
+            decodeAndUpdateSessions encodedChanges model
+
+        OnFireSessionsChanged encodedChanges ->
             decodeAndUpdateSessions encodedChanges model
 
         OnSaveSessionClicked ->
