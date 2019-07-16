@@ -16,6 +16,8 @@ import identity from 'ramda/es/identity'
 import { getCache } from './tab-explorer/basics'
 import defaultTo from 'ramda/es/defaultTo'
 import compose from 'ramda/es/compose'
+import omit from 'ramda/es/omit'
+import mergeLeft from 'ramda/es/mergeLeft'
 
 const oldCachedSessionList = values(loadCachedState().sessions)
 
@@ -139,8 +141,21 @@ function boot(app) {
         fireSessionsSyncedTill,
         docs => {
           docs.forEach(async doc => {
-            const res = await db.get(doc.id)
-            console.log('fire2pouch: db.get res', res)
+            try {
+              const pouchDoc = await db.get(doc.id)
+              console.debug('fire2pouch: db.get pouchDoc', pouchDoc)
+              if (doc.modifiedAt > pouchDoc.modifiedAt) {
+                const cleanFireDoc = omit(['id', '_id', '_rev'])(doc)
+                const mergedDoc = mergeLeft(cleanFireDoc, pouchDoc)
+                console.log(
+                  'f2p: newer fire doc found, merging',
+                  mergedDoc,
+                )
+                await db.put(mergedDoc)
+              }
+            } catch (e) {
+              console.error('fire2pouch: db.get pouchDoc', e)
+            }
           })
         },
       )
