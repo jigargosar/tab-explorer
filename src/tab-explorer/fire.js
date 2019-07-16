@@ -12,7 +12,6 @@ import equals from 'ramda/es/equals'
 import { usePrevious } from './use-prev-hook'
 import { mergeModel } from './basics'
 import keys from 'ramda/es/keys'
-import kefir from 'kefir'
 
 export const signIn = () => {
   const auth = firebase.auth()
@@ -160,8 +159,3 @@ function getSessionsCRef(user) {
   const db = firebase.firestore()
   return db.collection(`users/${user.uid}/tab-ex-sessions`)
 }
-
-export const auth$ = kefir.stream(em => {
-  const unsub = firebase.auth().onAuthStateChange(em.value)
-  return unsub
-})
