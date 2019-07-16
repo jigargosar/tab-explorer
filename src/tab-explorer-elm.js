@@ -107,10 +107,15 @@ function boot(app) {
     app.ports.onPersistSessionListResponse.send(res)
   })
 
-  sub('signOut')(signOut)
+  let fireSessionsUnsub = identity
+
+  sub('signOut')(() => {
+    fireSessionsUnsub()
+    fireSessionsUnsub = identity
+    signOut()
+  })
   sub('signIn')(signIn)
 
-  let fireSessionsUnsub = identity
   onAuthStateChanged(user => {
     send('onFireAuthStateChanged')(user)
     fireSessionsUnsub()
