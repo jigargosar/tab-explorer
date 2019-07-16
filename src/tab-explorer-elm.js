@@ -143,6 +143,7 @@ function boot(app) {
           docs.forEach(async doc => {
             try {
               const pouchDoc = await db.get(doc.id)
+
               console.debug('fire2pouch: db.get pouchDoc', pouchDoc)
               if (doc.modifiedAt > pouchDoc.modifiedAt) {
                 const cleanFireDoc = omit(['id', '_id', '_rev'])(doc)
