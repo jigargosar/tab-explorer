@@ -13,11 +13,14 @@ import {
   onSessionDocsChangedSince,
 } from './tab-explorer/fire'
 import identity from 'ramda/es/identity'
-import { getCache } from './tab-explorer/basics'
+import { getCache, setCache } from './tab-explorer/basics'
 import defaultTo from 'ramda/es/defaultTo'
 import compose from 'ramda/es/compose'
 import omit from 'ramda/es/omit'
 import mergeLeft from 'ramda/es/mergeLeft'
+import maxBy from 'ramda/es/maxBy'
+import prop from 'ramda/es/prop'
+import reduce from 'ramda/es/reduce'
 
 const oldCachedSessionList = values(loadCachedState().sessions)
 
@@ -128,19 +131,20 @@ function boot(app) {
     send('onFireAuthStateChanged')(user)
     disposeFireSessionsListener()
     if (user) {
+      const fireSessionsSyncedTillKey = 'fireSessionsSyncedTill'
       const fireSessionsSyncedTill = compose(
-        JSON.parse,
-        defaultTo('0'),
+        defaultTo(0),
+        parseInt,
         getCache,
-      )('fireSessionsSyncedTill')
+      )(fireSessionsSyncedTillKey)
 
       console.log('fireSessionsSyncedTill', fireSessionsSyncedTill)
 
       fireSessionsDisposer = onSessionDocsChangedSince(
         user,
         fireSessionsSyncedTill,
-        docs => {
-          docs.forEach(async doc => {
+        async docs => {
+          const ps = docs.map(async doc => {
             try {
               const pouchDoc = await db.get(doc.id)
 
@@ -159,6 +163,10 @@ function boot(app) {
               throw e
             }
           })
+
+          await Promise.all(ps)
+          const newSyncSince = Math.max(...docs.map(d => d.modifiedAt))
+          setCache(fireSessionsSyncedTillKey)(JSON.stringify(newSyncSince))
         },
       )
     }
