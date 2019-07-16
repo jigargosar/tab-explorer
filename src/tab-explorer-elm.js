@@ -137,7 +137,12 @@ function boot(app) {
       fireSessionsDisposer = onSessionDocsChangedSince(
         user,
         fireSessionsSyncedTill,
-        docs => {},
+        docs => {
+          docs.forEach(async doc => {
+            const res = await db.get(doc.id)
+            console.log('fire2pouch: db.get res', res)
+          })
+        },
       )
     }
   })
