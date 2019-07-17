@@ -4,7 +4,6 @@ import { mergeModel } from './basics'
 import { mapProp, toggleProp, pipe } from './safe-basics'
 import T from 'ramda/es/T'
 import equals from 'ramda/es/equals'
-import { reject } from 'q'
 import map from 'ramda/es/map'
 import F from 'ramda/es/F'
 import defaultTo from 'ramda/es/defaultTo'
@@ -12,6 +11,7 @@ import mergeLeft from 'ramda/es/mergeLeft'
 import identity from 'ramda/es/identity'
 import values from 'ramda/es/values'
 import difference from 'ramda/es/difference'
+import reject from 'ramda/es/reject'
 
 function sessionFromTabs(tabs) {
   const now = Date.now()
