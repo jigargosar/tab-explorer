@@ -83,6 +83,40 @@ const onPouchDocsChanged = fn => db => {
 }
 function boot(app) {
   const db = new PouchDB('sessions')
+
+  function syn() {
+    var sync = db
+      .sync('http://localhost:5984/tab-explorer-sessions', {
+        // live: true,
+        retry: true,
+      })
+      .on('change', function(info) {
+        // handle change
+      })
+      .on('paused', function(err) {
+        // replication paused (e.g. replication up to date, user went offline)
+      })
+      .on('active', function() {
+        // replicate resumed (e.g. new changes replicating, user went back online)
+      })
+      .on('denied', function(err) {
+        // a document failed to replicate (e.g. due to permissions)
+      })
+      .on('complete', function(info) {
+        // handle complete
+        console.log('sync on complete info=', info)
+      })
+      .on('error', function(err) {
+        // handle error
+        console.error('sync on error =', err)
+      })
+    sync
+      .then(console.log)
+      .catch(console.error)
+      .finally(() => console.log('sync completed'))
+    // sync.cancel();
+  }
+
   sendCurrentWindowTabs(app)
   const sub = name => fn => {
     const port = app.ports[name]
