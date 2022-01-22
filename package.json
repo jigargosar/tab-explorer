@@ -45,7 +45,7 @@
     "eslint-plugin-react": "^7.14.2",
     "firebase": "^6.3.0",
     "kefir": "^3.8.6",
-    "nanoid": "^2.0.3",
+    "nanoid": "^3.1.31",
     "nodemon": "^1.19.0",
     "pouchdb-browser": "^7.0.0",
     "ramda": "^0.26.1",
